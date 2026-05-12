@@ -1,0 +1,67 @@
+---
+import Logo from './ui/Logo.astro';
+
+const year = new Date().getFullYear();
+
+const navLinks = [
+  ['Nosotros',  '/nosotros'],
+  ['Equipo',    '/equipo'],
+  ['Servicios', '/servicios'],
+  ['Artículos', '/articulos'],
+  ['Descargas', '/descargas'],
+  ['Contacto',  '/contacto'],
+] as const;
+---
+
+<footer class="border-t border-dust-grey bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+      <!-- Marca -->
+      <div>
+        <Logo />
+        <p class="mt-4 text-sm text-ink/70 leading-relaxed max-w-xs">
+          Consultoría de Excelencia Organizacional. Transformamos organizaciones con propósito y método.
+        </p>
+      </div>
+
+      <!-- Navegación -->
+      <div>
+        <h3 class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
+          Navegación
+        </h3>
+        <ul class="space-y-2">
+          {navLinks.map(([label, href]) => (
+            <li>
+              <a
+                href={href}
+                class="text-sm text-ink hover:text-black-forest transition-colors duration-150"
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Contacto -->
+      <div>
+        <h3 class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
+          Contacto
+        </h3>
+        <a
+          href="mailto:hola@telos.com"
+          class="text-sm text-ink hover:text-black-forest transition-colors duration-150"
+        >
+          hola@telos.com
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-dust-grey flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p class="font-mono text-xs text-ash-grey">
+        &copy; {year} Telos Consultoría. Todos los derechos reservados.
+      </p>
+    </div>
+  </div>
+</footer>

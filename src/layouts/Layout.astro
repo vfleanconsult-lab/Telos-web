@@ -1,0 +1,61 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title:       string;
+  description?: string;
+  canonical?:  string;
+  ogImage?:    string;
+}
+
+const {
+  title,
+  description = 'Telos es una consultoría de Excelencia Organizacional que acompaña a líderes y equipos a alcanzar resultados sostenibles.',
+  canonical   = Astro.url.href,
+  ogImage     = '/og-default.png',
+} = Astro.props;
+
+const siteName  = 'Telos Consultoría';
+const fullTitle = `${title} | ${siteName}`;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content={canonical} />
+    <meta property="og:title"       content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image"       content={ogImage} />
+    <meta property="og:site_name"   content={siteName} />
+    <meta property="og:locale"      content="es_ES" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:url"         content={canonical} />
+    <meta name="twitter:title"       content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image"       content={ogImage} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="font-sans text-ink bg-white antialiased">
+    <slot />
+  </body>
+</html>

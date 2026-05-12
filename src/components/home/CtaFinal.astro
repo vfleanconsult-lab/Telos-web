@@ -1,0 +1,40 @@
+---
+interface Props {
+  eyebrow:     string;
+  h2:          string;
+  paragraph:   string;
+  buttonLabel: string;
+  buttonHref:  string;
+  bgImage?:    string;
+}
+
+const { eyebrow, h2, paragraph, buttonLabel, buttonHref, bgImage } = Astro.props;
+---
+
+<section
+  class="py-24 bg-black-forest relative overflow-hidden"
+  style={bgImage ? `background-image: url('${bgImage}'); background-size: cover; background-position: center;` : undefined}
+>
+  <!-- Overlay oscuro cuando hay imagen de fondo -->
+  {bgImage && (
+    <div class="absolute inset-0 bg-black-forest/80" aria-hidden="true"></div>
+  )}
+
+  <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+    <p class="font-mono text-xs uppercase tracking-widest text-white/60 mb-5">
+      {eyebrow}
+    </p>
+    <h2 class="font-sans text-3xl sm:text-4xl font-bold mb-6">
+      {h2}
+    </h2>
+    <p class="text-white/80 text-lg leading-relaxed mb-10 max-w-xl mx-auto">
+      {paragraph}
+    </p>
+    <a
+      href={buttonHref}
+      class="inline-flex items-center justify-center border border-white text-white font-sans font-medium text-sm px-8 py-4 hover:bg-white hover:text-black-forest transition-colors duration-200"
+    >
+      {buttonLabel}
+    </a>
+  </div>
+</section>

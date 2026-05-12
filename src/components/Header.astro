@@ -1,0 +1,92 @@
+---
+import Logo from './ui/Logo.astro';
+
+const navItems = [
+  { href: '/nosotros',  label: 'Nosotros'  },
+  { href: '/equipo',    label: 'Equipo'    },
+  { href: '/servicios', label: 'Servicios' },
+  { href: '/articulos', label: 'Artículos' },
+  { href: '/descargas', label: 'Descargas' },
+];
+---
+
+<header class="sticky top-0 z-50 bg-white border-b border-dust-grey">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <Logo />
+
+      <!-- Navegación desktop -->
+      <nav class="hidden md:flex items-center gap-8" aria-label="Navegación principal">
+        {navItems.map(item => (
+          <a
+            href={item.href}
+            class="font-sans text-sm text-ink hover:text-black-forest transition-colors duration-150"
+          >
+            {item.label}
+          </a>
+        ))}
+        <a
+          href="/contacto"
+          class="bg-black-forest text-white font-sans text-sm px-4 py-2 hover:bg-opacity-90 transition-colors duration-150"
+        >
+          Contacto
+        </a>
+      </nav>
+
+      <!-- Botón hamburguesa mobile -->
+      <button
+        id="menu-toggle"
+        type="button"
+        class="md:hidden p-2 text-ink"
+        aria-label="Abrir menú de navegación"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <svg id="icon-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <svg id="icon-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="hidden">
+          <line x1="18" y1="6"  x2="6" y2="18"/>
+          <line x1="6"  y1="6"  x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Menú mobile -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-dust-grey bg-white" role="navigation" aria-label="Navegación mobile">
+    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-4">
+      {navItems.map(item => (
+        <a
+          href={item.href}
+          class="font-sans text-sm text-ink hover:text-black-forest transition-colors duration-150"
+        >
+          {item.label}
+        </a>
+      ))}
+      <a
+        href="/contacto"
+        class="bg-black-forest text-white font-sans text-sm px-4 py-3 text-center"
+      >
+        Contacto
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle   = document.getElementById('menu-toggle');
+  const menu     = document.getElementById('mobile-menu');
+  const iconOpen  = document.getElementById('icon-open');
+  const iconClose = document.getElementById('icon-close');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = !menu?.classList.contains('hidden');
+    menu?.classList.toggle('hidden', isOpen);
+    iconOpen?.classList.toggle('hidden', !isOpen);
+    iconClose?.classList.toggle('hidden', isOpen);
+    toggle.setAttribute('aria-expanded', String(!isOpen));
+  });
+</script>
