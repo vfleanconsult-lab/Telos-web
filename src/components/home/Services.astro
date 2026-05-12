@@ -1,0 +1,76 @@
+---
+interface ServiceItem {
+  number:      string;
+  title:       string;
+  description: string;
+  href:        string;
+}
+
+interface Props {
+  eyebrow: string;
+  h2:      string;
+  items:   ServiceItem[];
+}
+
+const { eyebrow, h2, items } = Astro.props;
+---
+
+<section class="py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Cabecera de sección -->
+    <div class="text-center mb-16">
+      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
+        {eyebrow}
+      </p>
+      <h2 class="font-sans text-3xl sm:text-4xl font-bold text-black-forest">
+        {h2}
+      </h2>
+    </div>
+
+    <!-- Grid de cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {items.map(item => (
+        <div class="group border border-dust-grey p-8 hover:border-ash-grey transition-colors duration-200 flex flex-col">
+
+          <!-- Ícono placeholder 48×48 -->
+          <div
+            class="w-12 h-12 border border-dust-grey group-hover:border-ash-grey transition-colors duration-200 mb-6 flex items-center justify-center shrink-0"
+            aria-hidden="true"
+          >
+            <div class="w-5 h-5 bg-ash-grey/25"></div>
+          </div>
+
+          <!-- Eyebrow número -->
+          <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-3">
+            {item.number}
+          </p>
+
+          <!-- Título -->
+          <h3 class="font-sans text-xl font-bold text-black-forest mb-3">
+            {item.title}
+          </h3>
+
+          <!-- Descripción -->
+          <p class="text-sm text-ink/70 leading-relaxed mb-8 flex-1">
+            {item.description}
+          </p>
+
+          <!-- CTA flecha -->
+          <a
+            href={item.href}
+            class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-black-forest group-hover:gap-3 transition-all duration-200 mt-auto"
+            aria-label={`Ver más sobre ${item.title}`}
+          >
+            Ver más
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <line x1="2" y1="8" x2="14" y2="8"/>
+              <polyline points="9 3 14 8 9 13"/>
+            </svg>
+          </a>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>

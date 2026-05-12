@@ -1,0 +1,69 @@
+---
+interface Props {
+  eyebrow:   string;
+  h1:        string;
+  subtitle:  string;
+  cta1Label: string;
+  cta1Href:  string;
+  cta2Label: string;
+  cta2Href:  string;
+}
+
+const {
+  eyebrow, h1, subtitle,
+  cta1Label, cta1Href,
+  cta2Label, cta2Href,
+} = Astro.props;
+---
+
+<section class="py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+      <!-- Columna de texto -->
+      <div>
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
+          {eyebrow}
+        </p>
+        <h1 class="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold text-black-forest leading-tight mb-6">
+          {h1}
+        </h1>
+        <p class="text-lg text-ink/80 leading-relaxed mb-10 max-w-lg">
+          {subtitle}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a
+            href={cta1Href}
+            class="inline-flex items-center justify-center bg-black-forest text-white font-sans font-medium text-sm px-6 py-3 hover:bg-opacity-90 transition-colors duration-150"
+          >
+            {cta1Label}
+          </a>
+          <a
+            href={cta2Href}
+            class="inline-flex items-center justify-center border border-black-forest text-black-forest font-sans font-medium text-sm px-6 py-3 hover:bg-dust-grey transition-colors duration-150"
+          >
+            {cta2Label}
+          </a>
+        </div>
+      </div>
+
+      <!-- Columna imagen — placeholder aspect-[4/3] -->
+      <div class="relative aspect-[4/3] bg-dust-grey flex items-center justify-center">
+        <div class="text-center px-8">
+          <!-- Ícono imagen placeholder -->
+          <div class="w-14 h-14 border border-ash-grey mx-auto mb-4 flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
+              <rect x="1" y="1" width="20" height="20" rx="1"/>
+              <circle cx="7" cy="7" r="2"/>
+              <polyline points="21 15 15 9 5 21"/>
+            </svg>
+          </div>
+          <p class="font-mono text-xs text-ash-grey uppercase tracking-wider leading-relaxed">
+            Editar: home.md<br/>→ hero.image
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
