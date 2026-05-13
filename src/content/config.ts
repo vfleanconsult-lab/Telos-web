@@ -82,6 +82,34 @@ const siteCollection = defineCollection({
       href:        z.string(),
     }).optional(),
 
+    // ── cfo.md ───────────────────────────────────────────────
+    cfoHero: z.object({
+      eyebrow: z.string(),
+      h1:      z.string(),
+    }).optional(),
+
+    cfoProblema: z.object({
+      titulo:  z.string(),
+      bullets: z.array(z.string()),
+      cierre:  z.string(),
+    }).optional(),
+
+    cfoSolucion: z.object({
+      titulo: z.string(),
+      p1:     z.string(),
+    }).optional(),
+
+    cfoEntregables: z.object({
+      titulo: z.string(),
+      items:  z.array(z.string()),
+    }).optional(),
+
+    cfoCierre: z.object({
+      frase: z.string(),
+      boton: z.string(),
+      href:  z.string(),
+    }).optional(),
+
     // ── equipo.md ────────────────────────────────────────────
     nombre:       z.string().optional(),
     rol:          z.string().optional(),
