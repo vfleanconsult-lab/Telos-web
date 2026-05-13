@@ -1,25 +1,91 @@
 ---
-// Esta página contendrá: historia de la firma, misión/visión/valores,
-// propuesta diferenciadora y línea de tiempo de hitos relevantes.
-import Layout  from '../layouts/Layout.astro';
-import Header  from '../components/Header.astro';
-import Footer  from '../components/Footer.astro';
+// Página Nosotros — Propósito, Visión y Misión de Telos Consultoría.
+// Los textos vienen de src/content/site/nosotros.md
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('site', 'nosotros');
+const { proposito, vision, mision } = entry!.data;
 ---
 
-<Layout title="Nosotros" description="Conoce la historia, misión y valores de Telos Consultoría.">
+<Layout
+  title="Nosotros"
+  description={proposito}
+>
   <Header />
-  <main class="min-h-screen flex items-center justify-center px-4">
-    <div class="text-center max-w-lg">
-      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
-        Próximamente
-      </p>
-      <h1 class="font-sans text-4xl sm:text-5xl font-bold text-black-forest mb-4">
-        Nosotros
-      </h1>
-      <p class="text-ink/60 text-sm">
-        Historia, misión, visión y valores de Telos Consultoría.
-      </p>
-    </div>
+  <main>
+
+    <!-- ── Hero de página ──────────────────────────────────── -->
+    <section class="py-20 border-b border-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
+          Quiénes somos
+        </p>
+        <h1 class="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold text-black-forest max-w-3xl leading-tight">
+          Transformamos organizaciones con propósito y método
+        </h1>
+      </div>
+    </section>
+
+    <!-- ── Propósito — fondo oscuro, máximo impacto ────────── -->
+    <section class="py-24 bg-black-forest">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+        <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">
+          Nuestro propósito
+        </p>
+        <!-- Tratado como cita para énfasis semántico -->
+        <blockquote class="font-sans text-2xl sm:text-3xl font-medium leading-relaxed text-white/95">
+          {proposito}
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- ── Visión + Misión — grid 2 columnas ───────────────── -->
+    <section class="py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 border border-dust-grey">
+
+          <!-- Visión -->
+          <div class="p-10 md:p-16 border-b md:border-b-0 md:border-r border-dust-grey">
+            <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
+              Visión
+            </p>
+            <p class="font-sans text-xl font-semibold text-black-forest leading-relaxed">
+              {vision}
+            </p>
+          </div>
+
+          <!-- Misión -->
+          <div class="p-10 md:p-16">
+            <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
+              Misión
+            </p>
+            <p class="font-sans text-xl text-ink/80 leading-relaxed">
+              {mision}
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA hacia contacto ───────────────────────────────── -->
+    <section class="py-16 border-t border-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <p class="font-sans text-lg text-ink/80">
+          ¿Quieres saber si podemos ayudar a tu organización?
+        </p>
+        <a
+          href="/contacto"
+          class="shrink-0 bg-black-forest text-white font-sans font-medium text-sm px-6 py-3 hover:bg-opacity-90 transition-colors duration-150"
+        >
+          Agenda una conversación
+        </a>
+      </div>
+    </section>
+
   </main>
   <Footer />
 </Layout>

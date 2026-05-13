@@ -1,0 +1,61 @@
+---
+// Sección "Cómo trabajamos" — los 4 pasos del proceso de consultoría.
+// Usa gap-px + bg sobre el grid para crear separadores delgados
+// sin necesidad de bordes individuales por celda.
+
+interface Paso {
+  numero:      string;
+  titulo:      string;
+  descripcion: string;
+}
+
+interface Props {
+  h2:    string;
+  pasos: Paso[];
+}
+
+const { h2, pasos } = Astro.props;
+---
+
+<section class="py-20 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Cabecera centrada -->
+    <div class="text-center mb-16">
+      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
+        Nuestra metodología
+      </p>
+      <h2 class="font-sans text-3xl sm:text-4xl font-bold text-black-forest">
+        {h2}
+      </h2>
+    </div>
+
+    <!-- Grid de pasos — gap-px sobre fondo ash-grey crea separadores finos -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-ash-grey/30">
+      {pasos.map(paso => (
+        <div class="bg-white p-8 lg:p-10 flex flex-col">
+
+          <!-- Número grande en mono — color tenue para no competir con el título -->
+          <span class="font-mono text-5xl font-light text-ash-grey/60 leading-none mb-6">
+            {paso.numero}
+          </span>
+
+          <!-- Separador corto horizontal -->
+          <div class="w-8 h-px bg-ash-grey mb-5"></div>
+
+          <!-- Título del paso -->
+          <h3 class="font-sans text-lg font-bold text-black-forest mb-3">
+            {paso.titulo}
+          </h3>
+
+          <!-- Descripción -->
+          <p class="text-sm text-ink/70 leading-relaxed">
+            {paso.descripcion}
+          </p>
+
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>

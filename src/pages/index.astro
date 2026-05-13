@@ -1,27 +1,31 @@
 ---
-import Layout    from '../layouts/Layout.astro';
-import Header    from '../components/Header.astro';
-import Footer    from '../components/Footer.astro';
-import Hero      from '../components/home/Hero.astro';
-import Stats     from '../components/home/Stats.astro';
-import Services  from '../components/home/Services.astro';
-import CtaFinal  from '../components/home/CtaFinal.astro';
+import Layout   from '../layouts/Layout.astro';
+import Header   from '../components/Header.astro';
+import Footer   from '../components/Footer.astro';
+import Hero     from '../components/home/Hero.astro';
+import Voc      from '../components/home/Voc.astro';
+import Proceso  from '../components/home/Proceso.astro';
+import Services from '../components/home/Services.astro';
+import CtaFinal from '../components/home/CtaFinal.astro';
 import { getEntry } from 'astro:content';
 
 const homeEntry = await getEntry('site', 'home');
-const { hero, stats, services, ctaFinal } = homeEntry!.data;
+// Los campos son opcionales en el schema porque la colección "site"
+// alberga múltiples páginas; en home.md todos están presentes.
+const { hero, voc, proceso, services, ctaFinal } = homeEntry!.data;
 ---
 
 <Layout
   title="Inicio"
-  description={hero.subtitle}
+  description={hero!.subtitle}
 >
   <Header />
   <main>
-    <Hero      {...hero} />
-    <Stats     stats={stats} />
-    <Services  {...services} />
-    <CtaFinal  {...ctaFinal} />
+    <Hero     {...hero!} />
+    <Voc      {...voc!} />
+    <Proceso  {...proceso!} />
+    <Services {...services!} />
+    <CtaFinal {...ctaFinal!} />
   </main>
   <Footer />
 </Layout>
