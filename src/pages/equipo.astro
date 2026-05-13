@@ -1,25 +1,112 @@
 ---
-// Esta página contendrá: perfiles de los socios y consultores del equipo,
-// fotos, áreas de especialización y trayectoria profesional.
-import Layout  from '../layouts/Layout.astro';
-import Header  from '../components/Header.astro';
-import Footer  from '../components/Footer.astro';
+// Página Equipo — perfil de Víctor Figueroa, fundador de Telos.
+// Textos y foto vienen de src/content/site/equipo.md
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getEntry } from 'astro:content';
+
+const entry  = await getEntry('site', 'equipo');
+const { nombre, rol, tagline, foto, bio, credenciales } = entry!.data;
 ---
 
-<Layout title="Equipo" description="Conoce al equipo de consultores de Telos.">
+<Layout
+  title="Equipo"
+  description={`${nombre} — ${tagline}`}
+>
   <Header />
-  <main class="min-h-screen flex items-center justify-center px-4">
-    <div class="text-center max-w-lg">
-      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
-        Próximamente
-      </p>
-      <h1 class="font-sans text-4xl sm:text-5xl font-bold text-black-forest mb-4">
-        Equipo
-      </h1>
-      <p class="text-ink/60 text-sm">
-        Perfiles, especialidades y trayectoria de nuestros consultores.
-      </p>
-    </div>
+  <main>
+
+    <!-- ── Hero: foto + nombre + tagline ─────────────────────── -->
+    <section class="py-16 lg:py-24 border-b border-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-20 items-start">
+
+          <!-- Foto — 2 de 5 columnas en desktop -->
+          <div class="lg:col-span-2 w-full max-w-sm mx-auto lg:max-w-none">
+            <div class="aspect-[3/4] bg-dust-grey overflow-hidden">
+              {foto ? (
+                <img
+                  src={foto}
+                  alt={`Foto de ${nombre}`}
+                  class="w-full h-full object-cover object-top"
+                  loading="eager"
+                />
+              ) : (
+                <!-- Placeholder hasta que se añada la foto en equipo.md -->
+                <div class="w-full h-full flex flex-col items-center justify-center gap-3 p-8">
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
+                    <circle cx="20" cy="14" r="7"/>
+                    <path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16"/>
+                  </svg>
+                  <p class="font-mono text-xs text-ash-grey uppercase tracking-wider text-center leading-relaxed">
+                    Agregar foto:<br/>equipo.md → foto
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <!-- Nombre, rol, tagline y bio — 3 de 5 columnas -->
+          <div class="lg:col-span-3 flex flex-col justify-start">
+
+            <!-- Identificación -->
+            <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-3">
+              {rol}
+            </p>
+            <h1 class="font-sans text-4xl sm:text-5xl font-bold text-black-forest leading-tight mb-4">
+              {nombre}
+            </h1>
+
+            <!-- Tagline — voz propia de Víctor -->
+            <p class="font-sans text-lg text-ink/60 italic border-l-2 border-ash-grey pl-4 mb-10">
+              &#8220;{tagline}&#8221;
+            </p>
+
+            <!-- Bio párrafos -->
+            <div class="space-y-5">
+              {bio!.map(parrafo => (
+                <p class="text-ink/80 leading-relaxed">
+                  {parrafo}
+                </p>
+              ))}
+            </div>
+
+            <!-- CTA inline -->
+            <div class="mt-10">
+              <a
+                href="/contacto"
+                class="inline-flex items-center justify-center bg-black-forest text-white font-sans font-medium text-sm px-6 py-3 hover:bg-opacity-90 transition-colors duration-150"
+              >
+                Agenda una conversación
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Credenciales ──────────────────────────────────────── -->
+    <section class="py-16 bg-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl">
+          <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-8">
+            Formación
+          </p>
+          <ul class="space-y-4">
+            {credenciales!.map(cred => (
+              <li class="flex items-start gap-4">
+                <!-- Guion tipográfico como viñeta -->
+                <span class="font-mono text-ash-grey mt-1 shrink-0" aria-hidden="true">—</span>
+                <span class="font-sans text-ink/80 leading-relaxed">{cred}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
   </main>
   <Footer />
 </Layout>

@@ -58,6 +58,14 @@ const siteCollection = defineCollection({
     proposito: z.string().optional(),
     vision:    z.string().optional(),
     mision:    z.string().optional(),
+
+    // ── equipo.md ────────────────────────────────────────────
+    nombre:       z.string().optional(),
+    rol:          z.string().optional(),
+    tagline:      z.string().optional(),
+    foto:         z.string().optional(),    // ruta relativa a /public
+    bio:          z.array(z.string()).optional(),
+    credenciales: z.array(z.string()).optional(),
   }),
 });
 
