@@ -1,25 +1,217 @@
 ---
-// Esta página contendrá: formulario de contacto con campos de nombre,
-// empresa, email, teléfono y mensaje; datos de ubicación y redes sociales.
-import Layout  from '../layouts/Layout.astro';
-import Header  from '../components/Header.astro';
-import Footer  from '../components/Footer.astro';
+// Página Contacto — formulario HubSpot + información de contacto.
+// Textos editables en src/content/site/contacto.md
+import Layout    from '../layouts/Layout.astro';
+import Header    from '../components/Header.astro';
+import Footer    from '../components/Footer.astro';
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('site', 'contacto');
+const { contactoHero, contactoInfo, contactoFormulario } = entry!.data;
 ---
 
-<Layout title="Contacto" description="Agenda una consulta gratuita con el equipo de Telos.">
+<Layout
+  title="Contacto"
+  description={contactoHero!.subtitle}
+>
   <Header />
-  <main class="min-h-screen flex items-center justify-center px-4">
-    <div class="text-center max-w-lg">
-      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
-        Próximamente
-      </p>
-      <h1 class="font-sans text-4xl sm:text-5xl font-bold text-black-forest mb-4">
-        Contacto
-      </h1>
-      <p class="text-ink/60 text-sm">
-        Formulario de contacto y agenda de consulta gratuita.
-      </p>
-    </div>
+  <main>
+
+    <!-- ── Hero ──────────────────────────────────────────────── -->
+    <section class="py-20 border-b border-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
+          {contactoHero!.eyebrow}
+        </p>
+        <h1 class="font-sans text-4xl sm:text-5xl font-bold text-black-forest max-w-2xl leading-tight mb-6">
+          {contactoHero!.h1}
+        </h1>
+        <p class="font-sans text-lg text-ink/70 max-w-xl leading-relaxed">
+          {contactoHero!.subtitle}
+        </p>
+      </div>
+    </section>
+
+    <!-- ── Contenido principal — 2 columnas en desktop ────────── -->
+    <section class="py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20">
+
+          <!-- Columna izquierda — información de contacto -->
+          <div>
+
+            <!-- Email -->
+            <div class="mb-8">
+              <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-3">
+                Email
+              </p>
+              <a
+                href={`mailto:${contactoInfo!.email}`}
+                class="font-sans text-xl text-black-forest hover:text-ink transition-colors duration-150"
+              >
+                {contactoInfo!.email}
+              </a>
+            </div>
+
+            <!-- Ubicación -->
+            <div class="mb-12">
+              <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-3">
+                Ubicación
+              </p>
+              <p class="font-sans text-ink/80">
+                {contactoInfo!.ubicacion}
+              </p>
+            </div>
+
+            <!-- Frase de confianza -->
+            <div class="border-l-2 border-ash-grey pl-4">
+              <p class="font-sans text-ink/60 leading-relaxed">
+                Cada conversación es confidencial y sin compromiso. Nos interesa entender tu situación antes de proponer cualquier solución.
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Columna derecha — formulario HubSpot -->
+          <div>
+            <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-3">
+              {contactoFormulario!.titulo}
+            </p>
+            <p class="font-sans text-sm text-ink/60 mb-8">
+              {contactoFormulario!.subtitulo}
+            </p>
+
+            <!-- Script HubSpot — defer para no bloquear el render -->
+            <script is:inline src="https://js.hsforms.net/forms/embed/51460878.js" defer></script>
+            <div
+              class="hs-form-frame"
+              data-region="na1"
+              data-form-id="ff2b75ed-b9e8-48ab-a10e-baff2d4eeadf"
+              data-portal-id="51460878"
+            ></div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
   </main>
   <Footer />
 </Layout>
+
+<!-- Sobrescritura global de estilos HubSpot para respetar la paleta Telos.
+     is:global necesario porque HubSpot inyecta el HTML vía JS después del render. -->
+<style is:global>
+
+  /* Tipografía general del formulario */
+  .hs-form-frame .hs-form,
+  .hs-form-frame form {
+    font-family: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  }
+
+  /* Labels — font-mono, uppercase, tracking-widest, ash-grey */
+  .hs-form-frame label,
+  .hs-form-frame .hs-label {
+    display: block !important;
+    font-family: "DM Mono", "Courier New", monospace !important;
+    font-size: 0.75rem !important;
+    font-weight: 400 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    color: #B9BAA3 !important;
+    margin-bottom: 0.375rem !important;
+  }
+
+  /* Inputs, textarea, select — borde dust-grey, fondo blanco */
+  .hs-form-frame input[type="text"],
+  .hs-form-frame input[type="email"],
+  .hs-form-frame input[type="tel"],
+  .hs-form-frame input[type="number"],
+  .hs-form-frame textarea,
+  .hs-form-frame select {
+    display: block !important;
+    width: 100% !important;
+    border: 1px solid #D6D5C9 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    color: #1A1A1A !important;
+    font-family: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-size: 0.875rem !important;
+    padding: 0.625rem 0.75rem !important;
+    box-shadow: none !important;
+    outline: none !important;
+    transition: border-color 0.15s ease !important;
+  }
+
+  /* Focus — borde black-forest */
+  .hs-form-frame input[type="text"]:focus,
+  .hs-form-frame input[type="email"]:focus,
+  .hs-form-frame input[type="tel"]:focus,
+  .hs-form-frame input[type="number"]:focus,
+  .hs-form-frame textarea:focus,
+  .hs-form-frame select:focus {
+    border-color: #243010 !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  /* Botón submit — bg-black-forest, blanco, sin border-radius */
+  .hs-form-frame input[type="submit"],
+  .hs-form-frame .hs-button {
+    display: block !important;
+    width: 100% !important;
+    background-color: #243010 !important;
+    color: #ffffff !important;
+    font-family: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0.75rem 2rem !important;
+    cursor: pointer !important;
+    transition: opacity 0.15s ease !important;
+    margin-top: 0.5rem !important;
+  }
+
+  .hs-form-frame input[type="submit"]:hover,
+  .hs-form-frame .hs-button:hover {
+    opacity: 0.85 !important;
+  }
+
+  /* Mensajes de error — rojo legible, sin uppercase */
+  .hs-form-frame .hs-error-msgs,
+  .hs-form-frame .hs-error-msgs label,
+  .hs-form-frame .hs-error-msg {
+    color: #dc2626 !important;
+    font-family: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-size: 0.75rem !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin-top: 0.25rem !important;
+  }
+
+  /* Fieldset — sin borde ni padding extra */
+  .hs-form-frame fieldset {
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Espaciado entre campos */
+  .hs-form-frame .hs-form-field {
+    margin-bottom: 1.25rem !important;
+  }
+
+  /* Texto legal y RGPD */
+  .hs-form-frame .legal-consent-container,
+  .hs-form-frame .hs-richtext {
+    font-family: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-size: 0.75rem !important;
+    color: #B9BAA3 !important;
+  }
+
+</style>
