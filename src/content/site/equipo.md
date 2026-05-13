@@ -4,7 +4,7 @@ rol: "Fundador & Consultor Principal"
 tagline: "Diseño y ejecuto transformaciones que sostienen los resultados."
 
 # Coloca la foto en public/victor-figueroa.jpg y descomenta la línea siguiente:
-# foto: "/victor-figueroa.jpg"
+foto: "/victor-figueroa.jpg"
 
 bio:
   - "Más de 15 años acompañando a equipos directivos en minería, manufactura e ingeniería a construir organizaciones que sostienen sus resultados."
