@@ -1,6 +1,6 @@
 ---
 // Página Fractional CFO — servicio financiero de Telos.
-// Accesible en /cfo, no aparece en la navegación principal del Header.
+// Accesible en /cfo — aparece en Header y Footer como "fCFO".
 // Textos editables en src/content/site/cfo.md
 import Layout    from '../layouts/Layout.astro';
 import Header    from '../components/Header.astro';
@@ -24,57 +24,114 @@ const {
   <Header />
   <main>
 
-    <!-- ── Hero — fondo oscuro, directo al grano ──────────── -->
+    <!-- ── Hero — 2 col: texto izq / imagen der ────────────── -->
     <section class="py-24 bg-black-forest">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-6">
-          {cfoHero!.eyebrow}
-        </p>
-        <h1 class="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-3xl">
-          {cfoHero!.h1}
-        </h1>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+          <!-- Columna izquierda — eyebrow + H1 -->
+          <div>
+            <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-6">
+              {cfoHero!.eyebrow}
+            </p>
+            <h1 class="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
+              {cfoHero!.h1}
+            </h1>
+          </div>
+
+          <!-- Columna derecha — placeholder imagen -->
+          <div class="aspect-[4/3] border border-white/20 flex flex-col items-center justify-center gap-3 p-8">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" aria-hidden="true">
+              <rect x="1" y="1" width="34" height="34" rx="2"/>
+              <circle cx="11" cy="11" r="4"/>
+              <polyline points="35 25 24 14 8 35"/>
+            </svg>
+            <p class="font-mono text-xs text-white/30 uppercase tracking-wider text-center leading-relaxed">
+              Imagen pendiente
+            </p>
+          </div>
+
+        </div>
       </div>
     </section>
 
-    <!-- ── Problema — frases de impacto en tipografía grande ─ -->
+    <!-- ── Problema — imagen izq / bullets der ─────────────── -->
     <section class="py-20 bg-white">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="font-sans text-3xl sm:text-4xl font-bold text-black-forest mb-12">
-          {cfoProblema!.titulo}
-        </h2>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-        <!-- Bullets grandes — un problema por línea para máximo impacto -->
-        <ul class="space-y-5 mb-12">
-          {cfoProblema!.bullets.map(bullet => (
-            <li class="flex items-start gap-5">
-              <span class="font-mono text-ash-grey text-lg mt-1 shrink-0" aria-hidden="true">—</span>
-              <p class="font-sans text-xl sm:text-2xl font-medium text-black-forest leading-snug">
-                {bullet}
-              </p>
-            </li>
-          ))}
-        </ul>
+          <!-- Columna izquierda — placeholder imagen -->
+          <div class="aspect-[4/3] bg-dust-grey flex flex-col items-center justify-center gap-3 p-8 order-2 lg:order-1">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
+              <rect x="1" y="1" width="34" height="34" rx="2"/>
+              <circle cx="11" cy="11" r="4"/>
+              <polyline points="35 25 24 14 8 35"/>
+            </svg>
+            <p class="font-mono text-xs text-ash-grey uppercase tracking-wider text-center leading-relaxed">
+              Imagen pendiente
+            </p>
+          </div>
 
-        <!-- Frase de cierre — ancla hacia la solución -->
-        <p class="font-sans text-lg text-ink/60 border-l-2 border-ash-grey pl-4">
-          {cfoProblema!.cierre}
-        </p>
+          <!-- Columna derecha — título + bullets + cierre -->
+          <div class="order-1 lg:order-2">
+            <h2 class="font-sans text-3xl sm:text-4xl font-bold text-black-forest mb-10">
+              {cfoProblema!.titulo}
+            </h2>
+
+            <!-- Bullets grandes — un problema por línea -->
+            <ul class="space-y-5 mb-10">
+              {cfoProblema!.bullets.map(bullet => (
+                <li class="flex items-start gap-4">
+                  <span class="font-mono text-ash-grey text-lg mt-1 shrink-0" aria-hidden="true">—</span>
+                  <p class="font-sans text-xl sm:text-2xl font-medium text-black-forest leading-snug">
+                    {bullet}
+                  </p>
+                </li>
+              ))}
+            </ul>
+
+            <!-- Frase de cierre -->
+            <p class="font-sans text-lg text-ink/60 border-l-2 border-ash-grey pl-4">
+              {cfoProblema!.cierre}
+            </p>
+          </div>
+
+        </div>
       </div>
     </section>
 
-    <!-- ── Solución — lo que entregamos ───────────────────── -->
+    <!-- ── Solución — texto izq / imagen der ───────────────── -->
     <section class="py-20 bg-dust-grey">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Eyebrow en bg-dust-grey usa text-black-forest/50 por contraste -->
-        <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-4">
-          Nuestra propuesta
-        </p>
-        <h2 class="font-sans text-2xl sm:text-3xl font-bold text-black-forest mb-8">
-          {cfoSolucion!.titulo}
-        </h2>
-        <p class="text-ink/80 leading-relaxed max-w-3xl text-lg">
-          {cfoSolucion!.p1}
-        </p>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+          <!-- Columna izquierda — eyebrow + título + párrafo -->
+          <div>
+            <!-- Eyebrow en bg-dust-grey usa text-black-forest/50 por contraste -->
+            <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-4">
+              Nuestra propuesta
+            </p>
+            <h2 class="font-sans text-2xl sm:text-3xl font-bold text-black-forest mb-8">
+              {cfoSolucion!.titulo}
+            </h2>
+            <p class="text-ink/80 leading-relaxed text-lg">
+              {cfoSolucion!.p1}
+            </p>
+          </div>
+
+          <!-- Columna derecha — placeholder imagen -->
+          <div class="aspect-[4/3] border border-ash-grey/40 flex flex-col items-center justify-center gap-3 p-8">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
+              <rect x="1" y="1" width="34" height="34" rx="2"/>
+              <circle cx="11" cy="11" r="4"/>
+              <polyline points="35 25 24 14 8 35"/>
+            </svg>
+            <p class="font-mono text-xs text-black-forest/40 uppercase tracking-wider text-center leading-relaxed">
+              Imagen pendiente
+            </p>
+          </div>
+
+        </div>
       </div>
     </section>
 
