@@ -110,6 +110,23 @@ const siteCollection = defineCollection({
       href:  z.string(),
     }).optional(),
 
+    // ── contacto.md ──────────────────────────────────────────
+    contactoHero: z.object({
+      eyebrow:  z.string(),
+      h1:       z.string(),
+      subtitle: z.string(),
+    }).optional(),
+
+    contactoInfo: z.object({
+      email:    z.string(),
+      ubicacion: z.string(),
+    }).optional(),
+
+    contactoFormulario: z.object({
+      titulo:    z.string(),
+      subtitulo: z.string(),
+    }).optional(),
+
     // ── equipo.md ────────────────────────────────────────────
     nombre:       z.string().optional(),
     rol:          z.string().optional(),
