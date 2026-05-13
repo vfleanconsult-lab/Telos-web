@@ -45,7 +45,8 @@ const fondos = ['bg-white', 'bg-dust-grey', 'bg-white'];
 
             <!-- Columna izquierda — número y título -->
             <div class="lg:col-span-1">
-              <span class="font-mono text-7xl font-light text-ash-grey/40 leading-none block mb-4"
+              <!-- text-black-forest/20 es visible en white y en dust-grey, text-ash-grey/40 desaparece en dust-grey -->
+              <span class="font-mono text-7xl font-light text-black-forest/20 leading-none block mb-4"
                 aria-hidden="true">
                 {servicio.numero}
               </span>
