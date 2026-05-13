@@ -1,25 +1,117 @@
 ---
-// Esta página contendrá: catálogo completo de servicios con descripción
-// detallada, metodología, entregables y casos de uso de cada uno.
-import Layout  from '../../layouts/Layout.astro';
-import Header  from '../../components/Header.astro';
-import Footer  from '../../components/Footer.astro';
+// Página Servicios — descripción detallada de los 3 servicios de Telos.
+// Textos editables en src/content/site/servicios.md
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getEntry } from 'astro:content';
+
+const entry = await getEntry('site', 'servicios');
+const { paginaHero, serviciosList, serviciosCta } = entry!.data;
+
+// Fondos alternados por servicio para separación visual sin bordes
+const fondos = ['bg-white', 'bg-dust-grey', 'bg-white'];
 ---
 
-<Layout title="Servicios" description="Catálogo completo de servicios de consultoría de Telos.">
+<Layout
+  title="Servicios"
+  description={paginaHero!.subtitle}
+>
   <Header />
-  <main class="min-h-screen flex items-center justify-center px-4">
-    <div class="text-center max-w-lg">
-      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
-        Próximamente
-      </p>
-      <h1 class="font-sans text-4xl sm:text-5xl font-bold text-black-forest mb-4">
-        Servicios
-      </h1>
-      <p class="text-ink/60 text-sm">
-        Diagnóstico, transformación, mejora continua y desarrollo de liderazgo.
-      </p>
-    </div>
+  <main>
+
+    <!-- ── Hero de página ──────────────────────────────────── -->
+    <section class="py-20 border-b border-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
+          {paginaHero!.eyebrow}
+        </p>
+        <h1 class="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold text-black-forest max-w-3xl leading-tight mb-6">
+          {paginaHero!.h1}
+        </h1>
+        <p class="text-lg text-ink/70 max-w-2xl leading-relaxed">
+          {paginaHero!.subtitle}
+        </p>
+      </div>
+    </section>
+
+    <!-- ── Secciones de servicios ──────────────────────────── -->
+    {serviciosList!.map((servicio, i) => (
+      <section class={`py-20 ${fondos[i]}`}>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <!-- Grid 2 col: número + título izq / párrafos der -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
+
+            <!-- Columna izquierda — número y título -->
+            <div class="lg:col-span-1">
+              <span class="font-mono text-7xl font-light text-ash-grey/40 leading-none block mb-4"
+                aria-hidden="true">
+                {servicio.numero}
+              </span>
+              <h2 class="font-sans text-2xl sm:text-3xl font-bold text-black-forest leading-snug">
+                {servicio.titulo}
+              </h2>
+            </div>
+
+            <!-- Columna derecha — párrafos -->
+            <div class="lg:col-span-2 flex flex-col justify-start">
+              <p class="text-ink/80 leading-relaxed mb-6">
+                {servicio.p1}
+              </p>
+              <p class="text-ink/80 leading-relaxed">
+                {servicio.p2}
+              </p>
+
+              {/* Bloque CTA diferenciado — solo en Diagnóstico de Madurez */}
+              {servicio.cta && (
+                <div class="mt-10 border-l-4 border-black-forest bg-black-forest/5 px-6 py-5">
+                  <p class="font-mono text-xs uppercase tracking-widest text-black-forest mb-2">
+                    Punto de entrada recomendado
+                  </p>
+                  <p class="text-sm text-ink/70 leading-relaxed mb-4">
+                    Si no sabes por dónde empezar, este diagnóstico es el primer paso. En pocas semanas tienes claridad total sobre dónde está tu organización.
+                  </p>
+                  <a
+                    href="/contacto"
+                    class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-black-forest hover:gap-3 transition-all duration-150"
+                  >
+                    Agendar diagnóstico
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                      <line x1="2" y1="8" x2="14" y2="8"/>
+                      <polyline points="9 3 14 8 9 13"/>
+                    </svg>
+                  </a>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      </section>
+    ))}
+
+    <!-- ── CTA final ────────────────────────────────────────── -->
+    <section class="py-24 bg-black-forest">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+        <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-5">
+          Siguiente paso
+        </p>
+        <h2 class="font-sans text-3xl sm:text-4xl font-bold mb-6">
+          {serviciosCta!.texto}
+        </h2>
+        <p class="text-white/75 text-lg leading-relaxed mb-10 max-w-xl mx-auto">
+          {serviciosCta!.descripcion}
+        </p>
+        <a
+          href={serviciosCta!.href}
+          class="inline-flex items-center justify-center border border-white text-white font-sans font-medium text-sm px-8 py-4 hover:bg-white hover:text-black-forest transition-colors duration-200"
+        >
+          {serviciosCta!.boton}
+        </a>
+      </div>
+    </section>
+
   </main>
   <Footer />
 </Layout>

@@ -59,6 +59,29 @@ const siteCollection = defineCollection({
     vision:    z.string().optional(),
     mision:    z.string().optional(),
 
+    // ── páginas interiores — hero simple sin CTAs ────────────
+    paginaHero: z.object({
+      eyebrow:  z.string(),
+      h1:       z.string(),
+      subtitle: z.string(),
+    }).optional(),
+
+    // ── servicios.md ─────────────────────────────────────────
+    serviciosList: z.array(z.object({
+      numero: z.string(),
+      titulo: z.string(),
+      p1:     z.string(),
+      p2:     z.string(),
+      cta:    z.boolean().optional(),
+    })).optional(),
+
+    serviciosCta: z.object({
+      texto:       z.string(),
+      descripcion: z.string(),
+      boton:       z.string(),
+      href:        z.string(),
+    }).optional(),
+
     // ── equipo.md ────────────────────────────────────────────
     nombre:       z.string().optional(),
     rol:          z.string().optional(),
