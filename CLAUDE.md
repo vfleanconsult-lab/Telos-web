@@ -76,7 +76,8 @@ const { campo1, campo2 } = entry!.data;
 
 - **Mobile-first** — clases base para móvil, `sm:` / `md:` / `lg:` para escalado
 - **Contenedor estándar:** `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`
-- **Eyebrows** — siempre `font-mono text-xs uppercase tracking-widest text-ash-grey`
+- **Eyebrows sobre fondo blanco** — `font-mono text-xs uppercase tracking-widest text-ash-grey`
+- **Eyebrows sobre `bg-dust-grey`** — usar `text-black-forest/50` en lugar de `text-ash-grey` (el contraste ash-grey/dust-grey es ~1.5:1, ilegible)
 - **Separadores finos en grids** — usar `gap-px` con `bg-ash-grey/30` en el contenedor en lugar de bordes individuales por celda
 - **Hover en cards** — `border-dust-grey` en reposo, `hover:border-ash-grey` en hover
 - **Sección de impacto máximo** — fondo `bg-black-forest` con texto blanco (usado en CTA final y bloques de propósito)

@@ -91,14 +91,15 @@ const { nombre, rol, tagline, foto, bio, credenciales } = entry!.data;
     <section class="py-16 bg-dust-grey">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-2xl">
-          <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-8">
+          <!-- En bg-dust-grey se usa text-black-forest/50 en lugar de text-ash-grey para contraste suficiente -->
+          <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-8">
             Formación
           </p>
           <ul class="space-y-4">
             {credenciales!.map(cred => (
               <li class="flex items-start gap-4">
                 <!-- Guion tipográfico como viñeta -->
-                <span class="font-mono text-ash-grey mt-1 shrink-0" aria-hidden="true">—</span>
+                <span class="font-mono text-black-forest/40 mt-1 shrink-0" aria-hidden="true">—</span>
                 <span class="font-sans text-ink/80 leading-relaxed">{cred}</span>
               </li>
             ))}
