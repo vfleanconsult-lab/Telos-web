@@ -34,10 +34,9 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(`Error GitHub: ${tokenData.error_description ?? tokenData.error}`, { status: 400 });
   }
 
-  // Formato que Decap CMS extrae con regex /authorization:(.+?):(.+?):(.+)/ →
-  // match[3] = token crudo. Envolver en JSON o URLSearchParams pasa el string
-  // completo como token, lo que falla en la API de GitHub.
-  const message = `authorization:github:success:${tokenData.access_token}`;
+  // Formato que Decap CMS espera: JSON con { token, provider }.
+  // Regex /authorization:(.+?):(.+?):(.+)/ → match[3] = payload JSON.
+  const message = `authorization:github:success:${JSON.stringify({ token: tokenData.access_token, provider: 'github' })}`;
 
   // HTML que intenta postMessage al opener y, si el opener es nulo
   // (Safari iOS anula window.opener tras navegación cross-origin por GitHub),

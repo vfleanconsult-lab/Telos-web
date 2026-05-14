@@ -1,24 +1,14 @@
-# ── Decap CMS — configuración del panel de administración ──────────────────
+# Decap CMS — configuración del panel de administración
 # Accesible en: /admin
-# Autenticación: GitHub OAuth (PKCE — no requiere servidor intermedio)
-#
-# SETUP REQUERIDO (una sola vez):
-#   1. Ir a github.com → Settings → Developer settings → OAuth Apps → New OAuth App
-#   2. Application name: Telos CMS
-#   3. Homepage URL: https://telos-web-pi.vercel.app
-#   4. Authorization callback URL: https://telos-web-pi.vercel.app/admin
-#   5. Copiar el "Client ID" generado y reemplazar el valor de app_id abajo
-# ─────────────────────────────────────────────────────────────────────────────
+# Autenticación: GitHub OAuth con proxy propio en /api/auth y /api/callback
 
 backend:
   name: github
   repo: vfleanconsult-lab/Telos-web
   branch: main
-  auth_type: pkce
-  app_id: REEMPLAZAR_CON_CLIENT_ID_DEL_OAUTH_APP  # ver instrucciones arriba
+  base_url: https://telos-web-pi.vercel.app
+  auth_endpoint: api/auth
 
-# Imágenes subidas desde el CMS van a public/images/blog
-# y se sirven desde /images/blog en el sitio
 media_folder: public/images/blog
 public_folder: /images/blog
 
