@@ -8,40 +8,59 @@
   <body>
     <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
 
-    <!-- DIAGNÓSTICO v4: barra no bloqueante con interceptor fetch -->
+    <!-- DIAGNÓSTICO v5: rastrea add/remove de listeners + timing -->
     <script>
-      // Barra de diagnóstico en la parte inferior
+      var _t0 = Date.now();
+      function _ms() { return (Date.now() - _t0) + 'ms'; }
+
       var _bar = document.createElement('div');
       _bar.style.cssText =
         'position:fixed;bottom:0;left:0;right:0;background:#111;color:#0f0;' +
         'font:11px/1.5 monospace;padding:6px 8px;z-index:99999;' +
-        'max-height:35vh;overflow:auto;word-break:break-all';
-      _bar.innerHTML = '<b>DEBUG</b> — esperando login…';
+        'max-height:40vh;overflow:auto;word-break:break-all';
+      _bar.innerHTML = '<b>DEBUG v5</b>';
       document.documentElement.appendChild(_bar);
 
       function _log(txt) {
-        _bar.innerHTML += '<br>' + txt;
+        _bar.innerHTML += '<br>[' + _ms() + '] ' + txt;
         _bar.scrollTop = _bar.scrollHeight;
       }
 
-      // Captura todos los postMessages (no bloqueante)
-      window.addEventListener('message', function (e) {
-        _log('📨 MSG origin=' + e.origin + ' | data=' + String(e.data).slice(0, 80));
+      // Rastrea cuándo Decap CMS agrega y remueve listeners de 'message'
+      var _origAdd = EventTarget.prototype.addEventListener;
+      var _origRem = EventTarget.prototype.removeEventListener;
+      var _msgCount = 0;
+
+      EventTarget.prototype.addEventListener = function (type, fn, opts) {
+        if (type === 'message' && this === window) {
+          _msgCount++;
+          _log('➕ ADD listener #' + _msgCount);
+        }
+        return _origAdd.apply(this, arguments);
+      };
+
+      EventTarget.prototype.removeEventListener = function (type, fn, opts) {
+        if (type === 'message' && this === window) {
+          _log('➖ REMOVE listener (activos≈' + (_msgCount--) + ')');
+        }
+        return _origRem.apply(this, arguments);
+      };
+
+      // Captura postMessages (fase captura — antes que Decap CMS)
+      _origAdd.call(window, 'message', function (e) {
+        _log('📨 MSG origin=' + e.origin + ' data=' + String(e.data).slice(0, 70) +
+             ' listeners_activos≈' + _msgCount);
       }, true);
 
-      // Intercepta fetch para ver llamadas a GitHub API
+      // Intercepta fetch — TODAS las URLs
       var _origFetch = window.fetch;
-      window.fetch = function (url, opts) {
+      window.fetch = function (url) {
         var u = String(url);
         return _origFetch.apply(this, arguments).then(function (res) {
-          if (u.indexOf('github.com') !== -1) {
-            _log('🌐 FETCH ' + res.status + ' ' + u.replace('https://', '').slice(0, 60));
-          }
+          _log('🌐 ' + res.status + ' ' + u.replace('https://', '').slice(0, 55));
           return res;
         }, function (err) {
-          if (u.indexOf('github.com') !== -1) {
-            _log('❌ FETCH ERR ' + u.replace('https://', '').slice(0, 50) + ' ' + err);
-          }
+          _log('❌ FETCH ERR ' + u.replace('https://', '').slice(0, 40) + ' ' + err);
           return Promise.reject(err);
         });
       };
