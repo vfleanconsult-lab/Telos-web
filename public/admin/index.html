@@ -7,6 +7,30 @@
   </head>
   <body>
     <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
+
+    <!-- DIAGNÓSTICO TEMPORAL: captura todos los postMessage y los muestra en pantalla.
+         Eliminar este bloque una vez resuelto el login. -->
+    <script>
+      window.addEventListener('message', function (e) {
+        var bar = document.getElementById('_dbg');
+        if (!bar) {
+          bar = document.createElement('div');
+          bar.id = '_dbg';
+          bar.style.cssText =
+            'position:fixed;bottom:0;left:0;right:0;background:#111;color:#0f0;' +
+            'font-family:monospace;font-size:11px;padding:6px 10px;z-index:99999;' +
+            'word-break:break-all;max-height:30vh;overflow:auto';
+          document.body.appendChild(bar);
+        }
+        var line = document.createElement('p');
+        line.style.margin = '2px 0';
+        line.textContent =
+          'origin=' + e.origin +
+          ' | data=' + String(e.data).slice(0, 120);
+        bar.appendChild(line);
+      }, true); // fase de captura: se ejecuta antes que el listener de Decap CMS
+    </script>
+
     <script>window.CMS_MANUAL_INIT = true</script>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <!-- Canal de respaldo: recibe el token cuando window.opener es nulo (Safari iOS).
