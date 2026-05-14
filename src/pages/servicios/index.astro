@@ -8,9 +8,6 @@ import { getEntry } from 'astro:content';
 
 const entry = await getEntry('site', 'servicios');
 const { paginaHero, serviciosList, serviciosCta } = entry!.data;
-
-// Fondos alternados por servicio para separación visual sin bordes
-const fondos = ['bg-white', 'bg-dust-grey', 'bg-white'];
 ---
 
 <Layout
@@ -36,61 +33,119 @@ const fondos = ['bg-white', 'bg-dust-grey', 'bg-white'];
     </section>
 
     <!-- ── Secciones de servicios ──────────────────────────── -->
-    {serviciosList!.map((servicio, i) => (
-      <section class={`py-20 ${fondos[i]}`}>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {serviciosList!.map((servicio, i) => {
+      // El bloque 2 (Excelencia Organizacional) usa fondo oscuro con gradiente radial
+      const esOscuro = i === 1;
 
-          <!-- Grid 2 col: número + título izq / párrafos der -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
+      return (
+        <section
+          class={!esOscuro ? 'py-20 bg-white' : 'py-20'}
+          style={esOscuro
+            ? 'background: radial-gradient(ellipse at center, #2d3d14 30%, #243010 70%, #1a2408 100%);'
+            : ''}
+        >
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <!-- Columna izquierda — número y título -->
-            <div class="lg:col-span-1">
-              <!-- text-black-forest/20 es visible en white y en dust-grey, text-ash-grey/40 desaparece en dust-grey -->
-              <span class="font-mono text-7xl font-light text-black-forest/20 leading-none block mb-4"
-                aria-hidden="true">
-                {servicio.numero}
-              </span>
-              <h2 class="font-sans text-2xl sm:text-3xl font-bold text-black-forest leading-snug">
-                {servicio.titulo}
-              </h2>
-            </div>
+            {/* Bloque oscuro — marco interior filete 1.5px dust-grey */}
+            {esOscuro ? (
+              <div class="relative" style="border: 1.5px solid #D6D5C9; padding: 24px;">
 
-            <!-- Columna derecha — párrafos -->
-            <div class="lg:col-span-2 flex flex-col justify-start">
-              <p class="text-ink/80 leading-relaxed mb-6">
-                {servicio.p1}
-              </p>
-              <p class="text-ink/80 leading-relaxed">
-                {servicio.p2}
-              </p>
+                <!-- Número decorativo absoluto — esquina superior derecha del marco -->
+                <span
+                  class="absolute top-4 right-6 font-mono font-bold leading-none select-none pointer-events-none"
+                  style="font-size: 5rem; line-height: 1; color: rgba(214, 213, 201, 0.4);"
+                  aria-hidden="true"
+                >
+                  {servicio.numero}
+                </span>
 
-              {/* Bloque CTA diferenciado — solo en Diagnóstico de Madurez */}
-              {servicio.cta && (
-                <div class="mt-10 border-l-4 border-black-forest bg-black-forest/5 px-6 py-5">
-                  <p class="font-mono text-xs uppercase tracking-widest text-black-forest mb-2">
-                    Punto de entrada recomendado
-                  </p>
-                  <p class="text-sm text-ink/70 leading-relaxed mb-4">
-                    Si no sabes por dónde empezar, este diagnóstico es el primer paso. En pocas semanas tienes claridad total sobre dónde está tu organización.
-                  </p>
-                  <a
-                    href="/contacto"
-                    class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-black-forest hover:gap-3 transition-all duration-150"
-                  >
-                    Agendar diagnóstico
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                      <line x1="2" y1="8" x2="14" y2="8"/>
-                      <polyline points="9 3 14 8 9 13"/>
-                    </svg>
-                  </a>
+                <!-- Grid 2 col con texto blanco -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20 py-6">
+
+                  <!-- Columna izquierda — título -->
+                  <div class="lg:col-span-1">
+                    <h2 class="font-sans text-2xl sm:text-3xl font-bold text-white leading-snug">
+                      {servicio.titulo}
+                    </h2>
+                  </div>
+
+                  <!-- Columna derecha — párrafos -->
+                  <div class="lg:col-span-2 flex flex-col justify-start">
+                    <p class="text-white/80 leading-relaxed mb-6">
+                      {servicio.p1}
+                    </p>
+                    <p class="text-white/80 leading-relaxed">
+                      {servicio.p2}
+                    </p>
+                  </div>
+
                 </div>
-              )}
-            </div>
+              </div>
+
+            ) : (
+
+              /* Bloques claros — fondo blanco, número decorativo absoluto */
+              <div class="relative">
+
+                <!-- Número decorativo absoluto — esquina superior derecha -->
+                <span
+                  class="absolute top-0 right-0 font-mono font-bold leading-none select-none pointer-events-none"
+                  style="font-size: 5rem; line-height: 1; color: rgba(214, 213, 201, 0.4);"
+                  aria-hidden="true"
+                >
+                  {servicio.numero}
+                </span>
+
+                <!-- Grid 2 col con texto oscuro -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
+
+                  <!-- Columna izquierda — título -->
+                  <div class="lg:col-span-1">
+                    <h2 class="font-sans text-2xl sm:text-3xl font-bold text-black-forest leading-snug">
+                      {servicio.titulo}
+                    </h2>
+                  </div>
+
+                  <!-- Columna derecha — párrafos + CTA opcional -->
+                  <div class="lg:col-span-2 flex flex-col justify-start">
+                    <p class="text-ink/80 leading-relaxed mb-6">
+                      {servicio.p1}
+                    </p>
+                    <p class="text-ink/80 leading-relaxed">
+                      {servicio.p2}
+                    </p>
+
+                    {/* Bloque CTA diferenciado — solo en Diagnóstico de Madurez */}
+                    {servicio.cta && (
+                      <div class="mt-10 border-l-4 border-black-forest bg-black-forest/5 px-6 py-5">
+                        <p class="font-mono text-xs uppercase tracking-widest text-black-forest mb-2">
+                          Punto de entrada recomendado
+                        </p>
+                        <p class="text-sm text-ink/70 leading-relaxed mb-4">
+                          Si no sabes por dónde empezar, este diagnóstico es el primer paso. En pocas semanas tienes claridad total sobre dónde está tu organización.
+                        </p>
+                        <a
+                          href="/contacto"
+                          class="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-black-forest hover:gap-3 transition-all duration-150"
+                        >
+                          Agendar diagnóstico
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                            <line x1="2" y1="8" x2="14" y2="8"/>
+                            <polyline points="9 3 14 8 9 13"/>
+                          </svg>
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </div>
+            )}
 
           </div>
-        </div>
-      </section>
-    ))}
+        </section>
+      );
+    })}
 
     <!-- ── CTA final ────────────────────────────────────────── -->
     <section class="py-24 bg-black-forest">
