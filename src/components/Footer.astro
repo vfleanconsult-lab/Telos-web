@@ -1,5 +1,6 @@
 ---
 import Logo from './ui/Logo.astro';
+import { Linkedin } from 'lucide-astro';
 
 const year = new Date().getFullYear();
 
@@ -51,10 +52,22 @@ const navLinks = [
           Contacto
         </h3>
         <a
-          href="mailto:hola@telos.com"
+          href="mailto:victor@telos.cl"
           class="text-sm text-ink hover:text-black-forest transition-colors duration-150"
         >
-          hola@telos.com
+          victor@telos.cl
+        </a>
+
+        <!-- LinkedIn — ícono en paleta del sitio -->
+        <a
+          href="https://www.linkedin.com/in/victorfigueroasilva"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Perfil de LinkedIn de Víctor Figueroa"
+          class="inline-flex items-center gap-2 mt-4 text-sm text-ink/70 hover:text-black-forest transition-colors duration-150"
+        >
+          <Linkedin size={16} strokeWidth={1.5} aria-hidden="true" />
+          LinkedIn
         </a>
       </div>
     </div>
