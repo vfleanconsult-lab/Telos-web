@@ -6,6 +6,7 @@ import Layout    from '../layouts/Layout.astro';
 import Header    from '../components/Header.astro';
 import Footer    from '../components/Footer.astro';
 import { getEntry } from 'astro:content';
+import { Image as ImageIcon } from 'lucide-astro';
 
 const entry = await getEntry('site', 'cfo');
 const {
@@ -40,13 +41,9 @@ const {
           </div>
 
           <!-- Columna derecha — placeholder imagen -->
-          <div class="aspect-[4/3] border border-white/20 flex flex-col items-center justify-center gap-3 p-8">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" aria-hidden="true">
-              <rect x="1" y="1" width="34" height="34" rx="2"/>
-              <circle cx="11" cy="11" r="4"/>
-              <polyline points="35 25 24 14 8 35"/>
-            </svg>
-            <p class="font-mono text-xs text-white/30 uppercase tracking-wider text-center leading-relaxed">
+          <div class="aspect-[4/3] border border-white/20 flex flex-col items-center justify-center gap-3 p-8 text-white/30">
+            <ImageIcon size={36} strokeWidth={1.5} aria-hidden="true" />
+            <p class="font-mono text-xs uppercase tracking-wider text-center leading-relaxed">
               Imagen pendiente
             </p>
           </div>
@@ -61,13 +58,9 @@ const {
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
           <!-- Columna izquierda — placeholder imagen -->
-          <div class="aspect-[4/3] bg-dust-grey flex flex-col items-center justify-center gap-3 p-8 order-2 lg:order-1">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
-              <rect x="1" y="1" width="34" height="34" rx="2"/>
-              <circle cx="11" cy="11" r="4"/>
-              <polyline points="35 25 24 14 8 35"/>
-            </svg>
-            <p class="font-mono text-xs text-ash-grey uppercase tracking-wider text-center leading-relaxed">
+          <div class="aspect-[4/3] bg-dust-grey flex flex-col items-center justify-center gap-3 p-8 order-2 lg:order-1 text-ash-grey">
+            <ImageIcon size={36} strokeWidth={1.5} aria-hidden="true" />
+            <p class="font-mono text-xs uppercase tracking-wider text-center leading-relaxed">
               Imagen pendiente
             </p>
           </div>
@@ -120,12 +113,8 @@ const {
           </div>
 
           <!-- Columna derecha — placeholder imagen -->
-          <div class="aspect-[4/3] border border-ash-grey/40 flex flex-col items-center justify-center gap-3 p-8">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
-              <rect x="1" y="1" width="34" height="34" rx="2"/>
-              <circle cx="11" cy="11" r="4"/>
-              <polyline points="35 25 24 14 8 35"/>
-            </svg>
+          <div class="aspect-[4/3] border border-ash-grey/40 flex flex-col items-center justify-center gap-3 p-8 text-ash-grey">
+            <ImageIcon size={36} strokeWidth={1.5} aria-hidden="true" />
             <p class="font-mono text-xs text-black-forest/40 uppercase tracking-wider text-center leading-relaxed">
               Imagen pendiente
             </p>

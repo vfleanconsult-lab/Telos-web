@@ -5,6 +5,7 @@ import Layout         from '../../layouts/Layout.astro';
 import Header         from '../../components/Header.astro';
 import Footer         from '../../components/Footer.astro';
 import { getCollection } from 'astro:content';
+import { Image as ImageIcon } from 'lucide-astro';
 
 // Obtener artículos ordenados por fecha descendente (más nuevo primero)
 const articulos = (await getCollection('blog'))
@@ -101,11 +102,7 @@ const categorias = ['Estrategia', 'Excelencia Organizacional', 'Liderazgo'] as c
                       class="w-full h-full object-cover"
                     />
                   ) : (
-                    <svg width="32" height="32" viewBox="0 0 36 36" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
-                      <rect x="1" y="1" width="34" height="34" rx="2"/>
-                      <circle cx="11" cy="11" r="4"/>
-                      <polyline points="35 25 24 14 8 35"/>
-                    </svg>
+                    <ImageIcon size={32} strokeWidth={1.5} class="text-ash-grey" aria-hidden="true" />
                   )}
                 </div>
 
