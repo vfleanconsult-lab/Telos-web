@@ -8,21 +8,15 @@
   <body>
     <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
 
-    <!-- DIAGNÓSTICO v2: banner rojo visible al cargar + alert al recibir mensaje -->
+    <!-- DIAGNÓSTICO v3: alert con origin completo para poder leerlo -->
     <script>
-      // Banner rojo aparece inmediatamente — confirma que esta versión del script está cargada.
-      var _dbg = document.createElement('div');
-      _dbg.id = '_dbg';
-      _dbg.style.cssText =
-        'position:fixed;top:0;left:0;right:0;background:#c00;color:#fff;' +
-        'font:bold 13px/1 sans-serif;padding:10px;text-align:center;z-index:99999';
-      _dbg.textContent = 'Debug v2 — haz login y reporta qué dice aquí';
-      document.documentElement.appendChild(_dbg);
-
       window.addEventListener('message', function (e) {
-        _dbg.style.background = '#060';
-        _dbg.textContent =
-          'MSG → origin=' + e.origin + ' | data=' + String(e.data).slice(0, 100);
+        alert(
+          'ORIGIN:\n' + e.origin +
+          '\n\nBASE_URL (lo que espera CMS):\n' + window.location.origin +
+          '\n\nCOINCIDEN: ' + (e.origin === window.location.origin ? 'SÍ' : 'NO') +
+          '\n\nDATA (primeros 80 chars):\n' + String(e.data).slice(0, 80)
+        );
       }, true);
     </script>
 
