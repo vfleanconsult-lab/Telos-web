@@ -9,6 +9,21 @@
     <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
     <script>window.CMS_MANUAL_INIT = true</script>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <!-- Canal de respaldo: recibe el token cuando window.opener es nulo (Safari iOS).
+         Re-despacha el mensaje como MessageEvent para que Decap CMS lo procese. -->
+    <script>
+      (function () {
+        if (typeof BroadcastChannel === 'undefined') return;
+        var bc = new BroadcastChannel('decap-cms-auth');
+        bc.onmessage = function (e) {
+          bc.close();
+          window.dispatchEvent(new MessageEvent('message', {
+            data:   e.data,
+            origin: window.location.origin,
+          }));
+        };
+      })();
+    </script>
     <script>
       CMS.init({
         config: {

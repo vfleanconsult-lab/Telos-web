@@ -34,27 +34,50 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(`Error GitHub: ${tokenData.error_description ?? tokenData.error}`, { status: 400 });
   }
 
-  // Formato querystring que espera Decap CMS (igual que el proveedor de Netlify)
-  const params  = new URLSearchParams({ token: tokenData.access_token, provider: 'github' });
-  const message = `authorization:github:success:${params.toString()}`;
+  // Formato JSON que espera Decap CMS (parseado con regex + JSON.parse internamente)
+  const message = `authorization:github:success:${JSON.stringify({
+    token:    tokenData.access_token,
+    provider: 'github',
+  })}`;
 
-  // HTML mínimo que envía el token al opener y cierra el popup.
-  // Se envía directamente sin esperar confirmación (evita problema de opener nulo
-  // después de los redirects cross-origin por GitHub).
+  // HTML que intenta postMessage al opener y, si el opener es nulo
+  // (Safari iOS anula window.opener tras navegación cross-origin por GitHub),
+  // usa BroadcastChannel como canal de respaldo.
+  // El texto visible sirve de diagnóstico: informa qué vía se utilizó.
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
 <body>
-<p style="font-family:sans-serif;color:#666;padding:2rem">Autorizando… esta ventana se cerrará automáticamente.</p>
+<p id="st" style="font-family:sans-serif;color:#444;padding:2rem 2rem 0">Autorizando…</p>
+<p id="db" style="font-family:monospace;font-size:0.75rem;color:#999;padding:0 2rem 2rem"></p>
 <script>
 (function () {
   var msg = ${JSON.stringify(message)};
+  var st  = document.getElementById('st');
+  var db  = document.getElementById('db');
+
+  function cerrar() { setTimeout(function () { window.close(); }, 2000); }
+
+  function usarBroadcast() {
+    db.textContent = 'opener: NULO — usando BroadcastChannel';
+    if (typeof BroadcastChannel !== 'undefined') {
+      var bc = new BroadcastChannel('decap-cms-auth');
+      bc.postMessage(msg);
+      bc.close();
+      st.textContent = 'Autorizado. Puedes cerrar esta ventana.';
+    } else {
+      st.textContent = 'Error: cierra esta ventana e intenta de nuevo.';
+      db.textContent += ' (no disponible)';
+    }
+  }
+
   if (window.opener && !window.opener.closed) {
+    db.textContent = 'opener: OK — postMessage enviado';
     window.opener.postMessage(msg, '*');
-    setTimeout(function () { window.close(); }, 300);
+    st.textContent = 'Autorizado. Cerrando…';
+    cerrar();
   } else {
-    document.querySelector('p').textContent =
-      'Error: no se pudo comunicar con la ventana del CMS. Cierra esta ventana e inténtalo de nuevo.';
+    usarBroadcast();
   }
 })();
 </script>
