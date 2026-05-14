@@ -9,7 +9,10 @@ import { getEntry, getCollection, render } from 'astro:content';
 const { slug } = Astro.params;
 
 // Obtener el artículo — 404 si no existe
-const entry = slug ? await getEntry('blog', slug) : undefined;
+// Astro 5: entry.id incluye extensión (.md), por eso probamos ambas variantes
+const entry = slug
+  ? (await getEntry('blog', slug) ?? await getEntry('blog', `${slug}.md`))
+  : undefined;
 if (!entry) return new Response(null, { status: 404 });
 
 // Renderizar el cuerpo markdown
@@ -132,7 +135,7 @@ const relacionados = todos
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {relacionados.map(rel => (
               <a
-                href={`/articulos/${rel.id}`}
+                href={`/articulos/${rel.id.replace(/\.md$/, '')}`}
                 class="group flex flex-col border border-dust-grey hover:border-ash-grey transition-colors duration-150"
               >
                 <!-- Imagen o placeholder de la card relacionada -->
