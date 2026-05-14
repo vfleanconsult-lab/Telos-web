@@ -139,13 +139,16 @@ const siteCollection = defineCollection({
 
 // ── Colección blog ───────────────────────────────────────────────────────────
 // Cada archivo .md en src/content/blog/ es un artículo publicable.
-// Editables desde /admin gracias a Decap CMS.
+// Editables desde /admin gracias a Sveltia CMS.
+// fecha: Sveltia guarda sin comillas → YAML lo parsea como Date; normalizar a "YYYY-MM-DD"
 const blogCollection = defineCollection({
   type: 'content',
   schema: z.object({
     titulo:    z.string(),
     bajada:    z.string(),
-    fecha:     z.string(),
+    fecha:     z.union([z.string(), z.date()]).transform(v =>
+      v instanceof Date ? v.toISOString().split('T')[0] : v
+    ),
     categoria: z.enum(['Estrategia', 'Excelencia Organizacional', 'Liderazgo']),
     imagen:    z.string().optional(),
   }),
