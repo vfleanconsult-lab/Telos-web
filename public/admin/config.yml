@@ -1,0 +1,67 @@
+# ── Decap CMS — configuración del panel de administración ──────────────────
+# Accesible en: /admin
+# Autenticación: GitHub OAuth (PKCE — no requiere servidor intermedio)
+#
+# SETUP REQUERIDO (una sola vez):
+#   1. Ir a github.com → Settings → Developer settings → OAuth Apps → New OAuth App
+#   2. Application name: Telos CMS
+#   3. Homepage URL: https://telos-web-pi.vercel.app
+#   4. Authorization callback URL: https://telos-web-pi.vercel.app/admin
+#   5. Copiar el "Client ID" generado y reemplazar el valor de app_id abajo
+# ─────────────────────────────────────────────────────────────────────────────
+
+backend:
+  name: github
+  repo: vfleanconsult-lab/Telos-web
+  branch: main
+  auth_type: pkce
+  app_id: REEMPLAZAR_CON_CLIENT_ID_DEL_OAUTH_APP  # ver instrucciones arriba
+
+# Imágenes subidas desde el CMS van a public/images/blog
+# y se sirven desde /images/blog en el sitio
+media_folder: public/images/blog
+public_folder: /images/blog
+
+locale: es
+
+collections:
+  - name: blog
+    label: Artículos
+    label_singular: Artículo
+    folder: src/content/blog
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - label: Título
+        name: titulo
+        widget: string
+
+      - label: Bajada
+        name: bajada
+        widget: text
+        hint: Párrafo editorial de 2 a 4 líneas — contextualiza y engancha al lector
+
+      - label: Fecha
+        name: fecha
+        widget: datetime
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+
+      - label: Categoría
+        name: categoria
+        widget: select
+        options:
+          - Estrategia
+          - Excelencia Organizacional
+          - Liderazgo
+
+      - label: Imagen de portada
+        name: imagen
+        widget: image
+        required: false
+        allow_multiple: false
+
+      - label: Contenido
+        name: body
+        widget: markdown

@@ -1,25 +1,179 @@
 ---
-// Esta página contendrá: blog/artículos de reflexión y herramientas prácticas
-// sobre excelencia operacional, liderazgo y gestión organizacional.
-import Layout  from '../../layouts/Layout.astro';
-import Header  from '../../components/Header.astro';
-import Footer  from '../../components/Footer.astro';
+// Página listado de artículos — muestra todos los artículos del blog con
+// filtro por categoría. Los artículos viven en src/content/blog/*.md
+import Layout         from '../../layouts/Layout.astro';
+import Header         from '../../components/Header.astro';
+import Footer         from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+// Obtener artículos ordenados por fecha descendente (más nuevo primero)
+const articulos = (await getCollection('blog'))
+  .sort((a, b) => new Date(b.data.fecha).getTime() - new Date(a.data.fecha).getTime());
+
+// Helper para formatear fecha en español sin problemas de zona horaria
+const meses = ['enero','febrero','marzo','abril','mayo','junio',
+               'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function formatFecha(fecha: string) {
+  const [anio, mes, dia] = fecha.split('-');
+  return `${parseInt(dia)} de ${meses[parseInt(mes) - 1]} de ${anio}`;
+}
+
+const categorias = ['Estrategia', 'Excelencia Organizacional', 'Liderazgo'] as const;
 ---
 
-<Layout title="Artículos" description="Reflexiones y herramientas sobre excelencia organizacional de Telos.">
+<Layout
+  title="Artículos"
+  description="Reflexiones, herramientas y casos sobre excelencia organizacional."
+>
   <Header />
-  <main class="min-h-screen flex items-center justify-center px-4">
-    <div class="text-center max-w-lg">
-      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
-        Próximamente
-      </p>
-      <h1 class="font-sans text-4xl sm:text-5xl font-bold text-black-forest mb-4">
-        Artículos
-      </h1>
-      <p class="text-ink/60 text-sm">
-        Reflexiones, herramientas y casos sobre excelencia organizacional.
-      </p>
-    </div>
+  <main>
+
+    <!-- ── Hero ──────────────────────────────────────────────── -->
+    <section class="py-20 border-b border-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
+          Artículos
+        </p>
+        <h1 class="font-sans text-4xl sm:text-5xl font-bold text-black-forest max-w-2xl leading-tight">
+          Ideas y reflexiones sobre Excelencia Organizacional
+        </h1>
+      </div>
+    </section>
+
+    <!-- ── Filtro por categoría ──────────────────────────────── -->
+    <section class="border-b border-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoría">
+
+          <!-- Botón "Todos" — activo por defecto -->
+          <button
+            data-filtro="todos"
+            aria-pressed="true"
+            class="filtro-btn font-mono text-xs uppercase tracking-widest px-4 py-2 border transition-colors duration-150 bg-black-forest text-white border-black-forest"
+          >
+            Todos
+          </button>
+
+          {categorias.map(cat => (
+            <button
+              data-filtro={cat}
+              aria-pressed="false"
+              class="filtro-btn font-mono text-xs uppercase tracking-widest px-4 py-2 border border-dust-grey text-ink/60 hover:border-ash-grey transition-colors duration-150"
+            >
+              {cat}
+            </button>
+          ))}
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Grid de artículos ──────────────────────────────────── -->
+    <section class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {articulos.length === 0 ? (
+          <!-- Estado vacío — no hay artículos publicados aún -->
+          <div class="text-center py-20">
+            <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
+              Sin artículos
+            </p>
+            <p class="font-sans text-ink/60">
+              Los artículos aparecerán aquí una vez publicados desde el panel de administración.
+            </p>
+          </div>
+        ) : (
+          <div id="grid-articulos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {articulos.map(articulo => (
+              <!-- Card de artículo — enlace completo sobre toda la card -->
+              <a
+                href={`/articulos/${articulo.id}`}
+                data-categoria={articulo.data.categoria}
+                class="group flex flex-col border border-dust-grey hover:border-ash-grey transition-colors duration-150"
+                aria-label={articulo.data.titulo}
+              >
+                <!-- Imagen o placeholder -->
+                <div class="aspect-video bg-dust-grey relative overflow-hidden flex items-center justify-center shrink-0">
+                  {articulo.data.imagen?.trim() ? (
+                    <img
+                      src={articulo.data.imagen}
+                      alt={articulo.data.titulo}
+                      class="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <svg width="32" height="32" viewBox="0 0 36 36" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
+                      <rect x="1" y="1" width="34" height="34" rx="2"/>
+                      <circle cx="11" cy="11" r="4"/>
+                      <polyline points="35 25 24 14 8 35"/>
+                    </svg>
+                  )}
+                </div>
+
+                <!-- Contenido de la card -->
+                <div class="flex flex-col flex-1 p-6">
+                  <!-- Categoría -->
+                  <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-3">
+                    {articulo.data.categoria}
+                  </p>
+
+                  <!-- Título -->
+                  <h2 class="font-sans text-base font-bold text-black-forest leading-snug mb-3 group-hover:text-ink transition-colors duration-150">
+                    {articulo.data.titulo}
+                  </h2>
+
+                  <!-- Bajada — máximo 2 líneas -->
+                  <p class="font-sans text-sm text-ink/70 leading-relaxed line-clamp-2 mb-4 flex-1">
+                    {articulo.data.bajada}
+                  </p>
+
+                  <!-- Fecha + flecha -->
+                  <div class="flex items-center justify-between mt-auto pt-4 border-t border-dust-grey">
+                    <span class="font-mono text-xs text-ash-grey">
+                      {formatFecha(articulo.data.fecha)}
+                    </span>
+                    <span class="font-mono text-xs text-ash-grey group-hover:text-black-forest transition-colors duration-150" aria-hidden="true">
+                      →
+                    </span>
+                  </div>
+                </div>
+
+              </a>
+            ))}
+          </div>
+        )}
+
+      </div>
+    </section>
+
   </main>
   <Footer />
 </Layout>
+
+<!-- Filtro de categorías — vanilla JS, sin frameworks -->
+<script>
+  const botones = document.querySelectorAll<HTMLButtonElement>('.filtro-btn');
+  const tarjetas = document.querySelectorAll<HTMLElement>('[data-categoria]');
+
+  botones.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.filtro ?? 'todos';
+
+      // Actualizar estado activo de los botones
+      botones.forEach(b => {
+        const activo = b.dataset.filtro === cat;
+        b.setAttribute('aria-pressed', String(activo));
+        b.classList.toggle('bg-black-forest', activo);
+        b.classList.toggle('text-white', activo);
+        b.classList.toggle('border-black-forest', activo);
+        b.classList.toggle('border-dust-grey', !activo);
+        b.classList.toggle('text-ink/60', !activo);
+      });
+
+      // Mostrar / ocultar tarjetas según categoría
+      tarjetas.forEach(card => {
+        const visible = cat === 'todos' || card.dataset.categoria === cat;
+        card.classList.toggle('hidden', !visible);
+      });
+    });
+  });
+</script>

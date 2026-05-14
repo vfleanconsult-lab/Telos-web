@@ -1,0 +1,326 @@
+---
+// Página individual de artículo — /articulos/[slug]
+// El slug corresponde al nombre del archivo en src/content/blog/
+import Layout             from '../../layouts/Layout.astro';
+import Header             from '../../components/Header.astro';
+import Footer             from '../../components/Footer.astro';
+import { getEntry, getCollection } from 'astro:content';
+
+const { slug } = Astro.params;
+
+// Obtener el artículo — 404 si no existe
+const entry = slug ? await getEntry('blog', slug) : undefined;
+if (!entry) return new Response(null, { status: 404 });
+
+// Renderizar el cuerpo markdown
+const { Content } = await entry.render();
+
+// Helper de fecha en español
+const meses = ['enero','febrero','marzo','abril','mayo','junio',
+               'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function formatFecha(fecha: string) {
+  const [anio, mes, dia] = fecha.split('-');
+  return `${parseInt(dia)} de ${meses[parseInt(mes) - 1]} de ${anio}`;
+}
+
+// Artículos relacionados — misma categoría, excluye el actual, máx. 3
+const todos = await getCollection('blog');
+const relacionados = todos
+  .filter(a => a.id !== entry.id && a.data.categoria === entry.data.categoria)
+  .sort((a, b) => new Date(b.data.fecha).getTime() - new Date(a.data.fecha).getTime())
+  .slice(0, 3);
+---
+
+<Layout
+  title={entry.data.titulo}
+  description={entry.data.bajada}
+>
+  <Header />
+  <main>
+
+    <!-- ── Cabecera del artículo ─────────────────────────────── -->
+    <section class="pt-16 pb-12 border-b border-dust-grey">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Categoría + enlace de vuelta -->
+        <div class="flex items-center justify-between mb-8">
+          <p class="font-mono text-xs uppercase tracking-widest text-ash-grey">
+            {entry.data.categoria}
+          </p>
+          <a
+            href="/articulos"
+            class="font-mono text-xs text-ash-grey hover:text-black-forest transition-colors duration-150"
+          >
+            ← Artículos
+          </a>
+        </div>
+
+        <!-- Título -->
+        <h1 class="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold text-black-forest leading-tight mb-6">
+          {entry.data.titulo}
+        </h1>
+
+        <!-- Bajada — párrafo editorial completo -->
+        <p class="font-sans text-lg text-ink/70 leading-relaxed mb-8 max-w-2xl">
+          {entry.data.bajada}
+        </p>
+
+        <!-- Fecha -->
+        <p class="font-mono text-xs text-ash-grey">
+          {formatFecha(entry.data.fecha)}
+        </p>
+
+      </div>
+    </section>
+
+    <!-- ── Imagen de portada ─────────────────────────────────── -->
+    {entry.data.imagen?.trim() ? (
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <img
+          src={entry.data.imagen}
+          alt={entry.data.titulo}
+          class="w-full aspect-video object-cover"
+        />
+      </div>
+    ) : (
+      <!-- Placeholder de imagen — se reemplaza cuando haya imagen real -->
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="w-full aspect-video bg-dust-grey flex items-center justify-center gap-3">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
+            <rect x="1" y="1" width="34" height="34" rx="2"/>
+            <circle cx="11" cy="11" r="4"/>
+            <polyline points="35 25 24 14 8 35"/>
+          </svg>
+          <p class="font-mono text-xs text-ash-grey uppercase tracking-wider">Imagen pendiente</p>
+        </div>
+      </div>
+    )}
+
+    <!-- ── Cuerpo del artículo ───────────────────────────────── -->
+    <section class="py-8 pb-16">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="prose-telos">
+          <Content />
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA final ─────────────────────────────────────────── -->
+    <section class="py-16 bg-dust-grey">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <p class="font-sans text-lg text-black-forest font-medium">
+          ¿Te resultó útil este artículo?
+        </p>
+        <a
+          href="/contacto"
+          class="shrink-0 bg-black-forest text-white font-sans font-medium text-sm px-6 py-3 hover:bg-opacity-90 transition-colors duration-150"
+        >
+          Conversemos →
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Artículos relacionados ────────────────────────────── -->
+    {relacionados.length > 0 && (
+      <section class="py-16 border-t border-dust-grey">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-10">
+            Más sobre {entry.data.categoria}
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {relacionados.map(rel => (
+              <a
+                href={`/articulos/${rel.id}`}
+                class="group flex flex-col border border-dust-grey hover:border-ash-grey transition-colors duration-150"
+              >
+                <!-- Imagen o placeholder de la card relacionada -->
+                <div class="aspect-video bg-dust-grey flex items-center justify-center shrink-0 overflow-hidden">
+                  {rel.data.imagen?.trim() ? (
+                    <img src={rel.data.imagen} alt={rel.data.titulo} class="w-full h-full object-cover" />
+                  ) : (
+                    <svg width="28" height="28" viewBox="0 0 36 36" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
+                      <rect x="1" y="1" width="34" height="34" rx="2"/>
+                      <circle cx="11" cy="11" r="4"/>
+                      <polyline points="35 25 24 14 8 35"/>
+                    </svg>
+                  )}
+                </div>
+
+                <div class="p-5 flex flex-col flex-1">
+                  <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-2">
+                    {rel.data.categoria}
+                  </p>
+                  <h3 class="font-sans text-sm font-bold text-black-forest leading-snug mb-3 flex-1 group-hover:text-ink transition-colors duration-150">
+                    {rel.data.titulo}
+                  </h3>
+                  <div class="flex items-center justify-between pt-3 border-t border-dust-grey">
+                    <span class="font-mono text-xs text-ash-grey">
+                      {formatFecha(rel.data.fecha)}
+                    </span>
+                    <span class="font-mono text-xs text-ash-grey group-hover:text-black-forest transition-colors duration-150" aria-hidden="true">→</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+
+        </div>
+      </section>
+    )}
+
+  </main>
+  <Footer />
+</Layout>
+
+<!-- Tipografía del cuerpo del artículo — is:global para alcanzar el HTML
+     generado por Astro al renderizar el markdown de la colección blog. -->
+<style is:global>
+
+  .prose-telos {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: #1A1A1A;
+  }
+
+  .prose-telos p {
+    margin-bottom: 1.5rem;
+  }
+
+  .prose-telos h2 {
+    font-family: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #243010;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
+  .prose-telos h3 {
+    font-family: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #243010;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Listas con guión tipográfico — consistente con el resto del sitio */
+  .prose-telos ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose-telos ul li {
+    padding-left: 1.5rem;
+    position: relative;
+    margin-bottom: 0.5rem;
+  }
+
+  .prose-telos ul li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: #B9BAA3;
+    font-family: "DM Mono", "Courier New", monospace;
+  }
+
+  .prose-telos ol {
+    list-style: none;
+    counter-reset: ol-counter;
+    padding: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose-telos ol li {
+    counter-increment: ol-counter;
+    padding-left: 2.25rem;
+    position: relative;
+    margin-bottom: 0.5rem;
+  }
+
+  .prose-telos ol li::before {
+    content: counter(ol-counter, decimal-leading-zero) ".";
+    position: absolute;
+    left: 0;
+    font-family: "DM Mono", "Courier New", monospace;
+    font-size: 0.75rem;
+    color: #B9BAA3;
+    top: 0.25rem;
+  }
+
+  /* Cita destacada — border-l ash-grey, cursiva */
+  .prose-telos blockquote {
+    border-left: 2px solid #B9BAA3;
+    padding-left: 1.25rem;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 1.5rem;
+    color: rgba(26, 26, 26, 0.65);
+    font-style: italic;
+  }
+
+  .prose-telos a {
+    color: #243010;
+    text-decoration: underline;
+    text-decoration-color: #B9BAA3;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s;
+  }
+
+  .prose-telos a:hover {
+    text-decoration-color: #243010;
+  }
+
+  .prose-telos strong {
+    font-weight: 600;
+    color: #243010;
+  }
+
+  .prose-telos em {
+    font-style: italic;
+  }
+
+  /* Código inline — fondo dust-grey, font-mono */
+  .prose-telos code {
+    font-family: "DM Mono", "Courier New", monospace;
+    font-size: 0.875em;
+    background: #D6D5C9;
+    padding: 0.125rem 0.375rem;
+  }
+
+  /* Bloque de código — fondo negro */
+  .prose-telos pre {
+    background: #243010;
+    color: #D6D5C9;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    font-family: "DM Mono", "Courier New", monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .prose-telos pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  .prose-telos hr {
+    border: none;
+    border-top: 1px solid #D6D5C9;
+    margin: 2.5rem 0;
+  }
+
+  .prose-telos img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 1.5rem;
+  }
+
+</style>

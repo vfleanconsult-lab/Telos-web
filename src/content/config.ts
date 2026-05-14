@@ -137,6 +137,21 @@ const siteCollection = defineCollection({
   }),
 });
 
+// ── Colección blog ───────────────────────────────────────────────────────────
+// Cada archivo .md en src/content/blog/ es un artículo publicable.
+// Editables desde /admin gracias a Decap CMS.
+const blogCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    titulo:    z.string(),
+    bajada:    z.string(),
+    fecha:     z.string(),
+    categoria: z.enum(['Estrategia', 'Excelencia Organizacional', 'Liderazgo']),
+    imagen:    z.string().optional(),
+  }),
+});
+
 export const collections = {
   site: siteCollection,
+  blog: blogCollection,
 };
