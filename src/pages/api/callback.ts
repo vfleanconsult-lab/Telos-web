@@ -40,7 +40,9 @@ export const GET: APIRoute = async ({ request }) => {
     provider: 'github',
   })}`;
 
-  // HTML mínimo que envía el token al opener y cierra el popup
+  // HTML mínimo que envía el token al opener y cierra el popup.
+  // Se envía directamente sin esperar confirmación (evita problema de opener nulo
+  // después de los redirects cross-origin por GitHub).
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
@@ -49,11 +51,13 @@ export const GET: APIRoute = async ({ request }) => {
 <script>
 (function () {
   var msg = ${JSON.stringify(message)};
-  function onMessage(e) {
-    e.source.postMessage(msg, e.origin);
+  if (window.opener && !window.opener.closed) {
+    window.opener.postMessage(msg, '*');
+    setTimeout(function () { window.close(); }, 300);
+  } else {
+    document.querySelector('p').textContent =
+      'Error: no se pudo comunicar con la ventana del CMS. Cierra esta ventana e inténtalo de nuevo.';
   }
-  window.addEventListener('message', onMessage, false);
-  window.opener.postMessage('authorizing:github', '*');
 })();
 </script>
 </body>
