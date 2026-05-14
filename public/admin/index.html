@@ -6,7 +6,49 @@
     <title>Telos CMS — Administración</title>
   </head>
   <body>
-    <!-- Decap CMS — panel de administración de contenido -->
+    <!-- Decap CMS con configuración inline — evita depender de config.yml externo -->
+    <script>window.CMS_MANUAL_INIT = true</script>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script>
+      CMS.init({
+        config: {
+          backend: {
+            name: 'github',
+            repo: 'vfleanconsult-lab/Telos-web',
+            branch: 'main',
+            auth_type: 'pkce',
+            // Reemplazar con el Client ID de tu GitHub OAuth App.
+            // Instrucciones: github.com/settings/developers → New OAuth App
+            // Callback URL: https://telos-web-pi.vercel.app/admin
+            app_id: 'REEMPLAZAR_CON_CLIENT_ID',
+          },
+          media_folder: 'public/images/blog',
+          public_folder: '/images/blog',
+          locale: 'es',
+          collections: [
+            {
+              name: 'blog',
+              label: 'Artículos',
+              label_singular: 'Artículo',
+              folder: 'src/content/blog',
+              create: true,
+              slug: '{{slug}}',
+              fields: [
+                { label: 'Título',    name: 'titulo',    widget: 'string' },
+                { label: 'Bajada',    name: 'bajada',    widget: 'text',
+                  hint: 'Párrafo editorial de 2 a 4 líneas — contextualiza y engancha al lector' },
+                { label: 'Fecha',     name: 'fecha',     widget: 'datetime',
+                  format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false },
+                { label: 'Categoría', name: 'categoria', widget: 'select',
+                  options: ['Estrategia', 'Excelencia Organizacional', 'Liderazgo'] },
+                { label: 'Imagen de portada', name: 'imagen', widget: 'image',
+                  required: false, allow_multiple: false },
+                { label: 'Contenido', name: 'body',      widget: 'markdown' },
+              ],
+            },
+          ],
+        },
+      });
+    </script>
   </body>
 </html>
