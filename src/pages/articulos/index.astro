@@ -87,7 +87,7 @@ const categorias = ['Estrategia', 'Excelencia Organizacional', 'Liderazgo'] as c
             {articulos.map(articulo => (
               <!-- Card de artículo — enlace completo sobre toda la card -->
               <a
-                href={`/articulos/${articulo.id}`}
+                href={`/articulos/${articulo.id.replace(/\.md$/, '')}`}
                 data-categoria={articulo.data.categoria}
                 class="group flex flex-col border border-dust-grey hover:border-ash-grey transition-colors duration-150"
                 aria-label={articulo.data.titulo}
