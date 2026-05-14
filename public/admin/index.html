@@ -71,6 +71,39 @@
         _log('📡 XHR ' + method + ' ' + String(url).replace('https://', '').slice(0, 55));
         return _origXHR.apply(this, arguments);
       };
+
+      // Fix e.source: Safari iOS reemplaza el WindowProxy del popup tras navegar
+      // a GitHub (cross-origin). Decap CMS compara e.source con su referencia
+      // guardada al abrir el popup; si no coinciden, descarta el mensaje.
+      // Solución: capturar el mismo objeto que Decap CMS guarda y re-despachar
+      // el mensaje con ese source para que el check pase.
+      var _popup = null;
+      var _origWinOpen = window.open;
+      window.open = function () {
+        _popup = _origWinOpen.apply(this, arguments);
+        _log('🪟 popup abierto: ' + (_popup ? 'ok' : 'null'));
+        return _popup;
+      };
+
+      var _fwded = false;
+      _origAdd.call(window, 'message', function (e) {
+        if (_fwded || !e.data ||
+            String(e.data).indexOf('authorization:github:success:') !== 0) return;
+        // Si el source ya es el popup capturado, no re-despachar (evita bucle)
+        if (_popup && e.source === _popup) {
+          _log('✅ source ya coincide con popup — no re-despacho');
+          return;
+        }
+        _log('🔁 re-despachando con source=popup (e.source original: ' +
+             (e.source ? 'window' : 'null') + ')');
+        _fwded = true;
+        var data = e.data, origin = e.origin;
+        setTimeout(function () {
+          window.dispatchEvent(new MessageEvent('message', {
+            data: data, origin: origin, source: _popup,
+          }));
+        }, 20);
+      }, true);
     </script>
 
     <script>window.CMS_MANUAL_INIT = true</script>
