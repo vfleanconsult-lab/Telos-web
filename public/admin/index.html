@@ -6,7 +6,7 @@
     <title>Telos CMS — Administración</title>
   </head>
   <body>
-    <!-- Decap CMS con configuración inline — evita depender de config.yml externo -->
+    <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
     <script>window.CMS_MANUAL_INIT = true</script>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <script>
@@ -16,11 +16,9 @@
             name: 'github',
             repo: 'vfleanconsult-lab/Telos-web',
             branch: 'main',
-            auth_type: 'pkce',
-            // Reemplazar con el Client ID de tu GitHub OAuth App.
-            // Instrucciones: github.com/settings/developers → New OAuth App
-            // Callback URL: https://telos-web-pi.vercel.app/admin
-            app_id: 'Ov23liJhis0KyJECIdZA',
+            // base_url apunta a nuestro proxy OAuth en Vercel
+            base_url: window.location.origin,
+            auth_endpoint: 'api/auth',
           },
           media_folder: 'public/images/blog',
           public_folder: '/images/blog',
