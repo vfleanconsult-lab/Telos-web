@@ -8,7 +8,7 @@
   <body>
     <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
 
-    <!-- DIAGNÓSTICO v5: rastrea add/remove de listeners + timing -->
+    <!-- DIAGNÓSTICO v6: rastrea listeners + storage writes + dump post-auth -->
     <script>
       var _t0 = Date.now();
       function _ms() { return (Date.now() - _t0) + 'ms'; }
@@ -18,7 +18,7 @@
         'position:fixed;bottom:0;left:0;right:0;background:#111;color:#0f0;' +
         'font:11px/1.5 monospace;padding:6px 8px;z-index:99999;' +
         'max-height:40vh;overflow:auto;word-break:break-all';
-      _bar.innerHTML = '<b>DEBUG v5</b>';
+      _bar.innerHTML = '<b>DEBUG v6</b>';
       document.documentElement.appendChild(_bar);
 
       function _log(txt) {
@@ -125,6 +125,32 @@
             data: data, origin: origin, source: _popup,
           }));
         }, 20);
+      }, true);
+
+      // Intercepta escrituras en localStorage y sessionStorage
+      var _origLSSet = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (key, val) {
+        var which = (this === localStorage) ? 'LS' : 'SS';
+        _log('💾 ' + which + '.setItem(' + key + ')=' + String(val).slice(0, 60));
+        return _origLSSet.call(this, key, val);
+      };
+
+      // Al recibir el mensaje de auth, vuelca todo el storage 3 s después
+      _origAdd.call(window, 'message', function (e) {
+        if (!e.data || String(e.data).indexOf('authorization:github:success:') !== 0) return;
+        _log('⏳ auth recibido — dump de storage en 3 s…');
+        setTimeout(function () {
+          _log('📦 LS (' + localStorage.length + ' entradas):');
+          for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            _log('  ' + k + ' → ' + String(localStorage.getItem(k)).slice(0, 80));
+          }
+          _log('📦 SS (' + sessionStorage.length + ' entradas):');
+          for (var j = 0; j < sessionStorage.length; j++) {
+            var sk = sessionStorage.key(j);
+            _log('  ' + sk + ' → ' + String(sessionStorage.getItem(sk)).slice(0, 80));
+          }
+        }, 3000);
       }, true);
     </script>
 
