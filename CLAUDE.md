@@ -83,6 +83,106 @@ const { campo1, campo2 } = entry!.data;
 - **Sección de impacto máximo** — fondo `bg-black-forest` con texto blanco (usado en CTA final y bloques de propósito)
 - **Comentarios en español** — los comentarios de código van en español
 
+## CMS — Sveltia CMS + GitHub
+
+El panel de administración vive en `/admin` y usa **Sveltia CMS** (no Decap ni Netlify CMS). Sveltia es un reemplazo directo compatible con el mismo `config.yml`, pero sin los bugs de autenticación de Decap 3.x.
+
+### Archivos clave
+
+| Archivo | Rol |
+|---|---|
+| `public/admin/index.html` | Carga Sveltia CMS desde unpkg |
+| `src/pages/api/cms-config.ts` | Sirve la configuración YAML (ver abajo) |
+| `src/middleware.ts` | Fallback: también sirve `/admin/config.yml` |
+| `src/pages/api/auth.ts` | Inicia el flujo OAuth con GitHub |
+| `src/pages/api/callback.ts` | Recibe el código, intercambia por token, hace `postMessage` |
+
+### Por qué /api/cms-config y no config.yml directamente
+
+Vercel bloquea **todas** las URLs que terminen en `.yml`, incluso las servidas desde funciones serverless. La solución es:
+1. Crear el endpoint `src/pages/api/cms-config.ts` que sirve el YAML con `Content-Type: text/yaml`
+2. En `public/admin/index.html` apuntar con `<link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />`
+
+### Configuración del backend OAuth
+
+```yaml
+backend:
+  name: github
+  repo: vfleanconsult-lab/Telos-web
+  branch: main
+  base_url: https://telos-web-pi.vercel.app
+  auth_endpoint: api/auth
+```
+
+La variable de entorno `GITHUB_CLIENT_SECRET` debe estar en Vercel. El Client ID del GitHub OAuth App es `Ov23liJhis0KyJECIdZA`.
+
+### Campo imagen en Sveltia CMS
+
+Usar `multiple: false` — Sveltia no soporta `allow_multiple: false` (que usa Decap).
+
+```yaml
+- label: Imagen de portada
+  name: imagen
+  widget: image
+  required: false
+  multiple: false
+```
+
+---
+
+## Astro 5 — cambios de API que rompen compatibilidad
+
+### entry.id incluye la extensión del archivo
+
+En Astro 5, `entry.id` vale `"articulo-1.md"` (no `"articulo-1"`). Consecuencias:
+
+- **URLs**: nunca usar `entry.id` directamente en un `href` → genera `/articulos/articulo-1.md` → 404.
+  ```astro
+  <!-- MAL -->
+  href={`/articulos/${articulo.id}`}
+  <!-- BIEN -->
+  href={`/articulos/${articulo.id.replace(/\.md$/, '')}`}
+  ```
+- **getEntry**: el slug limpio de la URL no coincide con el id del entry. Usar fallback:
+  ```typescript
+  const entry = slug
+    ? (await getEntry('blog', slug) ?? await getEntry('blog', `${slug}.md`))
+    : undefined;
+  ```
+
+### render() ya no es método del entry
+
+```typescript
+// Astro 4 (roto en Astro 5)
+const { Content } = await entry.render();
+
+// Astro 5 (correcto)
+import { render } from 'astro:content';
+const { Content } = await render(entry);
+```
+
+### Fechas YAML en colecciones
+
+Sveltia CMS guarda fechas sin comillas (`fecha: 2026-05-13`). YAML las parsea como objeto `Date`, no como `string`. El schema Zod debe aceptar ambos:
+
+```typescript
+fecha: z.union([z.string(), z.date()]).transform(v =>
+  v instanceof Date ? v.toISOString().split('T')[0] : v
+),
+```
+
+---
+
+## Integraciones externas — limitaciones conocidas
+
+### HubSpot cuenta gratuita
+
+Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es posible usar HubSpot como backend de blog con cuenta free. Lo que sí está disponible gratis es la API de formularios:
+- Endpoint: `POST /submissions/v3/integration/submit/:portalId/:formGuid`
+- Útil para el formulario de contacto sin depender de un servicio de terceros.
+
+---
+
 ## Gestión del proyecto
 
 - Rama de desarrollo activa: `claude/telos-sprint-1-5SqER`
