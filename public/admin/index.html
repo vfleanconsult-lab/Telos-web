@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Telos CMS — Administración</title>
+    <!-- Redirige a Decap CMS a /api/cms-config para evitar el bloqueo de .yml en Vercel -->
+    <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
     <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
@@ -112,7 +114,7 @@
       })();
     </script>
 
-    <!-- Decap CMS auto-inicializa desde /admin/config.yml -->
+    <!-- Decap CMS auto-inicializa — config desde /api/cms-config (ver <link> en <head>) -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </body>
 </html>
