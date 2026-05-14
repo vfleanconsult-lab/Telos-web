@@ -8,27 +8,22 @@
   <body>
     <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
 
-    <!-- DIAGNÓSTICO TEMPORAL: captura todos los postMessage y los muestra en pantalla.
-         Eliminar este bloque una vez resuelto el login. -->
+    <!-- DIAGNÓSTICO v2: banner rojo visible al cargar + alert al recibir mensaje -->
     <script>
+      // Banner rojo aparece inmediatamente — confirma que esta versión del script está cargada.
+      var _dbg = document.createElement('div');
+      _dbg.id = '_dbg';
+      _dbg.style.cssText =
+        'position:fixed;top:0;left:0;right:0;background:#c00;color:#fff;' +
+        'font:bold 13px/1 sans-serif;padding:10px;text-align:center;z-index:99999';
+      _dbg.textContent = 'Debug v2 — haz login y reporta qué dice aquí';
+      document.documentElement.appendChild(_dbg);
+
       window.addEventListener('message', function (e) {
-        var bar = document.getElementById('_dbg');
-        if (!bar) {
-          bar = document.createElement('div');
-          bar.id = '_dbg';
-          bar.style.cssText =
-            'position:fixed;bottom:0;left:0;right:0;background:#111;color:#0f0;' +
-            'font-family:monospace;font-size:11px;padding:6px 10px;z-index:99999;' +
-            'word-break:break-all;max-height:30vh;overflow:auto';
-          document.body.appendChild(bar);
-        }
-        var line = document.createElement('p');
-        line.style.margin = '2px 0';
-        line.textContent =
-          'origin=' + e.origin +
-          ' | data=' + String(e.data).slice(0, 120);
-        bar.appendChild(line);
-      }, true); // fase de captura: se ejecuta antes que el listener de Decap CMS
+        _dbg.style.background = '#060';
+        _dbg.textContent =
+          'MSG → origin=' + e.origin + ' | data=' + String(e.data).slice(0, 100);
+      }, true);
     </script>
 
     <script>window.CMS_MANUAL_INIT = true</script>
