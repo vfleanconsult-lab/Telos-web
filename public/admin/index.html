@@ -26,24 +26,46 @@
         _bar.scrollTop = _bar.scrollHeight;
       }
 
-      // Rastrea cuándo Decap CMS agrega y remueve listeners de 'message'
+      // Rastrea cuándo Decap CMS agrega y remueve listeners — y ENVUELVE cada
+      // listener para ver si se invoca con el mensaje de auth y qué hace.
       var _origAdd = EventTarget.prototype.addEventListener;
       var _origRem = EventTarget.prototype.removeEventListener;
       var _msgCount = 0;
+      var _fnMap = new Map(); // original fn → wrapped fn
 
       EventTarget.prototype.addEventListener = function (type, fn, opts) {
-        if (type === 'message' && this === window) {
+        if (type === 'message' && this === window && typeof fn === 'function') {
           _msgCount++;
-          _log('➕ ADD listener #' + _msgCount);
+          var seq = _msgCount;
+          var wrapped = function (e) {
+            if (String(e.data || '').indexOf('authorization:github') !== -1) {
+              _log('🎯 listener #' + seq +
+                   ' invocado — isTrusted=' + e.isTrusted +
+                   ' e.source=' + (e.source ? 'window' : 'null'));
+              try {
+                fn.call(this, e);
+                _log('🎯 listener #' + seq + ' terminó sin excepción');
+              } catch (err) {
+                _log('🎯 listener #' + seq + ' EXCEPCIÓN: ' + err);
+              }
+            } else {
+              fn.call(this, e);
+            }
+          };
+          _fnMap.set(fn, wrapped);
+          _log('➕ ADD listener #' + seq);
+          return _origAdd.call(this, type, wrapped, opts);
         }
         return _origAdd.apply(this, arguments);
       };
 
       EventTarget.prototype.removeEventListener = function (type, fn, opts) {
         if (type === 'message' && this === window) {
-          _log('➖ REMOVE listener (activos≈' + (_msgCount--) + ')');
+          var wrapped = _fnMap.get(fn);
+          if (wrapped) { _fnMap.delete(fn); fn = wrapped; }
+          _log('➖ REMOVE (activos≈' + (--_msgCount) + ')');
         }
-        return _origRem.apply(this, arguments);
+        return _origRem.call(this, type, fn, opts);
       };
 
       // Captura postMessages (fase captura — antes que Decap CMS)
