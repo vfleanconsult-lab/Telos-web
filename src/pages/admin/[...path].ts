@@ -1,10 +1,8 @@
-// Sirve /admin/config.yml como ruta server-side.
-// Necesario porque Vercel no sirve archivos .yml como estáticos
-// con el adaptador @astrojs/vercel en modo server.
+// Catch-all para /admin/* — sirve config.yml cuando Vercel no lo sirve como estático.
+// Vercel bloquea .yml en el filesystem handler; las requests caen aquí.
 import type { APIRoute } from 'astro';
 
-export const GET: APIRoute = () => {
-  const yaml = `backend:
+const CONFIG_YAML = `backend:
   name: github
   repo: vfleanconsult-lab/Telos-web
   branch: main
@@ -52,10 +50,14 @@ collections:
         widget: markdown
 `;
 
-  return new Response(yaml, {
-    headers: {
-      'Content-Type':  'text/yaml; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600',
-    },
-  });
+export const GET: APIRoute = ({ params }) => {
+  if (params.path === 'config.yml') {
+    return new Response(CONFIG_YAML, {
+      headers: {
+        'Content-Type':  'text/yaml; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      },
+    });
+  }
+  return new Response('Not found', { status: 404 });
 };
