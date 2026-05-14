@@ -8,7 +8,7 @@
   <body>
     <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
 
-    <!-- DIAGNÓSTICO v7: consola + unhandledrejection + storage + listeners -->
+    <!-- DIAGNÓSTICO v8: fetch + errores + test directo del token -->
     <script>
       var _t0 = Date.now();
       function _ms() { return (Date.now() - _t0) + 'ms'; }
@@ -18,7 +18,7 @@
         'position:fixed;bottom:0;left:0;right:0;background:#111;color:#0f0;' +
         'font:11px/1.5 monospace;padding:6px 8px;z-index:99999;' +
         'max-height:40vh;overflow:auto;word-break:break-all';
-      _bar.innerHTML = '<b>DEBUG v7</b>';
+      _bar.innerHTML = '<b>DEBUG v8</b>';
       document.documentElement.appendChild(_bar);
 
       function _log(txt) {
@@ -26,157 +26,78 @@
         _bar.scrollTop = _bar.scrollHeight;
       }
 
-      // Rastrea cuándo Decap CMS agrega y remueve listeners — y ENVUELVE cada
-      // listener para ver si se invoca con el mensaje de auth y qué hace.
-      var _origAdd = EventTarget.prototype.addEventListener;
-      var _origRem = EventTarget.prototype.removeEventListener;
-      var _msgCount = 0;
-      var _fnMap = new Map(); // original fn → wrapped fn
-
-      EventTarget.prototype.addEventListener = function (type, fn, opts) {
-        if (type === 'message' && this === window && typeof fn === 'function') {
-          _msgCount++;
-          var seq = _msgCount;
-          var wrapped = function (e) {
-            if (String(e.data || '').indexOf('authorization:github') !== -1) {
-              _log('🎯 listener #' + seq +
-                   ' invocado — isTrusted=' + e.isTrusted +
-                   ' e.source=' + (e.source ? 'window' : 'null'));
-              try {
-                fn.call(this, e);
-                _log('🎯 listener #' + seq + ' terminó sin excepción');
-              } catch (err) {
-                _log('🎯 listener #' + seq + ' EXCEPCIÓN: ' + err);
-              }
-            } else {
-              fn.call(this, e);
-            }
-          };
-          _fnMap.set(fn, wrapped);
-          _log('➕ ADD listener #' + seq);
-          return _origAdd.call(this, type, wrapped, opts);
-        }
-        return _origAdd.apply(this, arguments);
-      };
-
-      EventTarget.prototype.removeEventListener = function (type, fn, opts) {
-        if (type === 'message' && this === window) {
-          var wrapped = _fnMap.get(fn);
-          if (wrapped) { _fnMap.delete(fn); fn = wrapped; }
-          _log('➖ REMOVE (activos≈' + (--_msgCount) + ')');
-        }
-        return _origRem.call(this, type, fn, opts);
-      };
-
-      // Captura postMessages (fase captura — antes que Decap CMS)
-      _origAdd.call(window, 'message', function (e) {
-        _log('📨 MSG origin=' + e.origin + ' data=' + String(e.data).slice(0, 70) +
-             ' listeners_activos≈' + _msgCount);
-      }, true);
-
-      // Intercepta fetch — TODAS las URLs
+      // Intercepción de fetch
       var _origFetch = window.fetch;
       window.fetch = function (url) {
         var u = String(url);
         return _origFetch.apply(this, arguments).then(function (res) {
-          _log('🌐 ' + res.status + ' ' + u.replace('https://', '').slice(0, 55));
+          _log('🌐 ' + res.status + ' ' + u.replace('https://', '').slice(0, 60));
           return res;
         }, function (err) {
-          _log('❌ FETCH ERR ' + u.replace('https://', '').slice(0, 40) + ' ' + err);
+          _log('❌ FETCH: ' + u.slice(0, 40) + ' ' + err);
           return Promise.reject(err);
         });
       };
 
-      // Intercepta XHR — por si Decap CMS usa XMLHttpRequest en lugar de fetch
-      var _origXHR = XMLHttpRequest.prototype.open;
-      XMLHttpRequest.prototype.open = function (method, url) {
-        _log('📡 XHR ' + method + ' ' + String(url).replace('https://', '').slice(0, 55));
-        return _origXHR.apply(this, arguments);
-      };
-
-      // Fix e.source: Safari iOS reemplaza el WindowProxy del popup tras navegar
-      // a GitHub (cross-origin). Decap CMS compara e.source con su referencia
-      // guardada al abrir el popup; si no coinciden, descarta el mensaje.
-      // Solución: capturar el mismo objeto que Decap CMS guarda y re-despachar
-      // el mensaje con ese source para que el check pase.
-      var _popup = null;
-      var _origWinOpen = window.open;
-      window.open = function () {
-        _popup = _origWinOpen.apply(this, arguments);
-        _log('🪟 popup abierto: ' + (_popup ? 'ok' : 'null'));
-        return _popup;
-      };
-
-      var _fwded = false;
-      _origAdd.call(window, 'message', function (e) {
-        if (_fwded || !e.data ||
-            String(e.data).indexOf('authorization:github:success:') !== 0) return;
-        // Si el source ya es el popup capturado, no re-despachar (evita bucle)
-        if (_popup && e.source === _popup) {
-          _log('✅ source ya coincide con popup — no re-despacho');
-          return;
-        }
-        _log('🔁 re-despachando con source=popup (e.source original: ' +
-             (e.source ? 'window' : 'null') + ')');
-        _fwded = true;
-        var data = e.data, origin = e.origin;
-        setTimeout(function () {
-          window.dispatchEvent(new MessageEvent('message', {
-            data: data, origin: origin, source: _popup,
-          }));
-        }, 20);
-      }, true);
-
-      // Intercepta escrituras en localStorage y sessionStorage
-      var _origLSSet = Storage.prototype.setItem;
-      Storage.prototype.setItem = function (key, val) {
-        var which = (this === localStorage) ? 'LS' : 'SS';
-        _log('💾 ' + which + '.setItem(' + key + ')=' + String(val).slice(0, 60));
-        return _origLSSet.call(this, key, val);
-      };
-
-      // Al recibir el mensaje de auth, vuelca todo el storage 3 s después
-      _origAdd.call(window, 'message', function (e) {
-        if (!e.data || String(e.data).indexOf('authorization:github:success:') !== 0) return;
-        _log('⏳ auth recibido — dump de storage en 3 s…');
-        setTimeout(function () {
-          _log('📦 LS (' + localStorage.length + ' entradas):');
-          for (var i = 0; i < localStorage.length; i++) {
-            var k = localStorage.key(i);
-            _log('  ' + k + ' → ' + String(localStorage.getItem(k)).slice(0, 80));
-          }
-          _log('📦 SS (' + sessionStorage.length + ' entradas):');
-          for (var j = 0; j < sessionStorage.length; j++) {
-            var sk = sessionStorage.key(j);
-            _log('  ' + sk + ' → ' + String(sessionStorage.getItem(sk)).slice(0, 80));
-          }
-        }, 3000);
-      }, true);
-
-      // Intercepta console.error y console.warn — captura errores internos de Decap CMS
+      // Errores de consola — captura fallos internos de Decap CMS
       var _origCE = console.error;
       var _origCW = console.warn;
       console.error = function () {
         var msg = Array.prototype.slice.call(arguments).map(String).join(' ');
-        _log('❗ console.error: ' + msg.slice(0, 150));
+        _log('❗ ERR: ' + msg.slice(0, 150));
         return _origCE.apply(this, arguments);
       };
       console.warn = function () {
         var msg = Array.prototype.slice.call(arguments).map(String).join(' ');
-        _log('⚠️ console.warn: ' + msg.slice(0, 120));
+        _log('⚠️ WARN: ' + msg.slice(0, 120));
         return _origCW.apply(this, arguments);
       };
 
-      // Captura promesas rechazadas sin manejador — falla async en Decap CMS
+      // Promesas rechazadas sin manejador
       window.addEventListener('unhandledrejection', function (ev) {
         _log('🔥 unhandledrejection: ' + String(ev.reason).slice(0, 150));
       });
+
+      // Conteo de listeners de mensaje
+      var _origAdd = EventTarget.prototype.addEventListener;
+      var _mc = 0;
+      EventTarget.prototype.addEventListener = function (type, fn, opts) {
+        if (type === 'message' && this === window) {
+          _log('➕ MSG listener #' + (++_mc));
+        }
+        return _origAdd.apply(this, arguments);
+      };
+
+      // Logger de mensajes de auth entrantes + test directo del token
+      _origAdd.call(window, 'message', function (e) {
+        var data = String(e.data || '');
+        if (data.indexOf('authorization:github:success:') !== 0) return;
+
+        _log('📨 AUTH MSG recibido');
+        var match = data.match(/authorization:(.+?):(.+?):(.+)/);
+        if (!match) { _log('❌ formato inesperado'); return; }
+
+        var token;
+        try { token = JSON.parse(match[3]).token; } catch (_) { token = match[3]; }
+        if (!token) { _log('❌ token vacío'); return; }
+        _log('🔑 token: ' + token.slice(0, 12) + '…');
+
+        // Verifica el token llamando a GitHub API directamente
+        _origFetch('https://api.github.com/user', {
+          headers: { 'Authorization': 'token ' + token },
+        }).then(function (res) {
+          _log('👤 GitHub /user → ' + res.status);
+          if (res.ok) return res.json().then(function (u) {
+            _log('👤 login=' + u.login + ' name=' + u.name);
+          });
+          return res.text().then(function (t) { _log('👤 error body: ' + t.slice(0, 80)); });
+        }).catch(function (err) {
+          _log('❌ GitHub API: ' + err);
+        });
+      }, true);
     </script>
 
-    <script>window.CMS_MANUAL_INIT = true</script>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-    <!-- Canal de respaldo: recibe el token cuando window.opener es nulo (Safari iOS).
-         Re-despacha el mensaje como MessageEvent para que Decap CMS lo procese. -->
+    <!-- Canal de respaldo: BroadcastChannel para Safari iOS -->
     <script>
       (function () {
         if (typeof BroadcastChannel === 'undefined') return;
@@ -190,44 +111,8 @@
         };
       })();
     </script>
-    <script>
-      CMS.init({
-        config: {
-          backend: {
-            name: 'github',
-            repo: 'vfleanconsult-lab/Telos-web',
-            branch: 'main',
-            // base_url apunta a nuestro proxy OAuth en Vercel
-            base_url: window.location.origin,
-            auth_endpoint: 'api/auth',
-          },
-          media_folder: 'public/images/blog',
-          public_folder: '/images/blog',
-          locale: 'es',
-          collections: [
-            {
-              name: 'blog',
-              label: 'Artículos',
-              label_singular: 'Artículo',
-              folder: 'src/content/blog',
-              create: true,
-              slug: '{{slug}}',
-              fields: [
-                { label: 'Título',    name: 'titulo',    widget: 'string' },
-                { label: 'Bajada',    name: 'bajada',    widget: 'text',
-                  hint: 'Párrafo editorial de 2 a 4 líneas — contextualiza y engancha al lector' },
-                { label: 'Fecha',     name: 'fecha',     widget: 'datetime',
-                  format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false },
-                { label: 'Categoría', name: 'categoria', widget: 'select',
-                  options: ['Estrategia', 'Excelencia Organizacional', 'Liderazgo'] },
-                { label: 'Imagen de portada', name: 'imagen', widget: 'image',
-                  required: false, allow_multiple: false },
-                { label: 'Contenido', name: 'body',      widget: 'markdown' },
-              ],
-            },
-          ],
-        },
-      });
-    </script>
+
+    <!-- Decap CMS auto-inicializa desde /admin/config.yml -->
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </body>
 </html>
