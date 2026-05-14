@@ -8,16 +8,43 @@
   <body>
     <!-- Decap CMS con OAuth proxy propio en /api/auth y /api/callback -->
 
-    <!-- DIAGNÓSTICO v3: alert con origin completo para poder leerlo -->
+    <!-- DIAGNÓSTICO v4: barra no bloqueante con interceptor fetch -->
     <script>
+      // Barra de diagnóstico en la parte inferior
+      var _bar = document.createElement('div');
+      _bar.style.cssText =
+        'position:fixed;bottom:0;left:0;right:0;background:#111;color:#0f0;' +
+        'font:11px/1.5 monospace;padding:6px 8px;z-index:99999;' +
+        'max-height:35vh;overflow:auto;word-break:break-all';
+      _bar.innerHTML = '<b>DEBUG</b> — esperando login…';
+      document.documentElement.appendChild(_bar);
+
+      function _log(txt) {
+        _bar.innerHTML += '<br>' + txt;
+        _bar.scrollTop = _bar.scrollHeight;
+      }
+
+      // Captura todos los postMessages (no bloqueante)
       window.addEventListener('message', function (e) {
-        alert(
-          'ORIGIN:\n' + e.origin +
-          '\n\nBASE_URL (lo que espera CMS):\n' + window.location.origin +
-          '\n\nCOINCIDEN: ' + (e.origin === window.location.origin ? 'SÍ' : 'NO') +
-          '\n\nDATA (primeros 80 chars):\n' + String(e.data).slice(0, 80)
-        );
+        _log('📨 MSG origin=' + e.origin + ' | data=' + String(e.data).slice(0, 80));
       }, true);
+
+      // Intercepta fetch para ver llamadas a GitHub API
+      var _origFetch = window.fetch;
+      window.fetch = function (url, opts) {
+        var u = String(url);
+        return _origFetch.apply(this, arguments).then(function (res) {
+          if (u.indexOf('github.com') !== -1) {
+            _log('🌐 FETCH ' + res.status + ' ' + u.replace('https://', '').slice(0, 60));
+          }
+          return res;
+        }, function (err) {
+          if (u.indexOf('github.com') !== -1) {
+            _log('❌ FETCH ERR ' + u.replace('https://', '').slice(0, 50) + ' ' + err);
+          }
+          return Promise.reject(err);
+        });
+      };
     </script>
 
     <script>window.CMS_MANUAL_INIT = true</script>
