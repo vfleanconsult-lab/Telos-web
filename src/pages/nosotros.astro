@@ -29,26 +29,87 @@ const { proposito, vision, mision } = entry!.data;
       </div>
     </section>
 
-    <!-- ── Propósito — fondo oscuro, máximo impacto ────────── -->
-    <section class="py-24 bg-black-forest">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-        <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">
-          Nuestro propósito
-        </p>
-        <!-- Tratado como cita para énfasis semántico -->
-        <blockquote class="font-sans text-2xl sm:text-3xl font-medium leading-relaxed text-white/95">
-          {proposito}
-        </blockquote>
+    <!-- ── Propósito — difuminado radial + marco interior ──── -->
+    <!-- Gradiente radial: más claro al centro, oscuro hacia los bordes -->
+    <section
+      class="py-24"
+      style="background: radial-gradient(ellipse at center, #2d3d12 0%, #243010 60%, #1a2408 100%);"
+    >
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Marco interior filete 1.5px dust-grey con 24px de margen -->
+        <div style="border: 1.5px solid #D6D5C9; padding: 24px;">
+          <div class="text-center text-white py-10 px-4">
+            <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">
+              Nuestro propósito
+            </p>
+            <!-- Texto propósito — mínimo 1.75rem, centrado, weight 500 -->
+            <blockquote
+              class="font-sans font-medium leading-relaxed text-white/95"
+              style="font-size: clamp(1.75rem, 2.5vw, 2.25rem);"
+            >
+              {proposito}
+            </blockquote>
+          </div>
+        </div>
+
       </div>
     </section>
 
-    <!-- ── Visión + Misión — grid 2 columnas ───────────────── -->
+    <!-- ── ¿Por qué Telos? — imagen izq / texto der ─────────── -->
+    <section class="py-20 border-b border-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-20 items-stretch">
+
+          <!-- Imagen — oculta en mobile, visible desde lg; altura fija 500px -->
+          <div class="relative hidden lg:block overflow-hidden" style="height: 500px;">
+            <img
+              src="/images/nosotros-faro.png"
+              alt="Faro sobre el mar — símbolo de propósito y dirección"
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <!-- Overlay sutil para suavizar la imagen sin competir con el texto -->
+            <div class="absolute inset-0" style="background: rgba(36,48,16,0.2);"></div>
+          </div>
+
+          <!-- Texto — eyebrow + bloque con acento Forest izquierdo -->
+          <div class="flex flex-col justify-center py-8">
+            <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-8">
+              Por qué Telos
+            </p>
+
+            <!-- Borde izquierdo acento Forest 2px, padding-left 1.5rem -->
+            <div class="border-l-2 border-black-forest pl-6 space-y-5">
+              <p class="text-ink/80 leading-relaxed">
+                Telos es una palabra griega que significa fin, meta, propósito. Tres conceptos que son el centro de cualquier organización que quiere perdurar.
+              </p>
+              <p class="text-ink/80 leading-relaxed">
+                Una empresa sin norte verdadero no tiene dirección. Sin una meta clara, los objetivos se vuelven inservibles y las personas pierden el hilo que conecta su trabajo diario con algo más grande.
+              </p>
+              <p class="text-ink/80 leading-relaxed">
+                En años de trabajo como consultor, he llegado a una convicción: los resultados sostenibles no se logran con más horas ni con más presión. Se logran cuando las personas entienden hacia dónde va la organización, sienten que son parte de ese camino y tienen metas concretas que les permiten contribuir y desarrollarse.
+              </p>
+              <p class="text-ink/80 leading-relaxed">
+                El compromiso no se declara — se construye. Y se construye cuando los equipos de liderazgo son capaces de traducir su propósito y visión en objetivos desafiantes pero alcanzables, con metas que involucran a todas las áreas y hacen que cada persona se sienta parte del éxito.
+              </p>
+              <p class="font-sans font-semibold text-black-forest leading-relaxed">
+                Eso es lo que hacemos en Telos.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Visión + Misión — tarjetas con acento superior Forest ── -->
     <section class="py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 border border-dust-grey">
 
-          <!-- Visión -->
-          <div class="p-10 md:p-16 border-b md:border-b-0 md:border-r border-dust-grey">
+          <!-- Visión — borde superior Forest 2px + padding generoso -->
+          <div class="border-t-2 border-black-forest py-10 px-8 border-b md:border-b-0 md:border-r border-dust-grey">
             <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
               Visión
             </p>
@@ -57,8 +118,8 @@ const { proposito, vision, mision } = entry!.data;
             </p>
           </div>
 
-          <!-- Misión -->
-          <div class="p-10 md:p-16">
+          <!-- Misión — borde superior Forest 2px + padding generoso -->
+          <div class="border-t-2 border-black-forest py-10 px-8">
             <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
               Misión
             </p>
