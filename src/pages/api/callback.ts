@@ -34,11 +34,9 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(`Error GitHub: ${tokenData.error_description ?? tokenData.error}`, { status: 400 });
   }
 
-  // Formato que espera Decap CMS — postMessage al opener con el token
-  const message = `authorization:github:success:${JSON.stringify({
-    token:    tokenData.access_token,
-    provider: 'github',
-  })}`;
+  // Formato querystring que espera Decap CMS (igual que el proveedor de Netlify)
+  const params  = new URLSearchParams({ token: tokenData.access_token, provider: 'github' });
+  const message = `authorization:github:success:${params.toString()}`;
 
   // HTML mínimo que envía el token al opener y cierra el popup.
   // Se envía directamente sin esperar confirmación (evita problema de opener nulo
