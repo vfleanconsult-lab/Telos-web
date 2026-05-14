@@ -40,12 +40,16 @@ const {
             </h1>
           </div>
 
-          <!-- Columna derecha — placeholder imagen -->
-          <div class="aspect-[4/3] border border-white/20 flex flex-col items-center justify-center gap-3 p-8 text-white/30">
-            <ImageIcon size={36} strokeWidth={1.5} aria-hidden="true" />
-            <p class="font-mono text-xs uppercase tracking-wider text-center leading-relaxed">
-              Imagen pendiente
-            </p>
+          <!-- Columna derecha — imagen hero CFO, oculta en mobile -->
+          <div class="relative aspect-[4/3] hidden lg:block overflow-hidden">
+            <img
+              src="/images/cfo-hero.png"
+              alt="Director financiero analizando métricas estratégicas"
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <!-- Overlay oscuro para no competir con el texto blanco del fondo -->
+            <div class="absolute inset-0 bg-black-forest/40"></div>
           </div>
 
         </div>
@@ -57,12 +61,14 @@ const {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-          <!-- Columna izquierda — placeholder imagen -->
-          <div class="aspect-[4/3] bg-dust-grey flex flex-col items-center justify-center gap-3 p-8 order-2 lg:order-1 text-ash-grey">
-            <ImageIcon size={36} strokeWidth={1.5} aria-hidden="true" />
-            <p class="font-mono text-xs uppercase tracking-wider text-center leading-relaxed">
-              Imagen pendiente
-            </p>
+          <!-- Columna izquierda — imagen caos/problema, oculta en mobile -->
+          <div class="relative aspect-[4/3] hidden lg:block overflow-hidden order-2 lg:order-1">
+            <img
+              src="/images/cfo-caos.png"
+              alt="Equipo directivo sin información financiera clara"
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
           </div>
 
           <!-- Columna derecha — título + bullets + cierre -->
@@ -112,12 +118,14 @@ const {
             </p>
           </div>
 
-          <!-- Columna derecha — placeholder imagen -->
-          <div class="aspect-[4/3] border border-ash-grey/40 flex flex-col items-center justify-center gap-3 p-8 text-ash-grey">
-            <ImageIcon size={36} strokeWidth={1.5} aria-hidden="true" />
-            <p class="font-mono text-xs text-black-forest/40 uppercase tracking-wider text-center leading-relaxed">
-              Imagen pendiente
-            </p>
+          <!-- Columna derecha — imagen orden/solución, oculta en mobile -->
+          <div class="relative aspect-[4/3] hidden lg:block overflow-hidden">
+            <img
+              src="/images/cfo-orden.png"
+              alt="Dashboard financiero con métricas claras y ordenadas"
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
           </div>
 
         </div>
