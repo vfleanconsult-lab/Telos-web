@@ -64,6 +64,13 @@
           return Promise.reject(err);
         });
       };
+
+      // Intercepta XHR — por si Decap CMS usa XMLHttpRequest en lugar de fetch
+      var _origXHR = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function (method, url) {
+        _log('📡 XHR ' + method + ' ' + String(url).replace('https://', '').slice(0, 55));
+        return _origXHR.apply(this, arguments);
+      };
     </script>
 
     <script>window.CMS_MANUAL_INIT = true</script>

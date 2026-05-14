@@ -34,10 +34,10 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(`Error GitHub: ${tokenData.error_description ?? tokenData.error}`, { status: 400 });
   }
 
-  // URLSearchParams: evita colones dentro del valor (token=xxx&provider=github).
-  // Un split(':')[3] simple en Decap CMS extrae el contenido correctamente.
-  const params  = new URLSearchParams({ token: tokenData.access_token, provider: 'github' });
-  const message = `authorization:github:success:${params.toString()}`;
+  // Formato que Decap CMS extrae con regex /authorization:(.+?):(.+?):(.+)/ →
+  // match[3] = token crudo. Envolver en JSON o URLSearchParams pasa el string
+  // completo como token, lo que falla en la API de GitHub.
+  const message = `authorization:github:success:${tokenData.access_token}`;
 
   // HTML que intenta postMessage al opener y, si el opener es nulo
   // (Safari iOS anula window.opener tras navegación cross-origin por GitHub),
