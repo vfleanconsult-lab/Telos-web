@@ -49,17 +49,14 @@ const {
         </div>
       </div>
 
-      <!-- Columna imagen — placeholder aspect-[4/3] -->
-      <div class="relative aspect-[4/3] bg-dust-grey flex items-center justify-center">
-        <div class="text-center px-8">
-          <!-- Ícono imagen placeholder -->
-          <div class="w-14 h-14 border border-ash-grey mx-auto mb-4 flex items-center justify-center text-ash-grey">
-            <ImageIcon size={22} strokeWidth={1.5} aria-hidden="true" />
-          </div>
-          <p class="font-mono text-xs text-ash-grey uppercase tracking-wider leading-relaxed">
-            Editar: home.md<br/>→ hero.image
-          </p>
-        </div>
+      <!-- Columna imagen — oculta en mobile, visible desde md -->
+      <div class="relative aspect-[4/3] hidden md:block overflow-hidden">
+        <img
+          src="/images/hero-home.png"
+          alt="Equipo de consultoría Telos trabajando con directivos"
+          class="w-full h-full object-cover"
+          loading="lazy"
+        />
       </div>
 
     </div>
