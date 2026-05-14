@@ -5,6 +5,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getEntry } from 'astro:content';
+import { Users } from 'lucide-astro';
 
 const entry  = await getEntry('site', 'equipo');
 const { nombre, rol, tagline, foto, bio, credenciales } = entry!.data;
@@ -35,10 +36,7 @@ const { nombre, rol, tagline, foto, bio, credenciales } = entry!.data;
               ) : (
                 <!-- Placeholder hasta que se añada la foto en equipo.md -->
                 <div class="w-full h-full flex flex-col items-center justify-center gap-3 p-8">
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
-                    <circle cx="20" cy="14" r="7"/>
-                    <path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16"/>
-                  </svg>
+                  <Users size={40} strokeWidth={1.5} class="text-ash-grey" aria-hidden="true" />
                   <p class="font-mono text-xs text-ash-grey uppercase tracking-wider text-center leading-relaxed">
                     Agregar foto:<br/>equipo.md → foto
                   </p>

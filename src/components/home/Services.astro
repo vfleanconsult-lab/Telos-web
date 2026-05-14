@@ -1,4 +1,9 @@
 ---
+import { Compass, RefreshCw, Search, TrendingUp, ArrowRight } from 'lucide-astro';
+
+// Íconos por posición: Estrategia, Excelencia Org., Diagnóstico, fCFO
+const iconos = [Compass, RefreshCw, Search, TrendingUp];
+
 interface ServiceItem {
   number:      string;
   title:       string;
@@ -30,15 +35,16 @@ const { eyebrow, h2, items } = Astro.props;
 
     <!-- Grid de cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {items.map(item => (
+      {items.map((item, idx) => {
+        const Icono = iconos[idx] ?? Compass;
+        return (
         <div class="group border border-dust-grey p-8 hover:border-ash-grey transition-colors duration-200 flex flex-col">
 
-          <!-- Ícono placeholder 48×48 -->
+          <!-- Ícono de servicio 48×48 -->
           <div
-            class="w-12 h-12 border border-dust-grey group-hover:border-ash-grey transition-colors duration-200 mb-6 flex items-center justify-center shrink-0"
-            aria-hidden="true"
+            class="w-12 h-12 border border-dust-grey group-hover:border-ash-grey transition-colors duration-200 mb-6 flex items-center justify-center shrink-0 text-ash-grey group-hover:text-black-forest"
           >
-            <div class="w-5 h-5 bg-ash-grey/25"></div>
+            <Icono size={24} strokeWidth={1.5} aria-hidden="true" />
           </div>
 
           <!-- Eyebrow número -->
@@ -63,13 +69,11 @@ const { eyebrow, h2, items } = Astro.props;
             aria-label={`Ver más sobre ${item.title}`}
           >
             Ver más
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-              <line x1="2" y1="8" x2="14" y2="8"/>
-              <polyline points="9 3 14 8 9 13"/>
-            </svg>
+            <ArrowRight size={16} strokeWidth={1.5} aria-hidden="true" />
           </a>
         </div>
-      ))}
+        );
+      })}
     </div>
 
   </div>

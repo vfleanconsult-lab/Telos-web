@@ -2,6 +2,7 @@
 // Sección "Cómo trabajamos" — los 4 pasos del proceso de consultoría.
 // Usa gap-px + bg sobre el grid para crear separadores delgados
 // sin necesidad de bordes individuales por celda.
+import { ScanSearch, PenTool, Rocket, Anchor } from 'lucide-astro';
 
 interface Paso {
   numero:      string;
@@ -15,6 +16,9 @@ interface Props {
 }
 
 const { h2, pasos } = Astro.props;
+
+// Íconos por paso: Diagnóstico, Diseño, Implementación, Sostenimiento
+const iconos = [ScanSearch, PenTool, Rocket, Anchor];
 ---
 
 <section class="py-20 bg-white">
@@ -32,8 +36,15 @@ const { h2, pasos } = Astro.props;
 
     <!-- Grid de pasos — gap-px sobre fondo ash-grey crea separadores finos -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-ash-grey/30">
-      {pasos.map(paso => (
+      {pasos.map((paso, idx) => {
+        const Icono = iconos[idx] ?? ScanSearch;
+        return (
         <div class="bg-white p-8 lg:p-10 flex flex-col">
+
+          <!-- Ícono de paso -->
+          <div class="mb-4 text-ash-grey">
+            <Icono size={24} strokeWidth={1.5} aria-hidden="true" />
+          </div>
 
           <!-- Número grande en mono — color tenue para no competir con el título -->
           <span class="font-mono text-5xl font-light text-ash-grey/60 leading-none mb-6">
@@ -54,7 +65,8 @@ const { h2, pasos } = Astro.props;
           </p>
 
         </div>
-      ))}
+        );
+      })}
     </div>
 
   </div>

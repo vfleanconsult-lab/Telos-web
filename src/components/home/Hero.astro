@@ -1,4 +1,6 @@
 ---
+import { Image as ImageIcon } from 'lucide-astro';
+
 interface Props {
   eyebrow:   string;
   h1:        string;
@@ -51,12 +53,8 @@ const {
       <div class="relative aspect-[4/3] bg-dust-grey flex items-center justify-center">
         <div class="text-center px-8">
           <!-- Ícono imagen placeholder -->
-          <div class="w-14 h-14 border border-ash-grey mx-auto mb-4 flex items-center justify-center">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#B9BAA3" stroke-width="1.5" aria-hidden="true">
-              <rect x="1" y="1" width="20" height="20" rx="1"/>
-              <circle cx="7" cy="7" r="2"/>
-              <polyline points="21 15 15 9 5 21"/>
-            </svg>
+          <div class="w-14 h-14 border border-ash-grey mx-auto mb-4 flex items-center justify-center text-ash-grey">
+            <ImageIcon size={22} strokeWidth={1.5} aria-hidden="true" />
           </div>
           <p class="font-mono text-xs text-ash-grey uppercase tracking-wider leading-relaxed">
             Editar: home.md<br/>→ hero.image
