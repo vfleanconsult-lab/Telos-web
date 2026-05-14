@@ -45,7 +45,7 @@ collections:
         name: imagen
         widget: image
         required: false
-        allow_multiple: false
+        multiple: false
       - label: Contenido
         name: body
         widget: markdown
