@@ -17,7 +17,7 @@ const { proposito, vision, mision } = entry!.data;
   <Header />
   <main>
 
-    <!-- ── Hero de página ──────────────────────────────────── -->
+    <!-- ── 1. Hero — eyebrow + H1 ───────────────────────────── -->
     <section class="py-20 border-b border-dust-grey">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
@@ -29,52 +29,27 @@ const { proposito, vision, mision } = entry!.data;
       </div>
     </section>
 
-    <!-- ── Propósito — difuminado radial + marco interior ──── -->
-    <!-- Gradiente radial: más claro al centro, oscuro hacia los bordes -->
-    <section
-      class="py-24"
-      style="background: radial-gradient(ellipse at center, #2d3d12 0%, #243010 60%, #1a2408 100%);"
-    >
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        <!-- Marco interior filete 1.5px dust-grey con 24px de margen -->
-        <div style="border: 1.5px solid #D6D5C9; padding: 24px;">
-          <div class="text-center text-white py-10 px-4">
-            <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">
-              Nuestro propósito
-            </p>
-            <!-- Texto propósito — mínimo 1.75rem, centrado, weight 500 -->
-            <blockquote
-              class="font-sans font-medium leading-relaxed text-white/95"
-              style="font-size: clamp(1.75rem, 2.5vw, 2.25rem);"
-            >
-              {proposito}
-            </blockquote>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ── ¿Por qué Telos? — imagen izq / texto der ─────────── -->
+    <!-- ── 2. ¿Por qué Telos? — imagen faro izq / texto der ─── -->
     <section class="py-20 border-b border-dust-grey">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-20 items-stretch">
 
-          <!-- Imagen — oculta en mobile, visible desde lg; altura fija 500px -->
-          <div class="relative hidden lg:block overflow-hidden" style="height: 500px;">
+        <!-- items-center alinea verticalmente imagen y bloque de texto -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+          <!-- Imagen — oculta en mobile, 480px fija, object-center -->
+          <div class="relative hidden lg:block overflow-hidden" style="height: 480px;">
             <img
               src="/images/nosotros-faro.png"
               alt="Faro sobre el mar — símbolo de propósito y dirección"
-              class="w-full h-full object-cover"
+              class="w-full h-full object-cover object-center"
               loading="lazy"
             />
-            <!-- Overlay sutil para suavizar la imagen sin competir con el texto -->
+            <!-- Overlay sutil para no competir con el texto adyacente -->
             <div class="absolute inset-0" style="background: rgba(36,48,16,0.2);"></div>
           </div>
 
-          <!-- Texto — eyebrow + bloque con acento Forest izquierdo -->
-          <div class="flex flex-col justify-center py-8">
+          <!-- Texto — eyebrow + párrafos con acento izquierdo Forest -->
+          <div>
             <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-8">
               Por qué Telos
             </p>
@@ -103,13 +78,37 @@ const { proposito, vision, mision } = entry!.data;
       </div>
     </section>
 
-    <!-- ── Visión + Misión — tarjetas con acento superior Forest ── -->
+    <!-- ── 3. Propósito — banda Forest con difuminado multicapa ── -->
+    <!-- Tres radial-gradient superpuestos: esquinas oscuras + centro medio -->
+    <section
+      class="py-24"
+      style="background:
+        radial-gradient(ellipse at top left,    #1a2408 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, #1a2408 0%, transparent 50%),
+        radial-gradient(ellipse at center,       #2d3d14 0%, #243010 100%);"
+    >
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+        <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">
+          Nuestro propósito
+        </p>
+        <!-- Mínimo 1.75rem, centrado, weight 500 -->
+        <blockquote
+          class="font-sans font-medium leading-relaxed text-white/95"
+          style="font-size: clamp(1.75rem, 2.5vw, 2.25rem);"
+        >
+          {proposito}
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- ── 4. Visión + Misión — dos tarjetas con borde uniforme ── -->
+    <!-- Ambas tarjetas con exactamente 1.5px solid #D6D5C9 — sin variaciones -->
     <section class="py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 border border-dust-grey">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          <!-- Visión — borde superior Forest 2px + padding generoso -->
-          <div class="border-t-2 border-black-forest py-10 px-8 border-b md:border-b-0 md:border-r border-dust-grey">
+          <!-- Visión -->
+          <div class="py-10 px-8" style="border: 1.5px solid #D6D5C9;">
             <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
               Visión
             </p>
@@ -118,8 +117,8 @@ const { proposito, vision, mision } = entry!.data;
             </p>
           </div>
 
-          <!-- Misión — borde superior Forest 2px + padding generoso -->
-          <div class="border-t-2 border-black-forest py-10 px-8">
+          <!-- Misión -->
+          <div class="py-10 px-8" style="border: 1.5px solid #D6D5C9;">
             <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
               Misión
             </p>
@@ -132,7 +131,20 @@ const { proposito, vision, mision } = entry!.data;
       </div>
     </section>
 
-    <!-- ── CTA hacia contacto ───────────────────────────────── -->
+    <!-- ── 5. Banda Dust Grey — frase destacada ──────────────── -->
+    <section class="py-16" style="background-color: #D6D5C9;">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <!-- Mínimo 2rem, bold, color Black Forest -->
+        <p
+          class="font-sans font-bold leading-tight"
+          style="font-size: clamp(2rem, 3.5vw, 3rem); color: #243010;"
+        >
+          Transformamos organizaciones con propósito y método
+        </p>
+      </div>
+    </section>
+
+    <!-- ── 6. CTA final — hacia contacto ─────────────────────── -->
     <section class="py-16 border-t border-dust-grey">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
         <p class="font-sans text-lg text-ink/80">
