@@ -22,15 +22,15 @@ const { proposito, vision, mision } = entry!.data;
     <section class="border-b border-dust-grey">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <!-- Grid alineado al tope — imagen visible completa, texto parte desde arriba -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 items-start">
+        <!-- Grid con imagen centrada verticalmente respecto al bloque de texto -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
 
-          <!-- Imagen — oculta en mobile; se muestra completa sin recorte -->
-          <div class="hidden lg:block">
+          <!-- Imagen — centrada verticalmente en su columna; sin recorte ni espacio vacío -->
+          <div class="hidden lg:flex items-center justify-center">
             <img
               src="/images/nosotros-faro.png"
               alt="Faro sobre el mar — símbolo de propósito y dirección"
-              style="width: 100%; display: block;"
+              style="width: 100%; height: auto;"
               loading="lazy"
             />
           </div>
