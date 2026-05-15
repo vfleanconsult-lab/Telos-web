@@ -1,17 +1,6 @@
 // Endpoint: GET /api/callback
 // GitHub redirige aquí con el código de autorización.
-//
-// Protocolo A (desktop — opener disponible):
-//   Handshake estándar de Sveltia: popup anuncia "authorizing:github",
-//   parent hace echo, popup envía el token al origin del echo.
-//
-// Protocolo B (iPadOS — opener null por redirect cross-origin a github.com):
-//   localStorage.setItem → dispara storage event en el tab admin →
-//   index.html re-despacha el token como synthetic MessageEvent a Sveltia.
-//   (localStorage es el mecanismo cross-tab más confiable en Safari/iPadOS,
-//    funciona incluso cuando el popup abre en ventana separada.)
-//
-// El popup se cierra a los 5 s como respaldo (Sveltia lo cierra antes si puede).
+// Intercambia el código por un token y lo pasa a Decap CMS vía postMessage.
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
@@ -29,6 +18,7 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response('GITHUB_CLIENT_SECRET no configurado en Vercel', { status: 500 });
   }
 
+  // Intercambiar código por token con GitHub
   const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
     method:  'POST',
     headers: {
@@ -44,32 +34,47 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(`Error GitHub: ${tokenData.error_description ?? tokenData.error}`, { status: 400 });
   }
 
-  const payload = JSON.stringify(
-    'authorization:github:success:' + JSON.stringify({ provider: 'github', token: tokenData.access_token })
-  );
+  // Formato que Sveltia/Decap CMS espera: JSON con { token, provider }.
+  const message = `authorization:github:success:${JSON.stringify({ token: tokenData.access_token, provider: 'github' })}`;
 
-  const html = `<!doctype html>
+  // HTML que intenta postMessage al opener y, si el opener es nulo
+  // (Safari iOS anula window.opener tras navegación cross-origin por GitHub),
+  // usa BroadcastChannel como canal de respaldo.
+  const html = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
 <body>
-<p style="font-family:sans-serif;color:#444;padding:2rem">Autorizado. Esta ventana se cerrará automáticamente.</p>
+<p id="st" style="font-family:sans-serif;color:#444;padding:2rem 2rem 0">Autorizando…</p>
+<p id="db" style="font-family:monospace;font-size:0.75rem;color:#999;padding:0 2rem 2rem"></p>
 <script>
-(() => {
-  const payload = ${payload};
+(function () {
+  var msg = ${JSON.stringify(message)};
+  var st  = document.getElementById('st');
+  var db  = document.getElementById('db');
 
-  // Protocolo B: localStorage → storage event en el tab admin (iPadOS sin opener)
-  try { localStorage.setItem('sveltia-auth-token', payload); } catch (_) {}
+  function cerrar() { setTimeout(function () { window.close(); }, 2000); }
 
-  // Protocolo A: handshake postMessage directo (desktop / cuando opener existe)
-  window.addEventListener('message', function(e) {
-    if (e.data === 'authorizing:github') {
-      window.opener?.postMessage(payload, e.origin);
+  function usarBroadcast() {
+    db.textContent = 'opener: NULO — usando BroadcastChannel';
+    if (typeof BroadcastChannel !== 'undefined') {
+      var bc = new BroadcastChannel('decap-cms-auth');
+      bc.postMessage(msg);
+      bc.close();
+      st.textContent = 'Autorizado. Puedes cerrar esta ventana.';
+    } else {
+      st.textContent = 'Error: cierra esta ventana e intenta de nuevo.';
+      db.textContent += ' (no disponible)';
     }
-  });
-  window.opener?.postMessage('authorizing:github', '*');
+  }
 
-  // Cierre de respaldo a los 5 s (Sveltia cierra el popup antes si Protocol A funciona)
-  setTimeout(() => window.close(), 5000);
+  if (window.opener && !window.opener.closed) {
+    db.textContent = 'opener: OK — postMessage enviado';
+    window.opener.postMessage(msg, '*');
+    st.textContent = 'Autorizado. Cerrando…';
+    cerrar();
+  } else {
+    usarBroadcast();
+  }
 })();
 </script>
 </body>

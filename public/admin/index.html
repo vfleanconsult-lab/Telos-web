@@ -8,9 +8,7 @@
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
-    <!-- Captura referencia al popup para el source del synthetic MessageEvent.
-         Sveltia solo verifica event.origin y event.data, no event.source,
-         pero pasarlo igual por si una versión futura lo valida. -->
+    <!-- Captura el popup para el fallback BroadcastChannel (Safari / cross-origin redirect) -->
     <script>
       var _popupWin = null;
       var _origOpen = window.open;
@@ -20,30 +18,32 @@
       };
     </script>
 
-    <!-- Relay localStorage → Sveltia (Protocolo B para iPadOS sin window.opener).
-         El popup setea 'sveltia-auth-token' en localStorage; el storage event
-         dispara en este tab y se re-despacha como MessageEvent nativo a Sveltia.
-         Sveltia solo valida event.origin (debe coincidir con base_url) y event.data. -->
+    <!-- BroadcastChannel: relay para cuando window.opener es null en el popup
+         (Safari/iPadOS anula opener tras redirect cross-origin a github.com).
+         Pasa source=popup al MessageEvent para que Sveltia no filtre el mensaje.
+         El canal se mantiene abierto para que funcione en intentos sucesivos. -->
     <script>
-      window.addEventListener('storage', function (e) {
-        if (e.key !== 'sveltia-auth-token' || !e.newValue) return;
-        localStorage.removeItem('sveltia-auth-token');
-        try {
-          window.dispatchEvent(new MessageEvent('message', {
-            data:   e.newValue,
-            origin: window.location.origin,
-            source: _popupWin || null,
-          }));
-        } catch (_) {
-          window.dispatchEvent(new MessageEvent('message', {
-            data:   e.newValue,
-            origin: window.location.origin,
-          }));
-        }
-      });
+      (function () {
+        if (typeof BroadcastChannel === 'undefined') return;
+        var bc = new BroadcastChannel('decap-cms-auth');
+        bc.onmessage = function (e) {
+          try {
+            window.dispatchEvent(new MessageEvent('message', {
+              data:   e.data,
+              origin: window.location.origin,
+              source: _popupWin || null,
+            }));
+          } catch (_) {
+            window.dispatchEvent(new MessageEvent('message', {
+              data:   e.data,
+              origin: window.location.origin,
+            }));
+          }
+        };
+      })();
     </script>
 
-    <!-- Sveltia CMS — maneja el protocolo OAuth internamente vía postMessage -->
+    <!-- Sveltia CMS — reemplazo directo de Decap/Netlify CMS, mismo config.yml y OAuth -->
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>
