@@ -70,8 +70,12 @@ export const GET: APIRoute = async ({ request }) => {
   if (window.opener && !window.opener.closed) {
     db.textContent = 'opener: OK — postMessage enviado';
     window.opener.postMessage(msg, '*');
-    st.textContent = 'Autorizado. Cerrando…';
-    cerrar();
+    st.textContent = 'Autorizado. Vuelve al tab <strong>Telos CMS</strong>.';
+    // No cerramos — Sveltia llama popup.close() cuando procesa el token.
+    // En iPadOS el admin tab está throttled en segundo plano; si cerramos antes
+    // de que el tab vuelva al frente, popup.closed dispara AbortError en Sveltia.
+    // Timeout de seguridad de 30 s por si Sveltia no responde.
+    setTimeout(function () { window.close(); }, 30000);
   } else {
     usarBroadcast();
   }
