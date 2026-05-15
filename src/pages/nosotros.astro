@@ -22,15 +22,15 @@ const { proposito, vision, mision } = entry!.data;
     <section class="border-b border-dust-grey">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <!-- Grid sin altura fija — la columna de imagen se estira al alto del texto -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch">
+        <!-- Grid alineado al tope — imagen visible completa, texto parte desde arriba -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 items-start">
 
-          <!-- Imagen — oculta en mobile; se estira al alto exacto de la columna de texto -->
-          <div class="hidden lg:block overflow-hidden">
+          <!-- Imagen — oculta en mobile; se muestra completa sin recorte -->
+          <div class="hidden lg:block">
             <img
               src="/images/nosotros-faro.png"
               alt="Faro sobre el mar — símbolo de propósito y dirección"
-              class="w-full h-full object-cover object-center"
+              style="width: 100%; display: block;"
               loading="lazy"
             />
           </div>
@@ -71,9 +71,9 @@ const { proposito, vision, mision } = entry!.data;
     <section
       class="py-24"
       style="background:
-        radial-gradient(ellipse at top left,     #1a2408 0%, transparent 50%),
-        radial-gradient(ellipse at bottom right, #1a2408 0%, transparent 50%),
-        radial-gradient(ellipse at center,       #2d3d14 0%, #243010 100%);"
+        radial-gradient(ellipse at top left,     #111a06 0%, transparent 45%),
+        radial-gradient(ellipse at bottom right, #111a06 0%, transparent 45%),
+        radial-gradient(ellipse at center,       #2f4012 0%, #243010 55%, #1a2408 100%);"
     >
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
         <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">
