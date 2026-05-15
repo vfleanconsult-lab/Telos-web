@@ -8,7 +8,7 @@
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
-    <!-- Captura el popup para el fallback BroadcastChannel (Safari / cross-origin redirect) -->
+    <!-- Captura el popup para los relays que necesitan source=popup -->
     <script>
       var _popupWin = null;
       var _origOpen = window.open;
@@ -18,10 +18,69 @@
       };
     </script>
 
-    <!-- BroadcastChannel: relay para cuando window.opener es null en el popup
-         (Safari/iPadOS anula opener tras redirect cross-origin a github.com).
-         Pasa source=popup al MessageEvent para que Sveltia no filtre el mensaje.
-         El canal se mantiene abierto para que funcione en intentos sucesivos. -->
+    <!-- Intercepta setInterval ANTES de que Sveltia cargue.
+         Cuando el timer de Sveltia (1000 ms, chequea popup.closed) dispara,
+         primero despachamos el token pendiente de localStorage.
+         Esto garantiza que el token llegue ANTES del chequeo popup.closed,
+         eliminando la race condition en iPadOS donde el tab admin está en background.
+         El popup no se cierra solo — popup.closed === false mientras esperamos —
+         así el timer nunca puede lanzar AbortError sin que hayamos entregado el token. -->
+    <script>
+      (function () {
+        var _realSetInterval = window.setInterval;
+
+        function despacharToken(token) {
+          localStorage.removeItem('sveltia-cms-auth-pending');
+          try {
+            window.dispatchEvent(new MessageEvent('message', {
+              data:   token,
+              origin: window.location.origin,
+              source: _popupWin || null,
+            }));
+          } catch (_) {
+            window.dispatchEvent(new MessageEvent('message', {
+              data:   token,
+              origin: window.location.origin,
+            }));
+          }
+        }
+
+        window.setInterval = function (fn, delay) {
+          var args = Array.prototype.slice.call(arguments, 2);
+          // Interceptar el timer de 1000 ms de Sveltia (chequeo popup.closed)
+          if (delay === 1000) {
+            var wrapped = function () {
+              var t = localStorage.getItem('sveltia-cms-auth-pending');
+              if (t) {
+                despacharToken(t);
+                return; // no correr fn — Sveltia ya procesó el token y limpió el timer
+              }
+              fn.apply(this, args);
+            };
+            return _realSetInterval.call(window, wrapped, delay);
+          }
+          return _realSetInterval.apply(window, arguments);
+        };
+
+        // visibilitychange: cuando admin tab vuelve al frente (popup aún abierto)
+        document.addEventListener('visibilitychange', function () {
+          if (!document.hidden) {
+            var t = localStorage.getItem('sveltia-cms-auth-pending');
+            if (t) despacharToken(t);
+          }
+        });
+
+        // storage event: cuando popup escribe en localStorage (cross-tab, puede
+        // disparar incluso en background en algunos navegadores)
+        window.addEventListener('storage', function (e) {
+          if (e.key === 'sveltia-cms-auth-pending' && e.newValue) {
+            despacharToken(e.newValue);
+          }
+        });
+      })();
+    </script>
+
+    <!-- BroadcastChannel: relay para cuando window.opener es null en el popup -->
     <script>
       (function () {
         if (typeof BroadcastChannel === 'undefined') return;
@@ -40,48 +99,6 @@
             }));
           }
         };
-      })();
-    </script>
-
-    <!-- localStorage + visibilitychange: relay para iPadOS donde el tab admin
-         está en background mientras el popup OAuth está abierto. iOS throttlea
-         los handlers de background tabs (postMessage, BroadcastChannel).
-         Cuando el popup se cierra, el admin tab vuelve al frente y
-         visibilitychange dispara ANTES que los ticks pendientes de setInterval
-         de Sveltia — esto garantiza que el token llegue antes del AbortError. -->
-    <script>
-      (function () {
-        function despachar(token) {
-          localStorage.removeItem('sveltia-cms-auth-pending');
-          try {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   token,
-              origin: window.location.origin,
-              source: _popupWin || null,
-            }));
-          } catch (_) {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   token,
-              origin: window.location.origin,
-            }));
-          }
-        }
-
-        function chequear() {
-          var t = localStorage.getItem('sveltia-cms-auth-pending');
-          if (t) despachar(t);
-        }
-
-        // Cuando el tab admin vuelve al frente (popup se cerró en iOS)
-        document.addEventListener('visibilitychange', function () {
-          if (!document.hidden) chequear();
-        });
-
-        // storage event: se dispara en otros tabs cuando localStorage cambia,
-        // incluso si están en background en algunos navegadores
-        window.addEventListener('storage', function (e) {
-          if (e.key === 'sveltia-cms-auth-pending' && e.newValue) chequear();
-        });
       })();
     </script>
 
