@@ -1,6 +1,7 @@
 // Endpoint: GET /api/callback
 // GitHub redirige aquí con el código de autorización.
-// Intercambia el código por un token y lo pasa a Decap CMS vía postMessage.
+// Intercambia el código por un token y lo entrega a Sveltia CMS mediante el
+// protocolo de handshake oficial: popup→"authorizing:github"→CMS responde→popup→token.
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
@@ -18,7 +19,6 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response('GITHUB_CLIENT_SECRET no configurado en Vercel', { status: 500 });
   }
 
-  // Intercambiar código por token con GitHub
   const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
     method:  'POST',
     headers: {
@@ -34,12 +34,9 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(`Error GitHub: ${tokenData.error_description ?? tokenData.error}`, { status: 400 });
   }
 
-  // Formato que Decap CMS espera: JSON con { token, provider }.
-  // Regex /authorization:(.+?):(.+?):(.+)/ → match[3] = payload JSON.
-  const message = `authorization:github:success:${JSON.stringify({ token: tokenData.access_token, provider: 'github' })}`;
+  // Sveltia espera provider antes que token en el payload JSON
+  const message = `authorization:github:success:${JSON.stringify({ provider: 'github', token: tokenData.access_token })}`;
 
-  // Intenta los tres mecanismos disponibles y muestra cuáles se usaron.
-  // El texto diagnóstico en pantalla ayuda a depurar problemas en Safari/iPadOS.
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
@@ -48,42 +45,96 @@ export const GET: APIRoute = async ({ request }) => {
 <p id="db" style="font-family:monospace;font-size:0.75rem;color:#999;padding:0 2rem 2rem"></p>
 <script>
 (function () {
-  var msg  = ${JSON.stringify(message)};
-  var st   = document.getElementById('st');
-  var db   = document.getElementById('db');
-  var vias = [];
+  var msg      = ${JSON.stringify(message)};
+  var provider = 'github';
+  var st       = document.getElementById('st');
+  var db       = document.getElementById('db');
+  var vias     = [];
+  var cerrado  = false;
 
-  // 1. localStorage — genera storage event en la pestaña del admin
-  try {
-    localStorage.setItem('cms-auth-token', msg);
-    vias.push('localStorage');
-  } catch (e) { vias.push('localStorage-FALLO:' + e); }
-
-  // 2. BroadcastChannel
-  if (typeof BroadcastChannel !== 'undefined') {
-    try {
-      var bc = new BroadcastChannel('decap-cms-auth');
-      bc.postMessage(msg);
-      bc.close();
-      vias.push('BroadcastChannel');
-    } catch (e) { vias.push('BC-FALLO:' + e); }
-  } else {
-    vias.push('BC-no-disponible');
+  function cerrar(delay) {
+    setTimeout(function () {
+      if (!cerrado) { cerrado = true; window.close(); }
+    }, delay || 1500);
   }
 
-  // 3. postMessage directo al opener
+  // Handshake postMessage (protocolo oficial de Sveltia CMS):
+  // 1. popup → opener:  "authorizing:github"
+  // 2. opener → popup:  "authorizing:github"  (ack del CMS)
+  // 3. popup → opener:  token de autorización
   if (window.opener && !window.opener.closed) {
-    try {
-      window.opener.postMessage(msg, '*');
-      vias.push('postMessage');
-    } catch (e) { vias.push('postMessage-FALLO:' + e); }
+    var ackRecibido = false;
+
+    window.addEventListener('message', function handler(e) {
+      if (e.data !== 'authorizing:' + provider) return;
+      window.removeEventListener('message', handler);
+      ackRecibido = true;
+
+      var origin = (e.origin && e.origin !== 'null') ? e.origin : '*';
+      window.opener.postMessage(msg, origin);
+      vias.push('postMessage-handshake');
+      db.textContent = 'Mecanismos: ' + vias.join(', ');
+      cerrar(1500);
+    });
+
+    window.opener.postMessage('authorizing:' + provider, '*');
+    vias.push('handshake-iniciado');
+
+    // Si el CMS no responde en 5 s, cerrar de todas formas
+    setTimeout(function () {
+      if (!ackRecibido) {
+        vias.push('handshake-sin-respuesta');
+        db.textContent = 'Mecanismos: ' + vias.join(', ');
+        cerrar(500);
+      }
+    }, 5000);
+
   } else {
     vias.push('opener-nulo');
+
+    // Fallback BroadcastChannel (handshake sobre mismo canal)
+    if (typeof BroadcastChannel !== 'undefined') {
+      var bc = new BroadcastChannel('sveltia-auth');
+      var bcAck = false;
+
+      bc.onmessage = function (e) {
+        if (e.data !== 'authorizing:' + provider + ':ack') return;
+        bcAck = true;
+        bc.close();
+        var bc2 = new BroadcastChannel('decap-cms-auth');
+        bc2.postMessage(msg);
+        bc2.close();
+        vias.push('BC-handshake');
+        db.textContent = 'Mecanismos: ' + vias.join(', ');
+        cerrar(1500);
+      };
+
+      bc.postMessage('authorizing:' + provider);
+      vias.push('BC-handshake-iniciado');
+
+      setTimeout(function () {
+        if (!bcAck) {
+          // Fallback directo: enviar token sin handshake
+          bc.close();
+          var bc3 = new BroadcastChannel('decap-cms-auth');
+          bc3.postMessage(msg);
+          bc3.close();
+          vias.push('BC-directo-fallback');
+          db.textContent = 'Mecanismos: ' + vias.join(', ');
+          cerrar(500);
+        }
+      }, 3000);
+    }
+
+    // Fallback localStorage
+    try {
+      localStorage.setItem('cms-auth-token', msg);
+      vias.push('localStorage');
+    } catch (e) { vias.push('localStorage-FALLO'); }
   }
 
   db.textContent = 'Mecanismos: ' + vias.join(', ');
-  st.textContent = 'Autorizado. Esta ventana se cerrará en unos segundos.';
-  setTimeout(function () { window.close(); }, 5000);
+  st.textContent = 'Autorizado. Esta ventana se cerrará automáticamente.';
 })();
 </script>
 </body>

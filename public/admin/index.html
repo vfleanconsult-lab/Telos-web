@@ -8,7 +8,7 @@
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
-    <!-- Captura el popup para el fallback BroadcastChannel (Safari / cross-origin redirect) -->
+    <!-- Captura la referencia al popup para poder pasarla como source en los eventos -->
     <script>
       var _popupWin = null;
       var _origOpen = window.open;
@@ -18,13 +18,25 @@
       };
     </script>
 
-    <!-- BroadcastChannel: re-despacha como message event para Sveltia -->
+    <!-- BroadcastChannel handshake: responde al anuncio del popup y re-despacha el token -->
     <script>
       (function () {
         if (typeof BroadcastChannel === 'undefined') return;
-        var bc = new BroadcastChannel('decap-cms-auth');
-        bc.onmessage = function (e) {
-          bc.close();
+
+        // Canal de handshake: el popup anuncia "authorizing:github",
+        // nosotros respondemos con el ack para que el popup envíe el token.
+        var hbc = new BroadcastChannel('sveltia-auth');
+        hbc.onmessage = function (e) {
+          if (typeof e.data === 'string' && e.data.startsWith('authorizing:')) {
+            hbc.postMessage(e.data + ':ack');
+            hbc.close();
+          }
+        };
+
+        // Canal de token: recibe el token tras el handshake y lo re-despacha a Sveltia
+        var tbc = new BroadcastChannel('decap-cms-auth');
+        tbc.onmessage = function (e) {
+          tbc.close();
           try {
             window.dispatchEvent(new MessageEvent('message', {
               data:   e.data,
@@ -41,8 +53,7 @@
       })();
     </script>
 
-    <!-- localStorage: fallback para Safari/iPadOS donde BroadcastChannel y postMessage
-         no cruzan pestañas en navegación privada -->
+    <!-- localStorage fallback: recibe el token si BroadcastChannel no cruza pestañas -->
     <script>
       window.addEventListener('storage', function (e) {
         if (e.key !== 'cms-auth-token' || !e.newValue) return;
