@@ -2,17 +2,16 @@
 // GitHub redirige aquí con el código de autorización.
 //
 // Protocolo A (desktop — opener disponible):
-//   1. Popup → Parent: "authorizing:github" via postMessage
-//   2. Parent → Popup: "authorizing:github" (echo de Sveltia)
-//   3. Popup → Parent: payload del token via postMessage
+//   Handshake estándar de Sveltia: popup anuncia "authorizing:github",
+//   parent hace echo, popup envía el token al origin del echo.
 //
 // Protocolo B (iPadOS — opener null por redirect cross-origin a github.com):
-//   1. Popup → index.html: "authorizing:github" via BroadcastChannel 'sveltia-auth'
-//   2. index.html → Popup: "authorizing:github:ack" via BC
-//   3. Popup → index.html: payload del token via BC 'sveltia-auth-token'
-//   4. index.html → Sveltia: re-despacha como synthetic MessageEvent
+//   localStorage.setItem → dispara storage event en el tab admin →
+//   index.html re-despacha el token como synthetic MessageEvent a Sveltia.
+//   (localStorage es el mecanismo cross-tab más confiable en Safari/iPadOS,
+//    funciona incluso cuando el popup abre en ventana separada.)
 //
-// Ambos protocolos corren en paralelo; un flag `sent` evita el envío duplicado.
+// El popup se cierra a los 5 s como respaldo (Sveltia lo cierra antes si puede).
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
@@ -57,45 +56,20 @@ export const GET: APIRoute = async ({ request }) => {
 <script>
 (() => {
   const payload = ${payload};
-  let sent = false;
 
-  function sendToken(targetOrigin) {
-    if (sent) return;
-    sent = true;
-    if (window.opener && !window.opener.closed) {
-      // Protocolo A: postMessage directo (desktop / cuando opener existe)
-      window.opener.postMessage(payload, targetOrigin);
-    } else {
-      // Protocolo B: BroadcastChannel (iPadOS — opener null por redirect cross-origin)
-      const tbc = new BroadcastChannel('sveltia-auth-token');
-      tbc.postMessage(payload);
-      tbc.close();
-      // Auto-cierre de respaldo por si popup.close() del parent no funciona en iOS tab
-      setTimeout(() => window.close(), 3000);
-    }
-  }
+  // Protocolo B: localStorage → storage event en el tab admin (iPadOS sin opener)
+  try { localStorage.setItem('sveltia-auth-token', payload); } catch (_) {}
 
-  // Protocolo A: escuchar el echo del parent via postMessage
+  // Protocolo A: handshake postMessage directo (desktop / cuando opener existe)
   window.addEventListener('message', function(e) {
     if (e.data === 'authorizing:github') {
-      sendToken(e.origin);
+      window.opener?.postMessage(payload, e.origin);
     }
   });
-
-  // Protocolo B: escuchar el ack del relay en index.html via BroadcastChannel
-  if (typeof BroadcastChannel !== 'undefined') {
-    const hbc = new BroadcastChannel('sveltia-auth');
-    hbc.onmessage = function(e) {
-      if (e.data === 'authorizing:github:ack') {
-        hbc.close();
-        sendToken(window.location.origin);
-      }
-    };
-    hbc.postMessage('authorizing:github');
-  }
-
-  // Protocolo A: anunciar via postMessage directo (si opener existe)
   window.opener?.postMessage('authorizing:github', '*');
+
+  // Cierre de respaldo a los 5 s (Sveltia cierra el popup antes si Protocol A funciona)
+  setTimeout(() => window.close(), 5000);
 })();
 </script>
 </body>

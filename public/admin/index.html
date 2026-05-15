@@ -8,7 +8,9 @@
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
-    <!-- Captura referencia al popup para el source del synthetic MessageEvent -->
+    <!-- Captura referencia al popup para el source del synthetic MessageEvent.
+         Sveltia solo verifica event.origin y event.data, no event.source,
+         pero pasarlo igual por si una versión futura lo valida. -->
     <script>
       var _popupWin = null;
       var _origOpen = window.open;
@@ -18,40 +20,27 @@
       };
     </script>
 
-    <!-- Relay BroadcastChannel → Sveltia (para iPadOS donde opener es null en el popup).
-         El popup anuncia "authorizing:github" via BC, este script responde con el ack
-         y luego reenvía el token como MessageEvent a Sveltia cuando llega. -->
+    <!-- Relay localStorage → Sveltia (Protocolo B para iPadOS sin window.opener).
+         El popup setea 'sveltia-auth-token' en localStorage; el storage event
+         dispara en este tab y se re-despacha como MessageEvent nativo a Sveltia.
+         Sveltia solo valida event.origin (debe coincidir con base_url) y event.data. -->
     <script>
-      (function () {
-        if (typeof BroadcastChannel === 'undefined') return;
-
-        // Handshake: recibir anuncio del popup y enviar ack
-        var hbc = new BroadcastChannel('sveltia-auth');
-        hbc.onmessage = function (e) {
-          if (e.data === 'authorizing:github') {
-            hbc.postMessage('authorizing:github:ack');
-            hbc.close();
-          }
-        };
-
-        // Token: recibir payload del popup y re-despachar a Sveltia
-        var tbc = new BroadcastChannel('sveltia-auth-token');
-        tbc.onmessage = function (e) {
-          if (typeof e.data !== 'string') return;
-          try {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   e.data,
-              origin: window.location.origin,
-              source: _popupWin || null,
-            }));
-          } catch (_) {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   e.data,
-              origin: window.location.origin,
-            }));
-          }
-        };
-      })();
+      window.addEventListener('storage', function (e) {
+        if (e.key !== 'sveltia-auth-token' || !e.newValue) return;
+        localStorage.removeItem('sveltia-auth-token');
+        try {
+          window.dispatchEvent(new MessageEvent('message', {
+            data:   e.newValue,
+            origin: window.location.origin,
+            source: _popupWin || null,
+          }));
+        } catch (_) {
+          window.dispatchEvent(new MessageEvent('message', {
+            data:   e.newValue,
+            origin: window.location.origin,
+          }));
+        }
+      });
     </script>
 
     <!-- Sveltia CMS — maneja el protocolo OAuth internamente vía postMessage -->
