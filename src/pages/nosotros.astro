@@ -17,39 +17,28 @@ const { proposito, vision, mision } = entry!.data;
   <Header />
   <main>
 
-    <!-- ── 1. Hero — eyebrow + H1 ───────────────────────────── -->
-    <section class="py-20 border-b border-dust-grey">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
-          Quiénes somos
-        </p>
-        <h1 class="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold text-black-forest max-w-3xl leading-tight">
-          Transformamos organizaciones con propósito y método
-        </h1>
-      </div>
-    </section>
-
-    <!-- ── 2. ¿Por qué Telos? — imagen faro izq / texto der ─── -->
-    <section class="py-20 border-b border-dust-grey">
+    <!-- ── 1. ¿Por qué Telos? — imagen faro izq / texto der ─── -->
+    <!-- La página parte directamente aquí, sin hero con H1 redundante -->
+    <section class="border-b border-dust-grey">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <!-- items-center alinea verticalmente imagen y bloque de texto -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <!-- Grid sin altura fija — la columna de imagen se estira al alto del texto -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
 
-          <!-- Imagen — oculta en mobile, 480px fija, object-center -->
-          <div class="relative hidden lg:block overflow-hidden" style="height: 480px;">
+          <!-- Imagen — oculta en mobile; se estira exactamente al alto de la columna de texto -->
+          <!-- img absolute inset-0 llena el contenedor sin imponer una altura -->
+          <div class="relative hidden lg:block overflow-hidden">
             <img
               src="/images/nosotros-faro.png"
               alt="Faro sobre el mar — símbolo de propósito y dirección"
-              class="w-full h-full object-cover object-center"
+              class="absolute inset-0 w-full h-full object-cover object-center"
               loading="lazy"
             />
-            <!-- Overlay sutil para no competir con el texto adyacente -->
             <div class="absolute inset-0" style="background: rgba(36,48,16,0.2);"></div>
           </div>
 
-          <!-- Texto — eyebrow + párrafos con acento izquierdo Forest -->
-          <div>
+          <!-- Texto — determina el alto de la fila; imagen se adapta a él -->
+          <div class="py-16 lg:py-20 lg:pl-16">
             <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-8">
               Por qué Telos
             </p>
@@ -78,20 +67,21 @@ const { proposito, vision, mision } = entry!.data;
       </div>
     </section>
 
-    <!-- ── 3. Propósito — banda Forest con difuminado multicapa ── -->
-    <!-- Tres radial-gradient superpuestos: esquinas oscuras + centro medio -->
+    <!-- ── 2. Propósito — banda Forest con vignette multicapa ─── -->
+    <!-- Tres gradientes superpuestos: esquinas muy oscuras, centro más claro -->
+    <!-- Efecto similar a un viñeteo fotográfico sobre verde oscuro         -->
     <section
       class="py-24"
       style="background:
-        radial-gradient(ellipse at top left,    #1a2408 0%, transparent 50%),
-        radial-gradient(ellipse at bottom right, #1a2408 0%, transparent 50%),
-        radial-gradient(ellipse at center,       #2d3d14 0%, #243010 100%);"
+        radial-gradient(ellipse at top left,     rgba(15,26,4,0.95) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom right, rgba(15,26,4,0.95) 0%, transparent 55%),
+        radial-gradient(ellipse at center,       #3a5018            0%, #243010 100%);"
     >
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
         <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-8">
           Nuestro propósito
         </p>
-        <!-- Mínimo 1.75rem, centrado, weight 500 -->
+        <!-- Mínimo 1.75rem, centrado, weight 500 — sin marco ni borde -->
         <blockquote
           class="font-sans font-medium leading-relaxed text-white/95"
           style="font-size: clamp(1.75rem, 2.5vw, 2.25rem);"
@@ -101,18 +91,18 @@ const { proposito, vision, mision } = entry!.data;
       </div>
     </section>
 
-    <!-- ── 4. Visión + Misión — dos tarjetas con borde uniforme ── -->
-    <!-- Ambas tarjetas con exactamente 1.5px solid #D6D5C9 — sin variaciones -->
+    <!-- ── 3. Visión + Misión — dos tarjetas con borde uniforme ── -->
+    <!-- Borde idéntico 1.5px solid #D6D5C9 en ambas — sin variaciones -->
     <section class="py-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          <!-- Visión -->
+          <!-- Visión — peso normal, no bold -->
           <div class="py-10 px-8" style="border: 1.5px solid #D6D5C9;">
             <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
               Visión
             </p>
-            <p class="font-sans text-xl font-semibold text-black-forest leading-relaxed">
+            <p class="font-sans text-xl text-black-forest leading-relaxed">
               {vision}
             </p>
           </div>
@@ -131,10 +121,9 @@ const { proposito, vision, mision } = entry!.data;
       </div>
     </section>
 
-    <!-- ── 5. Banda Dust Grey — frase destacada ──────────────── -->
+    <!-- ── 4. Banda Dust Grey — frase destacada centrada ─────── -->
     <section class="py-16" style="background-color: #D6D5C9;">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <!-- Mínimo 2rem, bold, color Black Forest -->
         <p
           class="font-sans font-bold leading-tight"
           style="font-size: clamp(2rem, 3.5vw, 3rem); color: #243010;"
@@ -144,7 +133,7 @@ const { proposito, vision, mision } = entry!.data;
       </div>
     </section>
 
-    <!-- ── 6. CTA final — hacia contacto ─────────────────────── -->
+    <!-- ── 5. CTA final — hacia contacto ─────────────────────── -->
     <section class="py-16 border-t border-dust-grey">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
         <p class="font-sans text-lg text-ink/80">
