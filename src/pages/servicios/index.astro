@@ -41,30 +41,25 @@ const { paginaHero, serviciosList, serviciosCta } = entry!.data;
         <section
           class={!esOscuro ? 'py-20 bg-white' : 'py-20'}
           style={esOscuro
-            ? 'background: radial-gradient(ellipse at center, #2d3d14 30%, #243010 70%, #1a2408 100%);'
+            ? 'background: radial-gradient(ellipse at top left, #1a2408 0%, transparent 50%), radial-gradient(ellipse at bottom right, #1a2408 0%, transparent 50%), radial-gradient(ellipse at center, #2d3d14 0%, #243010 100%);'
             : ''}
         >
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Bloque oscuro — marco interior filete 1.5px dust-grey */}
             {esOscuro ? (
-              <div style="border: 1.5px solid #D6D5C9; padding: 24px;">
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20 py-6">
 
-                <!-- Grid 2 col con texto blanco -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20 py-6">
-
-                  <!-- Columna izquierda — título + número decorativo acotado a esta columna -->
-                  <div class="lg:col-span-1 relative">
-                    <!-- Número decorativo — esquina superior derecha del bloque título -->
-                    <!-- Relativo a la columna del título: nunca pisa los párrafos -->
-                    <span
-                      class="absolute top-0 right-0 font-mono font-bold leading-none select-none pointer-events-none"
-                      style="font-size: 5rem; line-height: 1; color: rgba(214, 213, 201, 0.4);"
+                  <!-- Columna izquierda — número en flujo + título -->
+                  <div class="lg:col-span-1">
+                    <p
+                      class="font-mono font-bold leading-none select-none"
+                      style="font-size: 3rem; color: #D6D5C9; line-height: 1; margin-bottom: 8px;"
                       aria-hidden="true"
                     >
                       {servicio.numero}
-                    </span>
-                    <h2 class="font-sans text-2xl sm:text-3xl font-bold text-white leading-snug pt-20 lg:pt-24">
+                    </p>
+                    <h2 class="font-sans text-2xl sm:text-3xl font-bold text-white leading-snug">
                       {servicio.titulo}
                     </h2>
                   </div>
@@ -79,7 +74,6 @@ const { paginaHero, serviciosList, serviciosCta } = entry!.data;
                     </p>
                   </div>
 
-                </div>
               </div>
 
             ) : (
@@ -87,18 +81,16 @@ const { paginaHero, serviciosList, serviciosCta } = entry!.data;
               /* Bloques claros — fondo blanco */
               <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
 
-                <!-- Columna izquierda — título + número decorativo acotado a esta columna -->
-                <div class="lg:col-span-1 relative">
-                  <!-- Número decorativo — esquina superior derecha del bloque título -->
-                  <!-- Relativo a la columna del título: nunca pisa los párrafos -->
-                  <span
-                    class="absolute top-0 right-0 font-mono font-bold leading-none select-none pointer-events-none"
-                    style="font-size: 5rem; line-height: 1; color: rgba(214, 213, 201, 0.4);"
+                <!-- Columna izquierda — número en flujo + título -->
+                <div class="lg:col-span-1">
+                  <p
+                    class="font-mono font-bold leading-none select-none"
+                    style="font-size: 3rem; color: #D6D5C9; line-height: 1; margin-bottom: 8px;"
                     aria-hidden="true"
                   >
                     {servicio.numero}
-                  </span>
-                  <h2 class="font-sans text-2xl sm:text-3xl font-bold text-black-forest leading-snug pt-20 lg:pt-24">
+                  </p>
+                  <h2 class="font-sans text-2xl sm:text-3xl font-bold text-black-forest leading-snug">
                     {servicio.titulo}
                   </h2>
                 </div>
