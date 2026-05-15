@@ -16,6 +16,7 @@ Siempre ejecutar `npm run build` y confirmar `[build] Complete!` antes de hacer 
 
 - **Astro 5** — `output: 'server'`, adaptador `@astrojs/vercel`
 - **Tailwind CSS v3** — vía PostCSS (`postcss.config.mjs`), sin `@astrojs/tailwind`
+- **lucide-astro** — sistema de iconos; importar como `import { NombreIcono } from 'lucide-astro'`
 - **Sin frameworks JS adicionales** — interactividad solo con vanilla JS inline en `<script>` dentro de `.astro`
 - **TypeScript** — configuración `astro/tsconfigs/strict`
 
@@ -44,6 +45,11 @@ Un único schema Zod en `src/content/config.ts` cubre todos los archivos de `src
 src/content/site/
   home.md       → hero, voc, proceso, services, ctaFinal
   nosotros.md   → proposito, vision, mision
+  servicios.md  → paginaHero, serviciosList, serviciosCta
+  cfo.md        → cfoHero, cfoProblema, cfoSolucion, cfoEntregables, cfoCierre
+
+src/content/blog/
+  *.md          → colección de artículos; campos: titulo, fecha, imagen, extracto, body
 ```
 
 Al añadir una nueva página con contenido propio:
@@ -80,8 +86,37 @@ const { campo1, campo2 } = entry!.data;
 - **Eyebrows sobre `bg-dust-grey`** — usar `text-black-forest/50` en lugar de `text-ash-grey` (el contraste ash-grey/dust-grey es ~1.5:1, ilegible)
 - **Separadores finos en grids** — usar `gap-px` con `bg-ash-grey/30` en el contenedor en lugar de bordes individuales por celda
 - **Hover en cards** — `border-dust-grey` en reposo, `hover:border-ash-grey` en hover
-- **Sección de impacto máximo** — fondo `bg-black-forest` con texto blanco (usado en CTA final y bloques de propósito)
+- **Sección de impacto máximo** — usar el gradiente Forest (ver abajo), no `bg-black-forest` plano
 - **Comentarios en español** — los comentarios de código van en español
+
+### Gradiente Forest estándar
+
+Todas las secciones con fondo oscuro (heroes, CTAs, bloques de propósito) usan este gradiente radial multicapa en lugar del color plano `bg-black-forest`:
+
+```css
+background:
+  radial-gradient(ellipse at top left,     #111a06 0%, transparent 45%),
+  radial-gradient(ellipse at bottom right, #111a06 0%, transparent 45%),
+  radial-gradient(ellipse at center,       #2f4012 0%, #243010 55%, #1a2408 100%);
+```
+
+Aplicado vía `style` inline — no existe clase Tailwind equivalente. Secciones que lo usan actualmente:
+- `nosotros.astro` — banda Propósito
+- `servicios/index.astro` — bloque Excelencia Organizacional
+- `components/home/CtaFinal.astro` — sección "Siguiente paso"
+- `pages/cfo.astro` — Hero y CTA final
+
+### Imágenes
+
+Todas en `public/images/`. Las actuales:
+
+| Archivo | Usado en |
+|---|---|
+| `hero-home.png` | Home hero |
+| `nosotros-faro.png` | Nosotros — columna izquierda |
+| `cfo-hero.png` | fCFO hero |
+| `cfo-caos.png` | fCFO sección Problema |
+| `cfo-orden.png` | fCFO sección Solución |
 
 ## CMS — Sveltia CMS + GitHub
 
@@ -110,11 +145,13 @@ backend:
   name: github
   repo: vfleanconsult-lab/Telos-web
   branch: main
-  base_url: https://telos-web-pi.vercel.app
+  base_url: https://telos-web-pi.vercel.app   # ⚠️ cambiar a https://telos.cl al lanzar dominio
   auth_endpoint: api/auth
 ```
 
 La variable de entorno `GITHUB_CLIENT_SECRET` debe estar en Vercel. El Client ID del GitHub OAuth App es `Ov23liJhis0KyJECIdZA`.
+
+> **Pendiente al lanzar telos.cl:** actualizar `base_url` a `https://telos.cl` aquí y en `src/pages/api/cms-config.ts`. Además, agregar `https://telos.cl/api/callback` como Authorization callback URL en el GitHub OAuth App (Settings → Developer settings → OAuth Apps — lo hace el dueño de la cuenta manualmente).
 
 ### Campo imagen en Sveltia CMS
 
@@ -188,3 +225,22 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 - Rama de desarrollo activa: `claude/telos-sprint-1-5SqER`
 - Cada sprint se documenta como un issue cerrado en GitHub con etiquetas `documentation` y `sprint-N`
 - Las páginas pendientes de implementar son stubs en `src/pages/` con un comentario que describe qué irá ahí
+
+### Sprints completados
+
+| Sprint | Descripción |
+|---|---|
+| Sprint 1 | Setup inicial — Astro 5, Tailwind, estructura de páginas y colección de contenido |
+| Sprint CMS | Sveltia CMS + OAuth GitHub; fix Vercel bloquea `.yml`; fix Astro 5 API breaks |
+| Sprint 8a | Iconografía con lucide-astro; wordmark "Telos — Consultores" en Header |
+| Sprint imágenes | Reemplazo de placeholders por imágenes reales (home, nosotros, cfo) |
+| Sprint footer | Correo real `victor@telos.cl` + icono LinkedIn |
+| Sprint rediseño | Rediseño visual completo Nosotros y Servicios |
+| Sprint gradientes | Gradiente Forest multicapa en Nosotros, Servicios, Home CTA y fCFO |
+
+### Sprints pendientes
+
+| Sprint | Descripción |
+|---|---|
+| Sprint dominio | Lanzamiento telos.cl — DNS Cloudflare → Vercel + actualizar `base_url` del CMS |
+| Sprint SEO | Meta tags OG, sitemap.xml, robots.txt |
