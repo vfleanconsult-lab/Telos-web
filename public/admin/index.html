@@ -8,6 +8,52 @@
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
+    <!-- Captura referencia al popup para el source del synthetic MessageEvent -->
+    <script>
+      var _popupWin = null;
+      var _origOpen = window.open;
+      window.open = function () {
+        _popupWin = _origOpen.apply(window, arguments);
+        return _popupWin;
+      };
+    </script>
+
+    <!-- Relay BroadcastChannel → Sveltia (para iPadOS donde opener es null en el popup).
+         El popup anuncia "authorizing:github" via BC, este script responde con el ack
+         y luego reenvía el token como MessageEvent a Sveltia cuando llega. -->
+    <script>
+      (function () {
+        if (typeof BroadcastChannel === 'undefined') return;
+
+        // Handshake: recibir anuncio del popup y enviar ack
+        var hbc = new BroadcastChannel('sveltia-auth');
+        hbc.onmessage = function (e) {
+          if (e.data === 'authorizing:github') {
+            hbc.postMessage('authorizing:github:ack');
+            hbc.close();
+          }
+        };
+
+        // Token: recibir payload del popup y re-despachar a Sveltia
+        var tbc = new BroadcastChannel('sveltia-auth-token');
+        tbc.onmessage = function (e) {
+          if (typeof e.data !== 'string') return;
+          try {
+            window.dispatchEvent(new MessageEvent('message', {
+              data:   e.data,
+              origin: window.location.origin,
+              source: _popupWin || null,
+            }));
+          } catch (_) {
+            window.dispatchEvent(new MessageEvent('message', {
+              data:   e.data,
+              origin: window.location.origin,
+            }));
+          }
+        };
+      })();
+    </script>
+
     <!-- Sveltia CMS — maneja el protocolo OAuth internamente vía postMessage -->
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
