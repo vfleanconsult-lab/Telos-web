@@ -43,6 +43,48 @@
       })();
     </script>
 
+    <!-- localStorage + visibilitychange: relay para iPadOS donde el tab admin
+         está en background mientras el popup OAuth está abierto. iOS throttlea
+         los handlers de background tabs (postMessage, BroadcastChannel).
+         Cuando el popup se cierra, el admin tab vuelve al frente y
+         visibilitychange dispara ANTES que los ticks pendientes de setInterval
+         de Sveltia — esto garantiza que el token llegue antes del AbortError. -->
+    <script>
+      (function () {
+        function despachar(token) {
+          localStorage.removeItem('sveltia-cms-auth-pending');
+          try {
+            window.dispatchEvent(new MessageEvent('message', {
+              data:   token,
+              origin: window.location.origin,
+              source: _popupWin || null,
+            }));
+          } catch (_) {
+            window.dispatchEvent(new MessageEvent('message', {
+              data:   token,
+              origin: window.location.origin,
+            }));
+          }
+        }
+
+        function chequear() {
+          var t = localStorage.getItem('sveltia-cms-auth-pending');
+          if (t) despachar(t);
+        }
+
+        // Cuando el tab admin vuelve al frente (popup se cerró en iOS)
+        document.addEventListener('visibilitychange', function () {
+          if (!document.hidden) chequear();
+        });
+
+        // storage event: se dispara en otros tabs cuando localStorage cambia,
+        // incluso si están en background en algunos navegadores
+        window.addEventListener('storage', function (e) {
+          if (e.key === 'sveltia-cms-auth-pending' && e.newValue) chequear();
+        });
+      })();
+    </script>
+
     <!-- Sveltia CMS — reemplazo directo de Decap/Netlify CMS, mismo config.yml y OAuth -->
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>

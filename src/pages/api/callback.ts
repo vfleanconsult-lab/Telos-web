@@ -34,12 +34,8 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(`Error GitHub: ${tokenData.error_description ?? tokenData.error}`, { status: 400 });
   }
 
-  // Formato que Sveltia/Decap CMS espera: JSON con { token, provider }.
   const message = `authorization:github:success:${JSON.stringify({ token: tokenData.access_token, provider: 'github' })}`;
 
-  // HTML que intenta postMessage al opener y, si el opener es nulo
-  // (Safari iOS anula window.opener tras navegación cross-origin por GitHub),
-  // usa BroadcastChannel como canal de respaldo.
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
@@ -52,55 +48,30 @@ export const GET: APIRoute = async ({ request }) => {
   var st  = document.getElementById('st');
   var db  = document.getElementById('db');
 
-  function usarBroadcast() {
-    db.textContent = 'opener: NULO — usando BroadcastChannel';
-    if (typeof BroadcastChannel !== 'undefined') {
-      var bc = new BroadcastChannel('decap-cms-auth');
-      bc.postMessage(msg);
-      bc.close();
-      st.textContent = 'Autorizado. Puedes cerrar esta ventana.';
-    } else {
-      st.textContent = 'Error: cierra esta ventana e intenta de nuevo.';
-      db.textContent += ' (no disponible)';
-    }
-  }
+  // 1. localStorage — admin tab lo lee al volver al frente (visibilitychange)
+  //    o vía storage event si el tab estaba activo.
+  try { localStorage.setItem('sveltia-cms-auth-pending', msg); } catch(_) {}
 
-  // Envía el token por dos canales simultáneos:
-  // 1. window.opener.postMessage — canal directo cuando opener está disponible.
-  // 2. BroadcastChannel 'decap-cms-auth' — el relay en index.html convierte
-  //    el mensaje BC en un synthetic MessageEvent para Sveltia. Necesario en
-  //    iPadOS donde el COOP header en /admin puede hacer que e.source sea null
-  //    en el handler de Sveltia, impidiendo el echo del handshake.
-  // El popup NO se cierra solo — Sveltia llama popup.close() al autenticar.
-  var sent = false;
-  function enviar() {
-    if (sent) return;
-    sent = true;
-    if (window.opener && !window.opener.closed) {
-      window.opener.postMessage(msg, '*');
-      db.textContent = 'canal: opener OK';
-    }
-    if (typeof BroadcastChannel !== 'undefined') {
-      var bc = new BroadcastChannel('decap-cms-auth');
-      bc.postMessage(msg);
-      db.textContent = (db.textContent ? db.textContent + ' + ' : '') + 'BC OK';
-    }
-    st.textContent = 'Autorizado. Sveltia cerrará esta ventana…';
-  }
-
-  // Intentar handshake primero (Sveltia espera el echo antes de aceptar token
-  // en algunos paths). Si no llega el echo en 800 ms, enviar directo de todos modos.
+  // 2. window.opener directo (funciona en escritorio donde admin tab no está en background)
   if (window.opener && !window.opener.closed) {
-    window.addEventListener('message', function(e) {
-      if (e.data === 'authorizing:github') { enviar(); }
-    });
-    window.opener.postMessage('authorizing:github', '*');
-    db.textContent = 'opener: OK — esperando echo';
-    st.textContent = 'Autorizando…';
-    setTimeout(enviar, 800);
-  } else {
-    enviar();
+    try { window.opener.postMessage(msg, '*'); } catch(_) {}
   }
+
+  // 3. BroadcastChannel — relay en index.html lo convierte en synthetic MessageEvent
+  if (typeof BroadcastChannel !== 'undefined') {
+    try {
+      var bc = new BroadcastChannel('decap-cms-auth');
+      bc.postMessage(msg);
+    } catch(_) {}
+  }
+
+  db.textContent = 'enviado: localStorage + opener + BC';
+  st.textContent = 'Autorizado. Cerrando…';
+
+  // Cerrar el popup para que iPadOS traiga el tab admin al frente.
+  // index.html usa visibilitychange para leer el token de localStorage
+  // antes de que el timer de Sveltia detecte popup.closed.
+  setTimeout(function () { try { window.close(); } catch(_) {} }, 600);
 })();
 </script>
 </body>
