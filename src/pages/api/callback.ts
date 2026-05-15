@@ -38,10 +38,8 @@ export const GET: APIRoute = async ({ request }) => {
   // Regex /authorization:(.+?):(.+?):(.+)/ → match[3] = payload JSON.
   const message = `authorization:github:success:${JSON.stringify({ token: tokenData.access_token, provider: 'github' })}`;
 
-  // HTML que intenta postMessage al opener y, si el opener es nulo
-  // (Safari iOS anula window.opener tras navegación cross-origin por GitHub),
-  // usa BroadcastChannel como canal de respaldo.
-  // El texto visible sirve de diagnóstico: informa qué vía se utilizó.
+  // Intenta los tres mecanismos disponibles y muestra cuáles se usaron.
+  // El texto diagnóstico en pantalla ayuda a depurar problemas en Safari/iPadOS.
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
@@ -50,33 +48,42 @@ export const GET: APIRoute = async ({ request }) => {
 <p id="db" style="font-family:monospace;font-size:0.75rem;color:#999;padding:0 2rem 2rem"></p>
 <script>
 (function () {
-  var msg = ${JSON.stringify(message)};
-  var st  = document.getElementById('st');
-  var db  = document.getElementById('db');
+  var msg  = ${JSON.stringify(message)};
+  var st   = document.getElementById('st');
+  var db   = document.getElementById('db');
+  var vias = [];
 
-  function cerrar() { setTimeout(function () { window.close(); }, 2000); }
+  // 1. localStorage — genera storage event en la pestaña del admin
+  try {
+    localStorage.setItem('cms-auth-token', msg);
+    vias.push('localStorage');
+  } catch (e) { vias.push('localStorage-FALLO:' + e); }
 
-  function usarBroadcast() {
-    db.textContent = 'opener: NULO — usando BroadcastChannel';
-    if (typeof BroadcastChannel !== 'undefined') {
+  // 2. BroadcastChannel
+  if (typeof BroadcastChannel !== 'undefined') {
+    try {
       var bc = new BroadcastChannel('decap-cms-auth');
       bc.postMessage(msg);
       bc.close();
-      st.textContent = 'Autorizado. Puedes cerrar esta ventana.';
-    } else {
-      st.textContent = 'Error: cierra esta ventana e intenta de nuevo.';
-      db.textContent += ' (no disponible)';
-    }
+      vias.push('BroadcastChannel');
+    } catch (e) { vias.push('BC-FALLO:' + e); }
+  } else {
+    vias.push('BC-no-disponible');
   }
 
+  // 3. postMessage directo al opener
   if (window.opener && !window.opener.closed) {
-    db.textContent = 'opener: OK — postMessage enviado';
-    window.opener.postMessage(msg, '*');
-    st.textContent = 'Autorizado. Cerrando…';
-    cerrar();
+    try {
+      window.opener.postMessage(msg, '*');
+      vias.push('postMessage');
+    } catch (e) { vias.push('postMessage-FALLO:' + e); }
   } else {
-    usarBroadcast();
+    vias.push('opener-nulo');
   }
+
+  db.textContent = 'Mecanismos: ' + vias.join(', ');
+  st.textContent = 'Autorizado. Esta ventana se cerrará en unos segundos.';
+  setTimeout(function () { window.close(); }, 5000);
 })();
 </script>
 </body>

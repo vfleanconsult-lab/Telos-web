@@ -18,7 +18,7 @@
       };
     </script>
 
-    <!-- BroadcastChannel: pasa source=popup para que el CMS no filtre el mensaje -->
+    <!-- BroadcastChannel: re-despacha como message event para Sveltia -->
     <script>
       (function () {
         if (typeof BroadcastChannel === 'undefined') return;
@@ -39,6 +39,27 @@
           }
         };
       })();
+    </script>
+
+    <!-- localStorage: fallback para Safari/iPadOS donde BroadcastChannel y postMessage
+         no cruzan pestañas en navegación privada -->
+    <script>
+      window.addEventListener('storage', function (e) {
+        if (e.key !== 'cms-auth-token' || !e.newValue) return;
+        localStorage.removeItem('cms-auth-token');
+        try {
+          window.dispatchEvent(new MessageEvent('message', {
+            data:   e.newValue,
+            origin: window.location.origin,
+            source: _popupWin || null,
+          }));
+        } catch (_) {
+          window.dispatchEvent(new MessageEvent('message', {
+            data:   e.newValue,
+            origin: window.location.origin,
+          }));
+        }
+      });
     </script>
 
     <!-- Sveltia CMS — reemplazo directo de Decap/Netlify CMS, mismo config.yml y OAuth -->
