@@ -6,7 +6,7 @@ const CONFIG_YAML = `backend:
   name: github
   repo: vfleanconsult-lab/Telos-web
   branch: main
-  base_url: https://telos-web-pi.vercel.app
+  base_url: https://telos.cl
   auth_endpoint: api/auth
 media_folder: public/images/blog
 public_folder: /images/blog
@@ -44,7 +44,7 @@ collections:
         name: imagen
         widget: image
         required: false
-        allow_multiple: false
+        multiple: false
       - label: Contenido
         name: body
         widget: markdown
