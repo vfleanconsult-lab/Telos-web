@@ -8,71 +8,7 @@
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
-    <!-- Captura la referencia al popup para poder pasarla como source en los eventos -->
-    <script>
-      var _popupWin = null;
-      var _origOpen = window.open;
-      window.open = function () {
-        _popupWin = _origOpen.apply(window, arguments);
-        return _popupWin;
-      };
-    </script>
-
-    <!-- BroadcastChannel handshake: responde al anuncio del popup y re-despacha el token -->
-    <script>
-      (function () {
-        if (typeof BroadcastChannel === 'undefined') return;
-
-        // Canal de handshake: el popup anuncia "authorizing:github",
-        // nosotros respondemos con el ack para que el popup envíe el token.
-        var hbc = new BroadcastChannel('sveltia-auth');
-        hbc.onmessage = function (e) {
-          if (typeof e.data === 'string' && e.data.startsWith('authorizing:')) {
-            hbc.postMessage(e.data + ':ack');
-            hbc.close();
-          }
-        };
-
-        // Canal de token: recibe el token tras el handshake y lo re-despacha a Sveltia
-        var tbc = new BroadcastChannel('decap-cms-auth');
-        tbc.onmessage = function (e) {
-          try {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   e.data,
-              origin: window.location.origin,
-              source: _popupWin || null,
-            }));
-          } catch (_) {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   e.data,
-              origin: window.location.origin,
-            }));
-          }
-        };
-      })();
-    </script>
-
-    <!-- localStorage fallback: recibe el token si BroadcastChannel no cruza pestañas -->
-    <script>
-      window.addEventListener('storage', function (e) {
-        if (e.key !== 'cms-auth-token' || !e.newValue) return;
-        localStorage.removeItem('cms-auth-token');
-        try {
-          window.dispatchEvent(new MessageEvent('message', {
-            data:   e.newValue,
-            origin: window.location.origin,
-            source: _popupWin || null,
-          }));
-        } catch (_) {
-          window.dispatchEvent(new MessageEvent('message', {
-            data:   e.newValue,
-            origin: window.location.origin,
-          }));
-        }
-      });
-    </script>
-
-    <!-- Sveltia CMS — reemplazo directo de Decap/Netlify CMS, mismo config.yml y OAuth -->
+    <!-- Sveltia CMS — maneja el protocolo OAuth internamente vía postMessage -->
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>
