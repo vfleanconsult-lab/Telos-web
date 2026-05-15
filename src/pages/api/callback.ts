@@ -34,40 +34,47 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(`Error GitHub: ${tokenData.error_description ?? tokenData.error}`, { status: 400 });
   }
 
+  // Formato que Sveltia/Decap CMS espera: JSON con { token, provider }.
   const message = `authorization:github:success:${JSON.stringify({ token: tokenData.access_token, provider: 'github' })}`;
 
-  // El popup NO se cierra solo. Sveltia cerrará el popup cuando procese el token.
-  // Mientras el popup esté abierto, popup.closed === false en el admin tab, así
-  // el timer de Sveltia no puede lanzar AbortError.
-  // El token se entrega vía localStorage + opener + BroadcastChannel.
-  // El admin (index.html) intercepta el setInterval de Sveltia para despachar
-  // el token en el primer tick del timer, antes del chequeo de popup.closed.
+  // HTML que intenta postMessage al opener y, si el opener es nulo
+  // (Safari iOS anula window.opener tras navegación cross-origin por GitHub),
+  // usa BroadcastChannel como canal de respaldo.
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
 <body>
-<p id="st" style="font-family:sans-serif;color:#444;padding:2rem 2rem 0">Autorizado.</p>
-<p style="font-family:sans-serif;color:#666;padding:0 2rem">Vuelve al tab <strong>Telos CMS</strong> para abrir el panel.</p>
+<p id="st" style="font-family:sans-serif;color:#444;padding:2rem 2rem 0">Autorizando…</p>
 <p id="db" style="font-family:monospace;font-size:0.75rem;color:#999;padding:0 2rem 2rem"></p>
 <script>
 (function () {
   var msg = ${JSON.stringify(message)};
+  var st  = document.getElementById('st');
   var db  = document.getElementById('db');
 
-  // localStorage: admin tab lo lee en el primer tick del setInterval interceptado
-  try { localStorage.setItem('sveltia-cms-auth-pending', msg); } catch(_) {}
+  function cerrar() { setTimeout(function () { window.close(); }, 2000); }
 
-  // opener directo (funciona en escritorio donde admin no está en background)
+  function usarBroadcast() {
+    db.textContent = 'opener: NULO — usando BroadcastChannel';
+    if (typeof BroadcastChannel !== 'undefined') {
+      var bc = new BroadcastChannel('decap-cms-auth');
+      bc.postMessage(msg);
+      bc.close();
+      st.textContent = 'Autorizado. Puedes cerrar esta ventana.';
+    } else {
+      st.textContent = 'Error: cierra esta ventana e intenta de nuevo.';
+      db.textContent += ' (no disponible)';
+    }
+  }
+
   if (window.opener && !window.opener.closed) {
-    try { window.opener.postMessage(msg, '*'); } catch(_) {}
+    db.textContent = 'opener: OK — postMessage enviado';
+    window.opener.postMessage(msg, '*');
+    st.textContent = 'Autorizado. Cerrando…';
+    cerrar();
+  } else {
+    usarBroadcast();
   }
-
-  // BroadcastChannel como canal adicional
-  if (typeof BroadcastChannel !== 'undefined') {
-    try { var bc = new BroadcastChannel('decap-cms-auth'); bc.postMessage(msg); } catch(_) {}
-  }
-
-  db.textContent = 'token enviado — esperando que Sveltia cierre esta ventana';
 })();
 </script>
 </body>
