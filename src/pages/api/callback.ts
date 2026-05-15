@@ -52,8 +52,6 @@ export const GET: APIRoute = async ({ request }) => {
   var st  = document.getElementById('st');
   var db  = document.getElementById('db');
 
-  function cerrar() { setTimeout(function () { window.close(); }, 2000); }
-
   function usarBroadcast() {
     db.textContent = 'opener: NULO — usando BroadcastChannel';
     if (typeof BroadcastChannel !== 'undefined') {
@@ -68,10 +66,18 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   if (window.opener && !window.opener.closed) {
-    db.textContent = 'opener: OK — postMessage enviado';
-    window.opener.postMessage(msg, '*');
-    st.textContent = 'Autorizado. Cerrando…';
-    cerrar();
+    // Handshake de Sveltia: anunciar primero, enviar token solo tras el echo.
+    // Esto evita que el popup cierre antes de que el tab admin (en background
+    // en iOS) procese el mensaje. Sveltia cerrará el popup al completar la auth.
+    window.addEventListener('message', function(e) {
+      if (e.data === 'authorizing:github') {
+        window.opener.postMessage(msg, e.origin);
+        db.textContent = 'opener: OK — token enviado';
+      }
+    });
+    window.opener.postMessage('authorizing:github', '*');
+    st.textContent = 'Autorizado. Sveltia cerrará esta ventana…';
+    db.textContent = 'opener: OK — esperando confirmación';
   } else {
     usarBroadcast();
   }
