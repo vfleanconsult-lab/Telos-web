@@ -1,11 +1,10 @@
 // Endpoint: GET /api/callback
 // GitHub redirige aquí con el código de autorización.
-// Entrega el token a Sveltia CMS usando 3 mecanismos en paralelo:
-//   1. localStorage  — storage event al admin tab (mismo origen)
-//   2. BroadcastChannel — canal 'decap-cms-auth'
-//   3. window.opener.postMessage — directo al opener
-// NO usa el handshake "authorizing:" para no bloquear a Sveltia en modo-espera.
-// El popup se cierra a los 15 s para que Sveltia tenga tiempo de autenticar.
+// Implementa el handshake de 2 mensajes que espera Sveltia CMS:
+//   1. Popup → Parent: "authorizing:github"  (anuncio, target '*')
+//   2. Parent → Popup: "authorizing:github"  (echo del parent al popup)
+//   3. Popup → Parent: "authorization:github:success:{...}" (al origin del echo)
+// El popup NO se cierra — Sveltia lo cierra desde el parent al resolver.
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
@@ -38,51 +37,29 @@ export const GET: APIRoute = async ({ request }) => {
     return new Response(`Error GitHub: ${tokenData.error_description ?? tokenData.error}`, { status: 400 });
   }
 
-  const message = `authorization:github:success:${JSON.stringify({ provider: 'github', token: tokenData.access_token })}`;
+  // Payload en el formato exacto que espera Sveltia CMS
+  const payload = JSON.stringify(
+    'authorization:github:success:' + JSON.stringify({ provider: 'github', token: tokenData.access_token })
+  );
 
-  const html = `<!DOCTYPE html>
+  const html = `<!doctype html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
 <body>
-<p id="st" style="font-family:sans-serif;color:#444;padding:2rem 2rem 0">Autorizado. Esta ventana se cerrará en unos segundos.</p>
-<p id="db" style="font-family:monospace;font-size:0.75rem;color:#999;padding:0 2rem 2rem"></p>
+<p style="font-family:sans-serif;color:#444;padding:2rem">Autorizado. Sveltia cerrará esta ventana automáticamente.</p>
 <script>
 (() => {
-  const msg  = ${JSON.stringify(message)};
-  const db   = document.getElementById('db');
-  const vias = [];
+  const payload = ${payload};
 
-  // 1. localStorage
-  try {
-    localStorage.setItem('cms-auth-token', msg);
-    vias.push('localStorage');
-  } catch (e) { vias.push('localStorage-FALLO'); }
+  // Paso 3: cuando el parent hace echo de "authorizing:github", enviar el token al mismo origin
+  window.addEventListener('message', ({ data, origin }) => {
+    if (data === 'authorizing:github') {
+      window.opener?.postMessage(payload, origin);
+    }
+  });
 
-  // 2. BroadcastChannel
-  if (typeof BroadcastChannel !== 'undefined') {
-    try {
-      const bc = new BroadcastChannel('decap-cms-auth');
-      bc.postMessage(msg);
-      bc.close();
-      vias.push('BroadcastChannel');
-    } catch (e) { vias.push('BC-FALLO'); }
-  }
-
-  // 3. postMessage directo al opener (sin handshake para no bloquear estado de Sveltia)
-  if (window.opener && !window.opener.closed) {
-    try {
-      window.opener.postMessage(msg, '*');
-      vias.push('postMessage');
-    } catch (e) { vias.push('postMessage-FALLO'); }
-  } else {
-    vias.push('opener-nulo');
-  }
-
-  db.textContent = 'Vias: ' + vias.join(', ');
-
-  // Cerrar a los 15 s para dar tiempo a Sveltia de completar la auth antes de que
-  // popup.closed dispare la cancelación interna del CMS.
-  setTimeout(() => window.close(), 15000);
+  // Paso 1: anunciar al parent que el popup está listo
+  window.opener?.postMessage('authorizing:github', '*');
 })();
 </script>
 </body>
