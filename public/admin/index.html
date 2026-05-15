@@ -8,7 +8,7 @@
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
-    <!-- Captura el popup para el fallback BroadcastChannel (Safari / cross-origin redirect) -->
+    <!-- Captura el popup para los relays -->
     <script>
       var _popupWin = null;
       var _origOpen = window.open;
@@ -18,32 +18,65 @@
       };
     </script>
 
-    <!-- BroadcastChannel: relay para cuando window.opener es null en el popup
-         (Safari/iPadOS anula opener tras redirect cross-origin a github.com).
-         Pasa source=popup al MessageEvent para que Sveltia no filtre el mensaje.
-         El canal se mantiene abierto para que funcione en intentos sucesivos. -->
+    <!-- Entrega el token a Sveltia cuando el admin tab vuelve al frente.
+         En iPadOS el admin tab queda throttled mientras el popup está abierto,
+         así que el postMessage del popup llega en cola. Para evitar que el
+         setInterval de Sveltia (popup.closed check) se dispare antes, este
+         interceptor entrega el token DENTRO del propio tick del timer. -->
+    <script>
+      (function () {
+        var _realSetInterval = window.setInterval;
+        var _origin = window.location.origin;
+
+        function enviarToken(token) {
+          localStorage.removeItem('sveltia-cms-auth-pending');
+          window.postMessage(token, _origin);
+        }
+
+        window.setInterval = function (fn, delay) {
+          var rest = Array.prototype.slice.call(arguments, 2);
+          if (delay === 1000) {
+            var wrapped = function () {
+              var t = localStorage.getItem('sveltia-cms-auth-pending');
+              if (t) {
+                try { enviarToken(t); } catch (_) {}
+                return;
+              }
+              fn.apply(this, rest);
+            };
+            return _realSetInterval.call(window, wrapped, delay);
+          }
+          return _realSetInterval.apply(window, arguments);
+        };
+
+        document.addEventListener('visibilitychange', function () {
+          if (!document.hidden) {
+            var t = localStorage.getItem('sveltia-cms-auth-pending');
+            if (t) { try { enviarToken(t); } catch (_) {} }
+          }
+        });
+
+        window.addEventListener('storage', function (e) {
+          if (e.key === 'sveltia-cms-auth-pending' && e.newValue) {
+            try { enviarToken(e.newValue); } catch (_) {}
+          }
+        });
+      })();
+    </script>
+
+    <!-- BroadcastChannel: relay cuando window.opener es null en el popup.
+         Usa self-postMessage para que Sveltia reciba con origin correcto. -->
     <script>
       (function () {
         if (typeof BroadcastChannel === 'undefined') return;
         var bc = new BroadcastChannel('decap-cms-auth');
         bc.onmessage = function (e) {
-          try {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   e.data,
-              origin: window.location.origin,
-              source: _popupWin || null,
-            }));
-          } catch (_) {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   e.data,
-              origin: window.location.origin,
-            }));
-          }
+          try { window.postMessage(e.data, window.location.origin); } catch (_) {}
         };
       })();
     </script>
 
-    <!-- Sveltia CMS — reemplazo directo de Decap/Netlify CMS, mismo config.yml y OAuth -->
+    <!-- Sveltia CMS -->
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>
