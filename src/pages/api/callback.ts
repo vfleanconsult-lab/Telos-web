@@ -36,42 +36,38 @@ export const GET: APIRoute = async ({ request }) => {
 
   const message = `authorization:github:success:${JSON.stringify({ token: tokenData.access_token, provider: 'github' })}`;
 
+  // El popup NO se cierra solo. Sveltia cerrará el popup cuando procese el token.
+  // Mientras el popup esté abierto, popup.closed === false en el admin tab, así
+  // el timer de Sveltia no puede lanzar AbortError.
+  // El token se entrega vía localStorage + opener + BroadcastChannel.
+  // El admin (index.html) intercepta el setInterval de Sveltia para despachar
+  // el token en el primer tick del timer, antes del chequeo de popup.closed.
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
 <body>
-<p id="st" style="font-family:sans-serif;color:#444;padding:2rem 2rem 0">Autorizando…</p>
+<p id="st" style="font-family:sans-serif;color:#444;padding:2rem 2rem 0">Autorizado.</p>
+<p style="font-family:sans-serif;color:#666;padding:0 2rem">Vuelve al tab <strong>Telos CMS</strong> para abrir el panel.</p>
 <p id="db" style="font-family:monospace;font-size:0.75rem;color:#999;padding:0 2rem 2rem"></p>
 <script>
 (function () {
   var msg = ${JSON.stringify(message)};
-  var st  = document.getElementById('st');
   var db  = document.getElementById('db');
 
-  // 1. localStorage — admin tab lo lee al volver al frente (visibilitychange)
-  //    o vía storage event si el tab estaba activo.
+  // localStorage: admin tab lo lee en el primer tick del setInterval interceptado
   try { localStorage.setItem('sveltia-cms-auth-pending', msg); } catch(_) {}
 
-  // 2. window.opener directo (funciona en escritorio donde admin tab no está en background)
+  // opener directo (funciona en escritorio donde admin no está en background)
   if (window.opener && !window.opener.closed) {
     try { window.opener.postMessage(msg, '*'); } catch(_) {}
   }
 
-  // 3. BroadcastChannel — relay en index.html lo convierte en synthetic MessageEvent
+  // BroadcastChannel como canal adicional
   if (typeof BroadcastChannel !== 'undefined') {
-    try {
-      var bc = new BroadcastChannel('decap-cms-auth');
-      bc.postMessage(msg);
-    } catch(_) {}
+    try { var bc = new BroadcastChannel('decap-cms-auth'); bc.postMessage(msg); } catch(_) {}
   }
 
-  db.textContent = 'enviado: localStorage + opener + BC';
-  st.textContent = 'Autorizado. Cerrando…';
-
-  // Cerrar el popup para que iPadOS traiga el tab admin al frente.
-  // index.html usa visibilitychange para leer el token de localStorage
-  // antes de que el timer de Sveltia detecte popup.closed.
-  setTimeout(function () { try { window.close(); } catch(_) {} }, 600);
+  db.textContent = 'token enviado — esperando que Sveltia cierre esta ventana';
 })();
 </script>
 </body>
