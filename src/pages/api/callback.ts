@@ -65,21 +65,41 @@ export const GET: APIRoute = async ({ request }) => {
     }
   }
 
+  // Envía el token por dos canales simultáneos:
+  // 1. window.opener.postMessage — canal directo cuando opener está disponible.
+  // 2. BroadcastChannel 'decap-cms-auth' — el relay en index.html convierte
+  //    el mensaje BC en un synthetic MessageEvent para Sveltia. Necesario en
+  //    iPadOS donde el COOP header en /admin puede hacer que e.source sea null
+  //    en el handler de Sveltia, impidiendo el echo del handshake.
+  // El popup NO se cierra solo — Sveltia llama popup.close() al autenticar.
+  var sent = false;
+  function enviar() {
+    if (sent) return;
+    sent = true;
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage(msg, '*');
+      db.textContent = 'canal: opener OK';
+    }
+    if (typeof BroadcastChannel !== 'undefined') {
+      var bc = new BroadcastChannel('decap-cms-auth');
+      bc.postMessage(msg);
+      db.textContent = (db.textContent ? db.textContent + ' + ' : '') + 'BC OK';
+    }
+    st.textContent = 'Autorizado. Sveltia cerrará esta ventana…';
+  }
+
+  // Intentar handshake primero (Sveltia espera el echo antes de aceptar token
+  // en algunos paths). Si no llega el echo en 800 ms, enviar directo de todos modos.
   if (window.opener && !window.opener.closed) {
-    // Handshake de Sveltia: anunciar primero, enviar token solo tras el echo.
-    // Esto evita que el popup cierre antes de que el tab admin (en background
-    // en iOS) procese el mensaje. Sveltia cerrará el popup al completar la auth.
     window.addEventListener('message', function(e) {
-      if (e.data === 'authorizing:github') {
-        window.opener.postMessage(msg, e.origin);
-        db.textContent = 'opener: OK — token enviado';
-      }
+      if (e.data === 'authorizing:github') { enviar(); }
     });
     window.opener.postMessage('authorizing:github', '*');
-    st.textContent = 'Autorizado. Sveltia cerrará esta ventana…';
-    db.textContent = 'opener: OK — esperando confirmación';
+    db.textContent = 'opener: OK — esperando echo';
+    st.textContent = 'Autorizando…';
+    setTimeout(enviar, 800);
   } else {
-    usarBroadcast();
+    enviar();
   }
 })();
 </script>
