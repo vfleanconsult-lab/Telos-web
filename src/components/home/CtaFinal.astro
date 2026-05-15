@@ -12,8 +12,10 @@ const { eyebrow, h2, paragraph, buttonLabel, buttonHref, bgImage } = Astro.props
 ---
 
 <section
-  class="py-24 bg-black-forest relative overflow-hidden"
-  style={bgImage ? `background-image: url('${bgImage}'); background-size: cover; background-position: center;` : undefined}
+  class="py-24 relative overflow-hidden"
+  style={bgImage
+    ? `background-image: url('${bgImage}'); background-size: cover; background-position: center;`
+    : 'background: radial-gradient(ellipse at top left, #111a06 0%, transparent 45%), radial-gradient(ellipse at bottom right, #111a06 0%, transparent 45%), radial-gradient(ellipse at center, #2f4012 0%, #243010 55%, #1a2408 100%);'}
 >
   <!-- Overlay oscuro cuando hay imagen de fondo -->
   {bgImage && (
