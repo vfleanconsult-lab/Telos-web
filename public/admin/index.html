@@ -36,7 +36,6 @@
         // Canal de token: recibe el token tras el handshake y lo re-despacha a Sveltia
         var tbc = new BroadcastChannel('decap-cms-auth');
         tbc.onmessage = function (e) {
-          tbc.close();
           try {
             window.dispatchEvent(new MessageEvent('message', {
               data:   e.data,

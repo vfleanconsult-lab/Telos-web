@@ -1,10 +1,11 @@
 // Endpoint: GET /api/callback
 // GitHub redirige aquí con el código de autorización.
-// Implementa el protocolo de sveltia-cms-auth:
-//   1. popup → CMS:  "authorizing:github"
-//   2. CMS  → popup: "authorizing:github"  (ack)
-//   3. popup → CMS:  token de autorización
-// En paralelo escribe en localStorage como fallback para COOP/Safari.
+// Entrega el token a Sveltia CMS usando 3 mecanismos en paralelo:
+//   1. localStorage  — storage event al admin tab (mismo origen)
+//   2. BroadcastChannel — canal 'decap-cms-auth'
+//   3. window.opener.postMessage — directo al opener
+// NO usa el handshake "authorizing:" para no bloquear a Sveltia en modo-espera.
+// El popup se cierra a los 15 s para que Sveltia tenga tiempo de autenticar.
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
@@ -39,32 +40,25 @@ export const GET: APIRoute = async ({ request }) => {
 
   const message = `authorization:github:success:${JSON.stringify({ provider: 'github', token: tokenData.access_token })}`;
 
-  // Protocolo idéntico al de sveltia-cms-auth oficial:
-  //   - Escucha "authorizing:github" del opener (CMS) y responde con el token
-  //   - Anuncia "authorizing:github" al opener para iniciar el handshake
-  // Fallbacks para COOP/Safari donde window.opener.postMessage no funciona:
-  //   - localStorage (storage event llega al admin tab por el mismo origen)
-  //   - BroadcastChannel
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8" /><title>Autorizando…</title></head>
 <body>
-<p id="st" style="font-family:sans-serif;color:#444;padding:2rem 2rem 0">Autorizado. Puedes cerrar esta ventana.</p>
+<p id="st" style="font-family:sans-serif;color:#444;padding:2rem 2rem 0">Autorizado. Esta ventana se cerrará en unos segundos.</p>
 <p id="db" style="font-family:monospace;font-size:0.75rem;color:#999;padding:0 2rem 2rem"></p>
 <script>
 (() => {
-  const msg      = ${JSON.stringify(message)};
-  const provider = 'github';
-  const db       = document.getElementById('db');
-  const vias     = [];
+  const msg  = ${JSON.stringify(message)};
+  const db   = document.getElementById('db');
+  const vias = [];
 
-  // 1. localStorage — funciona aunque COOP rompa window.opener
+  // 1. localStorage
   try {
     localStorage.setItem('cms-auth-token', msg);
     vias.push('localStorage');
   } catch (e) { vias.push('localStorage-FALLO'); }
 
-  // 2. BroadcastChannel directo
+  // 2. BroadcastChannel
   if (typeof BroadcastChannel !== 'undefined') {
     try {
       const bc = new BroadcastChannel('decap-cms-auth');
@@ -74,22 +68,21 @@ export const GET: APIRoute = async ({ request }) => {
     } catch (e) { vias.push('BC-FALLO'); }
   }
 
-  // 3. Protocolo sveltia-cms-auth: handshake via postMessage
+  // 3. postMessage directo al opener (sin handshake para no bloquear estado de Sveltia)
   if (window.opener && !window.opener.closed) {
-    window.addEventListener('message', ({ data, origin }) => {
-      if (data !== 'authorizing:' + provider) return;
-      const target = (origin && origin !== 'null') ? origin : '*';
-      window.opener.postMessage(msg, target);
-      vias.push('postMessage-handshake');
-      db.textContent = 'Vias: ' + vias.join(', ');
-    });
-    window.opener.postMessage('authorizing:' + provider, '*');
-    vias.push('handshake-iniciado');
+    try {
+      window.opener.postMessage(msg, '*');
+      vias.push('postMessage');
+    } catch (e) { vias.push('postMessage-FALLO'); }
   } else {
     vias.push('opener-nulo');
   }
 
   db.textContent = 'Vias: ' + vias.join(', ');
+
+  // Cerrar a los 15 s para dar tiempo a Sveltia de completar la auth antes de que
+  // popup.closed dispare la cancelación interna del CMS.
+  setTimeout(() => window.close(), 15000);
 })();
 </script>
 </body>
