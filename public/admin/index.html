@@ -7,65 +7,27 @@
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
-    <!-- Panel debug temporal -->
-    <div id="_dbg" style="position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:rgba(0,0,0,0.93);color:#4f4;font:11px/1.6 monospace;padding:6px 10px;max-height:50vh;overflow-y:auto;word-break:break-all"></div>
-    <script>
-      function _log(m) {
-        var d = document.getElementById('_dbg');
-        if (!d) return;
-        var t = new Date().toTimeString().substr(0,8);
-        d.innerHTML += '<span style="color:#88f">' + t + '</span> ' + String(m).replace(/</g,'&lt;') + '<br>';
-        d.scrollTop = d.scrollHeight;
-      }
-      _log('✓ admin cargado — origin=' + window.location.origin);
-
-      // Interceptar fetch para ver llamadas a GitHub API (diagnóstico)
-      var _origFetch = window.fetch;
-      window.fetch = function(url) {
-        var u = String(typeof url === 'string' ? url : (url && url.url) || url);
-        if (u.indexOf('github') !== -1 || u.indexOf('api.') !== -1) {
-          _log('→ fetch [hidden=' + document.hidden + '] ' + u.substr(0,70));
-          return _origFetch.apply(this, arguments).then(function(r) {
-            _log('← ' + r.status + ' ' + u.substr(0,50));
-            return r;
-          }, function(e) {
-            _log('✗ fetch FAIL: ' + e);
-            throw e;
-          });
-        }
-        return _origFetch.apply(this, arguments);
-      };
-
-      window.addEventListener('unhandledrejection', function(e) {
-        _log('✗ REJECTION: ' + (e.reason && (e.reason.message || e.reason) || '?'));
-      });
-    </script>
-
     <script>
       (function () {
         var _realSetInterval = window.setInterval;
         var _origin          = window.location.origin;
         var _tokenDelivered  = false;
-        // ¿Estuvo el tab oculto durante este flujo de auth? (true = iPadOS con popup-tab)
+        // true si el tab estuvo oculto durante el flujo OAuth (path iPadOS/Safari)
         var _wasHidden       = false;
 
         function enviarToken(token) {
           _tokenDelivered = true;
           localStorage.removeItem('sveltia-cms-auth-pending');
-          _log('→ enviarToken [hidden=' + document.hidden + ']');
           window.postMessage(token, _origin);
         }
 
         document.addEventListener('visibilitychange', function () {
-          _log('visibilitychange: hidden=' + document.hidden);
           if (document.hidden) { _wasHidden = true; return; }
-          // Tab se vuelve visible (popup cerró en iPadOS)
           if (_tokenDelivered) return;
           var t = localStorage.getItem('sveltia-cms-auth-pending');
           if (t) {
-            // 500ms de gracia para que Safari termine de desthrottlear antes
-            // de que Sveltia llame fetch(api.github.com)
-            _log('visibilitychange → enviarToken en 500ms');
+            // 500ms de gracia para que Safari levante completamente el throttle
+            // antes de que Sveltia llame fetch(api.github.com)
             setTimeout(function () {
               if (_tokenDelivered) return;
               var t2 = localStorage.getItem('sveltia-cms-auth-pending');
@@ -77,54 +39,39 @@
         window.setInterval = function (fn, delay) {
           var rest = Array.prototype.slice.call(arguments, 2);
           if (delay === 1000) {
-            _log('✓ setInterval 1000ms interceptado');
             return _realSetInterval.call(window, function () {
               if (_tokenDelivered) return;
               var t = localStorage.getItem('sveltia-cms-auth-pending');
               if (t) {
                 if (!document.hidden && !_wasHidden) {
                   // Desktop: tab nunca estuvo oculto → entregar inmediatamente
-                  _log('setInterval: desktop path → enviarToken');
                   try { enviarToken(t); } catch (_) {}
-                } else {
-                  // iPadOS: tab estuvo/está hidden → visibilitychange entregará con delay
-                  _log('setInterval: iPadOS path → bloqueando fn, esperando visibilitychange');
                 }
-                return; // Siempre bloquear fn cuando hay token (evita popup.closed abort)
+                // iPadOS: visibilitychange entregará con delay de 500ms
+                return; // siempre bloquear fn cuando hay token (evita popup.closed abort)
               }
-              _log('setInterval tick: sin token → fn original');
               fn.apply(this, rest);
             }, delay);
           }
           return _realSetInterval.apply(window, arguments);
         };
-
-        window.addEventListener('message', function (e) {
-          _log('msg: origin="' + e.origin + '" data[0:60]="' + String(e.data).substr(0,60) + '"');
-        });
-
-        _log('✓ intercept instalado');
       })();
     </script>
 
-    <!-- BroadcastChannel: solo relay si tab ya estaba visible (desktop fallback) -->
+    <!-- BroadcastChannel: relay solo si el tab ya estaba visible (desktop fallback) -->
     <script>
       (function () {
-        if (typeof BroadcastChannel === 'undefined') { _log('BC: no soportado'); return; }
+        if (typeof BroadcastChannel === 'undefined') return;
         var bc = new BroadcastChannel('decap-cms-auth');
         bc.onmessage = function (e) {
           bc.close();
-          _log('BC: msg recibido, hidden=' + document.hidden);
-          // Solo relay inmediato si el tab nunca estuvo oculto (desktop)
-          // En iPadOS el token ya está en localStorage y visibilitychange lo entregará
           if (!document.hidden) {
             setTimeout(function () {
-              _log('BC relay → postMessage (300ms delay)');
               window.postMessage(e.data, window.location.origin);
             }, 300);
           }
+          // Si está hidden: localStorage ya tiene el token, visibilitychange lo entregará
         };
-        _log('✓ BroadcastChannel instalado');
       })();
     </script>
 
