@@ -66,7 +66,11 @@ export const GET: APIRoute = async ({ request }) => {
     try { var bc = new BroadcastChannel('decap-cms-auth'); bc.postMessage(msg); } catch(_) {}
   }
 
-  db.textContent = 'token enviado — Sveltia cerrará esta ventana';
+  // Auto-cierre: en iOS/iPadOS cerrar el popup hace que Safari lleve el foco
+  // de vuelta al admin tab, lo que desthrottlea el JS y permite que el
+  // setInterval interceptado lea el token de localStorage y lo entregue a Sveltia.
+  db.textContent = 'cerrando…';
+  setTimeout(function () { window.close(); }, 2000);
 })();
 </script>
 </body>
