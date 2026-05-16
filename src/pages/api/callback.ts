@@ -57,33 +57,23 @@ export const GET: APIRoute = async ({ request }) => {
   var msg = ${JSON.stringify(message)};
   var db  = document.getElementById('db');
 
-  // 1. localStorage: canal principal para iPadOS
-  // 1. localStorage
-  var lsOk = false;
-  try { localStorage.setItem('sveltia-cms-auth-pending', msg); lsOk = true; } catch(e) { db.textContent = 'localStorage ERROR: ' + e; }
-  db.textContent = 'localStorage: ' + (lsOk ? 'OK' : 'FALLO');
+  // 1. localStorage: canal único de entrega para iPadOS.
+  //    NO usamos window.opener.postMessage porque en iPadOS Safari el admin tab
+  //    está throttleado mientras el popup está abierto — Sveltia recibiría el token
+  //    y llamaría fetch(github/user) mientras el tab sigue en background, y Safari
+  //    congela ese fetch. En cambio, el admin tab entrega el token solo cuando
+  //    su visibilitychange: hidden=false confirma que está activo.
+  try { localStorage.setItem('sveltia-cms-auth-pending', msg); db.textContent = 'localStorage: OK'; } catch(_) {}
 
-  // 2. Verificar que el valor quedó guardado
-  var lsCheck = localStorage.getItem('sveltia-cms-auth-pending');
-  db.textContent += ' | verify: ' + (lsCheck ? 'OK (len=' + lsCheck.length + ')' : 'FALLO');
-
-  // 3. postMessage directo al opener
-  var openerOk = false;
-  if (window.opener && !window.opener.closed) {
-    try { window.opener.postMessage(msg, '*'); openerOk = true; } catch(e) { db.textContent += ' | opener ERROR: ' + e; }
-  }
-  db.textContent += ' | opener: ' + (window.opener ? (openerOk ? 'OK' : 'error') : 'null');
-
-  // 4. BroadcastChannel
+  // 2. BroadcastChannel: respaldo para escritorio cuando el admin tab ya está visible
   if (typeof BroadcastChannel !== 'undefined') {
-    try { var bc = new BroadcastChannel('decap-cms-auth'); bc.postMessage(msg); bc.close(); db.textContent += ' | BC: OK'; } catch(e) { db.textContent += ' | BC ERROR'; }
+    try { var bc = new BroadcastChannel('decap-cms-auth'); bc.postMessage(msg); bc.close(); db.textContent += ' | BC: OK'; } catch(_) {}
   }
 
-  // 5. Token prefix (para verificar que no es undefined)
-  db.textContent += ' | token[0:12]=' + msg.substr(39, 12);
-
-  // 6. Cerrar popup
-  setTimeout(function () { window.close(); }, 3000);
+  // 3. Cerrar popup: devuelve foco al admin tab → lo desthrottlea para que pueda
+  //    entregar el token y hacer los fetch a GitHub API correctamente
+  db.textContent += ' | cerrando…';
+  setTimeout(function () { window.close(); }, 1000);
 })();
 </script>
 </body>
