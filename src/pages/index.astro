@@ -18,6 +18,19 @@ const { hero, voc, proceso, services, ctaFinal } = homeEntry!.data;
 <Layout
   title="Inicio"
   description={hero!.subtitle}
+  jsonLd={{
+    "@context":   "https://schema.org",
+    "@type":      "Organization",
+    "name":       "Telos Consultoría",
+    "url":        "https://www.telos.cl",
+    "logo":       "https://www.telos.cl/favicon.svg",
+    "contactPoint": {
+      "@type":       "ContactPoint",
+      "email":       "victor@telos.cl",
+      "contactType": "customer service",
+      "areaServed":  "CL",
+    },
+  }}
 >
   <Header />
   <main>
