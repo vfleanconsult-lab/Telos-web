@@ -41,6 +41,7 @@ collections:
           - Estrategia
           - Excelencia Organizacional
           - Liderazgo
+          - Inteligencia Artificial
       - label: Imagen de portada
         name: imagen
         widget: image
