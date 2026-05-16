@@ -38,6 +38,27 @@ const relacionados = todos
 <Layout
   title={entry.data.titulo}
   description={entry.data.bajada}
+  ogType="article"
+  publishedTime={entry.data.fecha}
+  ogImage={entry.data.imagen?.trim() ? entry.data.imagen : undefined}
+  jsonLd={{
+    "@context":       "https://schema.org",
+    "@type":          "Article",
+    "headline":       entry.data.titulo,
+    "description":    entry.data.bajada,
+    "datePublished":  entry.data.fecha,
+    "image":          entry.data.imagen?.trim() || undefined,
+    "author": {
+      "@type": "Organization",
+      "name":  "Telos Consultoría",
+      "url":   "https://www.telos.cl",
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name":  "Telos Consultoría",
+      "url":   "https://www.telos.cl",
+    },
+  }}
 >
   <Header />
   <main>

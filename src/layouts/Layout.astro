@@ -2,17 +2,23 @@
 import '../styles/global.css';
 
 interface Props {
-  title:       string;
-  description?: string;
-  canonical?:  string;
-  ogImage?:    string;
+  title:          string;
+  description?:   string;
+  canonical?:     string;
+  ogImage?:       string;
+  ogType?:        'website' | 'article';
+  publishedTime?: string;
+  jsonLd?:        Record<string, unknown>;
 }
 
 const {
   title,
-  description = 'Telos es una consultoría de Excelencia Organizacional que acompaña a líderes y equipos a alcanzar resultados sostenibles.',
-  canonical   = Astro.url.href,
-  ogImage     = '/og-default.png',
+  description   = 'Telos es una consultoría de Excelencia Organizacional que acompaña a líderes y equipos a alcanzar resultados sostenibles.',
+  canonical     = Astro.url.href,
+  ogImage       = '/images/hero-home.png',
+  ogType        = 'website',
+  publishedTime,
+  jsonLd,
 } = Astro.props;
 
 const siteName  = 'Telos Consultoría';
@@ -32,20 +38,23 @@ const fullTitle = `${title} | ${siteName}`;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Open Graph -->
-    <meta property="og:type"        content="website" />
+    <meta property="og:type"        content={ogType} />
     <meta property="og:url"         content={canonical} />
     <meta property="og:title"       content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image"       content={ogImage} />
     <meta property="og:site_name"   content={siteName} />
     <meta property="og:locale"      content="es_ES" />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
 
     <!-- Twitter Card -->
     <meta name="twitter:card"        content="summary_large_image" />
-    <meta name="twitter:url"         content={canonical} />
     <meta name="twitter:title"       content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image"       content={ogImage} />
+
+    <!-- JSON-LD -->
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
