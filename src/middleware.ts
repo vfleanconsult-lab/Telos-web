@@ -5,7 +5,7 @@ const CONFIG_YAML = `backend:
   name: github
   repo: vfleanconsult-lab/Telos-web
   branch: main
-  base_url: https://telos.cl
+  base_url: https://www.telos.cl
   auth_endpoint: api/auth
 media_folder: public/images/blog
 public_folder: /images/blog
