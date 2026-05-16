@@ -237,10 +237,10 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 | Sprint footer | Correo real `victor@telos.cl` + icono LinkedIn |
 | Sprint rediseño | Rediseño visual completo Nosotros y Servicios |
 | Sprint gradientes | Gradiente Forest multicapa en Nosotros, Servicios, Home CTA y fCFO |
+| Sprint 9 | Migración a telos.cl + fix OAuth CMS en iPadOS (4 bugs: www mismatch, dispatchEvent, popup.closed race, fetch throttle) |
 
 ### Sprints pendientes
 
 | Sprint | Descripción |
 |---|---|
-| Sprint dominio | Lanzamiento telos.cl — DNS Cloudflare → Vercel + actualizar `base_url` del CMS |
 | Sprint SEO | Meta tags OG, sitemap.xml, robots.txt |
