@@ -9,12 +9,14 @@
   </head>
   <body>
     <!-- Fix iPadOS: Safari throttlea el admin tab mientras el popup OAuth está abierto.
-         El postMessage del popup se encola pero Sveltia detecta popup.closed primero
-         (via setInterval 1000ms) y lanza "Authentication aborted".
-         Solución: interceptar ese setInterval y entregar el token desde localStorage
-         usando window.postMessage — NO window.dispatchEvent(new MessageEvent(...)).
-         Safari ignora el campo `origin` del MessageEvent constructor (queda vacío ''),
-         y Sveltia valida event.origin === new URL(authURL).origin estrictamente. -->
+         El problema tiene dos partes:
+         1. El setInterval de Sveltia (1000ms) detecta popup.closed antes de que llegue
+            el token → "Authentication aborted". Fix: interceptar y bloquear fn mientras
+            haya token en localStorage.
+         2. Si se entrega el token mientras el tab está en background (document.hidden),
+            Sveltia llama a fetch(api.github.com) con el tab throttleado → Safari lo
+            congela y auth queda pegada en "signing in". Fix: solo entregar cuando
+            document.hidden === false (tab activo y sin throttle). -->
     <script>
       (function () {
         var _realSetInterval = window.setInterval;
@@ -24,25 +26,30 @@
         function enviarToken(token) {
           _tokenDelivered = true;
           localStorage.removeItem('sveltia-cms-auth-pending');
-          // El navegador asigna event.origin = window.location.origin automáticamente
           window.postMessage(token, _origin);
         }
 
-        // Solo interceptar el intervalo de 1000ms (Sveltia lo usa para monitorear popup.closed)
         window.setInterval = function (fn, delay) {
           var rest = Array.prototype.slice.call(arguments, 2);
           if (delay === 1000) {
             return _realSetInterval.call(window, function () {
               if (_tokenDelivered) return;
               var t = localStorage.getItem('sveltia-cms-auth-pending');
-              if (t) { try { enviarToken(t); } catch (_) {} return; }
+              if (t) {
+                // Token disponible: entregar solo si el tab está visible.
+                // Si está hidden, bloqueamos fn igualmente (evita popup.closed abort)
+                // y esperamos a que visibilitychange entregue el token.
+                if (!document.hidden) { try { enviarToken(t); } catch (_) {} }
+                return;
+              }
               fn.apply(this, rest);
             }, delay);
           }
           return _realSetInterval.apply(window, arguments);
         };
 
-        // Fallback: cuando el admin tab vuelve al frente (visibilitychange)
+        // Entrega principal en iPadOS: el tab se vuelve visible al cerrarse el popup.
+        // En este punto Safari ya no throttlea → fetch a GitHub API funciona.
         document.addEventListener('visibilitychange', function () {
           if (!document.hidden && !_tokenDelivered) {
             var t = localStorage.getItem('sveltia-cms-auth-pending');
@@ -52,14 +59,17 @@
       })();
     </script>
 
-    <!-- BroadcastChannel: relay adicional para cuando el popup usa este canal -->
+    <!-- BroadcastChannel: relay solo si el tab ya está visible (escritorio) -->
     <script>
       (function () {
         if (typeof BroadcastChannel === 'undefined') return;
         var bc = new BroadcastChannel('decap-cms-auth');
         bc.onmessage = function (e) {
           bc.close();
-          window.postMessage(e.data, window.location.origin);
+          if (!document.hidden) {
+            window.postMessage(e.data, window.location.origin);
+          }
+          // Si está hidden: localStorage ya tiene el token, visibilitychange lo entregará
         };
       })();
     </script>

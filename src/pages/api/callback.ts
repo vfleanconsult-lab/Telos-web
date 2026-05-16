@@ -57,22 +57,23 @@ export const GET: APIRoute = async ({ request }) => {
   var msg = ${JSON.stringify(message)};
   var db  = document.getElementById('db');
 
-  // 1. localStorage: canal principal para iPadOS
-  // 1. localStorage: canal principal para iPadOS
+  // 1. localStorage: canal único de entrega para iPadOS.
+  //    NO usamos window.opener.postMessage porque en iPadOS Safari el admin tab
+  //    está throttleado mientras el popup está abierto — Sveltia recibiría el token
+  //    y llamaría fetch(github/user) mientras el tab sigue en background, y Safari
+  //    congela ese fetch. En cambio, el admin tab entrega el token solo cuando
+  //    su visibilitychange: hidden=false confirma que está activo.
   try { localStorage.setItem('sveltia-cms-auth-pending', msg); db.textContent = 'localStorage: OK'; } catch(_) {}
 
-  // 2. postMessage directo al opener (escritorio / Chrome)
-  if (window.opener && !window.opener.closed) {
-    try { window.opener.postMessage(msg, '*'); db.textContent += ' | opener: OK'; } catch(_) {}
-  }
-
-  // 3. BroadcastChannel (fallback si opener es nulo)
+  // 2. BroadcastChannel: respaldo para escritorio cuando el admin tab ya está visible
   if (typeof BroadcastChannel !== 'undefined') {
-    try { var bc = new BroadcastChannel('decap-cms-auth'); bc.postMessage(msg); bc.close(); } catch(_) {}
+    try { var bc = new BroadcastChannel('decap-cms-auth'); bc.postMessage(msg); bc.close(); db.textContent += ' | BC: OK'; } catch(_) {}
   }
 
-  // 4. Cerrar popup: devuelve foco al admin tab → desthrottlea el JS de Sveltia
-  setTimeout(function () { window.close(); }, 2000);
+  // 3. Cerrar popup: devuelve foco al admin tab → lo desthrottlea para que pueda
+  //    entregar el token y hacer los fetch a GitHub API correctamente
+  db.textContent += ' | cerrando…';
+  setTimeout(function () { window.close(); }, 1000);
 })();
 </script>
 </body>
