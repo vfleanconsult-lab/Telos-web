@@ -4,77 +4,130 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Telos CMS — Administración</title>
-    <!-- Config desde /api/cms-config (evita bloqueo *.yml de Vercel) -->
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
-    <!-- Fix iPadOS: Safari throttlea el admin tab mientras el popup OAuth está abierto.
-         El problema tiene dos partes:
-         1. El setInterval de Sveltia (1000ms) detecta popup.closed antes de que llegue
-            el token → "Authentication aborted". Fix: interceptar y bloquear fn mientras
-            haya token en localStorage.
-         2. Si se entrega el token mientras el tab está en background (document.hidden),
-            Sveltia llama a fetch(api.github.com) con el tab throttleado → Safari lo
-            congela y auth queda pegada en "signing in". Fix: solo entregar cuando
-            document.hidden === false (tab activo y sin throttle). -->
+    <!-- Panel debug temporal -->
+    <div id="_dbg" style="position:fixed;bottom:0;left:0;right:0;z-index:2147483647;background:rgba(0,0,0,0.93);color:#4f4;font:11px/1.6 monospace;padding:6px 10px;max-height:50vh;overflow-y:auto;word-break:break-all"></div>
+    <script>
+      function _log(m) {
+        var d = document.getElementById('_dbg');
+        if (!d) return;
+        var t = new Date().toTimeString().substr(0,8);
+        d.innerHTML += '<span style="color:#88f">' + t + '</span> ' + String(m).replace(/</g,'&lt;') + '<br>';
+        d.scrollTop = d.scrollHeight;
+      }
+      _log('✓ admin cargado — origin=' + window.location.origin);
+
+      // Interceptar fetch para ver llamadas a GitHub API (diagnóstico)
+      var _origFetch = window.fetch;
+      window.fetch = function(url) {
+        var u = String(typeof url === 'string' ? url : (url && url.url) || url);
+        if (u.indexOf('github') !== -1 || u.indexOf('api.') !== -1) {
+          _log('→ fetch [hidden=' + document.hidden + '] ' + u.substr(0,70));
+          return _origFetch.apply(this, arguments).then(function(r) {
+            _log('← ' + r.status + ' ' + u.substr(0,50));
+            return r;
+          }, function(e) {
+            _log('✗ fetch FAIL: ' + e);
+            throw e;
+          });
+        }
+        return _origFetch.apply(this, arguments);
+      };
+
+      window.addEventListener('unhandledrejection', function(e) {
+        _log('✗ REJECTION: ' + (e.reason && (e.reason.message || e.reason) || '?'));
+      });
+    </script>
+
     <script>
       (function () {
         var _realSetInterval = window.setInterval;
         var _origin          = window.location.origin;
         var _tokenDelivered  = false;
+        // ¿Estuvo el tab oculto durante este flujo de auth? (true = iPadOS con popup-tab)
+        var _wasHidden       = false;
 
         function enviarToken(token) {
           _tokenDelivered = true;
           localStorage.removeItem('sveltia-cms-auth-pending');
+          _log('→ enviarToken [hidden=' + document.hidden + ']');
           window.postMessage(token, _origin);
         }
+
+        document.addEventListener('visibilitychange', function () {
+          _log('visibilitychange: hidden=' + document.hidden);
+          if (document.hidden) { _wasHidden = true; return; }
+          // Tab se vuelve visible (popup cerró en iPadOS)
+          if (_tokenDelivered) return;
+          var t = localStorage.getItem('sveltia-cms-auth-pending');
+          if (t) {
+            // 500ms de gracia para que Safari termine de desthrottlear antes
+            // de que Sveltia llame fetch(api.github.com)
+            _log('visibilitychange → enviarToken en 500ms');
+            setTimeout(function () {
+              if (_tokenDelivered) return;
+              var t2 = localStorage.getItem('sveltia-cms-auth-pending');
+              if (t2) { try { enviarToken(t2); } catch (_) {} }
+            }, 500);
+          }
+        });
 
         window.setInterval = function (fn, delay) {
           var rest = Array.prototype.slice.call(arguments, 2);
           if (delay === 1000) {
+            _log('✓ setInterval 1000ms interceptado');
             return _realSetInterval.call(window, function () {
               if (_tokenDelivered) return;
               var t = localStorage.getItem('sveltia-cms-auth-pending');
               if (t) {
-                // Token disponible: entregar solo si el tab está visible.
-                // Si está hidden, bloqueamos fn igualmente (evita popup.closed abort)
-                // y esperamos a que visibilitychange entregue el token.
-                if (!document.hidden) { try { enviarToken(t); } catch (_) {} }
-                return;
+                if (!document.hidden && !_wasHidden) {
+                  // Desktop: tab nunca estuvo oculto → entregar inmediatamente
+                  _log('setInterval: desktop path → enviarToken');
+                  try { enviarToken(t); } catch (_) {}
+                } else {
+                  // iPadOS: tab estuvo/está hidden → visibilitychange entregará con delay
+                  _log('setInterval: iPadOS path → bloqueando fn, esperando visibilitychange');
+                }
+                return; // Siempre bloquear fn cuando hay token (evita popup.closed abort)
               }
+              _log('setInterval tick: sin token → fn original');
               fn.apply(this, rest);
             }, delay);
           }
           return _realSetInterval.apply(window, arguments);
         };
 
-        // Entrega principal en iPadOS: el tab se vuelve visible al cerrarse el popup.
-        // En este punto Safari ya no throttlea → fetch a GitHub API funciona.
-        document.addEventListener('visibilitychange', function () {
-          if (!document.hidden && !_tokenDelivered) {
-            var t = localStorage.getItem('sveltia-cms-auth-pending');
-            if (t) { try { enviarToken(t); } catch (_) {} }
-          }
+        window.addEventListener('message', function (e) {
+          _log('msg: origin="' + e.origin + '" data[0:60]="' + String(e.data).substr(0,60) + '"');
         });
+
+        _log('✓ intercept instalado');
       })();
     </script>
 
-    <!-- BroadcastChannel: relay solo si el tab ya está visible (escritorio) -->
+    <!-- BroadcastChannel: solo relay si tab ya estaba visible (desktop fallback) -->
     <script>
       (function () {
-        if (typeof BroadcastChannel === 'undefined') return;
+        if (typeof BroadcastChannel === 'undefined') { _log('BC: no soportado'); return; }
         var bc = new BroadcastChannel('decap-cms-auth');
         bc.onmessage = function (e) {
           bc.close();
+          _log('BC: msg recibido, hidden=' + document.hidden);
+          // Solo relay inmediato si el tab nunca estuvo oculto (desktop)
+          // En iPadOS el token ya está en localStorage y visibilitychange lo entregará
           if (!document.hidden) {
-            window.postMessage(e.data, window.location.origin);
+            setTimeout(function () {
+              _log('BC relay → postMessage (300ms delay)');
+              window.postMessage(e.data, window.location.origin);
+            }, 300);
           }
-          // Si está hidden: localStorage ya tiene el token, visibilitychange lo entregará
         };
+        _log('✓ BroadcastChannel instalado');
       })();
     </script>
 
-    <!-- Sveltia CMS — reemplazo directo de Decap/Netlify CMS -->
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>
