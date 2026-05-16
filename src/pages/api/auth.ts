@@ -5,7 +5,7 @@ import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = ({ request }) => {
   const clientId    = 'Ov23liJhis0KyJECIdZA';
-  const callbackUrl = 'https://telos.cl/api/callback';
+  const callbackUrl = 'https://www.telos.cl/api/callback';
   const scope       = 'repo,user';
 
   const githubUrl = new URL('https://github.com/login/oauth/authorize');
