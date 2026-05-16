@@ -58,20 +58,32 @@ export const GET: APIRoute = async ({ request }) => {
   var db  = document.getElementById('db');
 
   // 1. localStorage: canal principal para iPadOS
-  try { localStorage.setItem('sveltia-cms-auth-pending', msg); db.textContent = 'localStorage: OK'; } catch(_) {}
+  // 1. localStorage
+  var lsOk = false;
+  try { localStorage.setItem('sveltia-cms-auth-pending', msg); lsOk = true; } catch(e) { db.textContent = 'localStorage ERROR: ' + e; }
+  db.textContent = 'localStorage: ' + (lsOk ? 'OK' : 'FALLO');
 
-  // 2. postMessage directo al opener (escritorio / Chrome)
+  // 2. Verificar que el valor quedó guardado
+  var lsCheck = localStorage.getItem('sveltia-cms-auth-pending');
+  db.textContent += ' | verify: ' + (lsCheck ? 'OK (len=' + lsCheck.length + ')' : 'FALLO');
+
+  // 3. postMessage directo al opener
+  var openerOk = false;
   if (window.opener && !window.opener.closed) {
-    try { window.opener.postMessage(msg, '*'); db.textContent += ' | opener: OK'; } catch(_) {}
+    try { window.opener.postMessage(msg, '*'); openerOk = true; } catch(e) { db.textContent += ' | opener ERROR: ' + e; }
   }
+  db.textContent += ' | opener: ' + (window.opener ? (openerOk ? 'OK' : 'error') : 'null');
 
-  // 3. BroadcastChannel (fallback si opener es nulo)
+  // 4. BroadcastChannel
   if (typeof BroadcastChannel !== 'undefined') {
-    try { var bc = new BroadcastChannel('decap-cms-auth'); bc.postMessage(msg); bc.close(); } catch(_) {}
+    try { var bc = new BroadcastChannel('decap-cms-auth'); bc.postMessage(msg); bc.close(); db.textContent += ' | BC: OK'; } catch(e) { db.textContent += ' | BC ERROR'; }
   }
 
-  // 4. Cerrar popup: devuelve foco al admin tab → desthrottlea el JS de Sveltia
-  setTimeout(function () { window.close(); }, 2000);
+  // 5. Token prefix (para verificar que no es undefined)
+  db.textContent += ' | token[0:12]=' + msg.substr(39, 12);
+
+  // 6. Cerrar popup
+  setTimeout(function () { window.close(); }, 3000);
 })();
 </script>
 </body>
