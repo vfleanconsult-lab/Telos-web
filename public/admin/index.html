@@ -8,24 +8,13 @@
     <link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />
   </head>
   <body>
-    <!-- Captura referencia al popup para pasarla como source en los relays -->
-    <script>
-      var _popupWin = null;
-      var _origOpen = window.open;
-      window.open = function () {
-        _popupWin = _origOpen.apply(window, arguments);
-        return _popupWin;
-      };
-    </script>
-
-    <!-- Solución iPadOS: Safari throttlea el admin tab mientras el popup está abierto,
-         por lo que el postMessage del popup llega a la cola pero no se procesa.
-         Cuando el popup cierra, Sveltia ejecuta su setInterval (popup.closed check)
-         ANTES del mensaje → "Authentication aborted".
-         Fix: interceptar el setInterval de Sveltia (1000ms). Si hay token en
-         localStorage, entregarlo via dispatchEvent SÍNCRONO con source=_popupWin
-         (Sveltia lo acepta como mensaje del popup) y NO llamar fn (evita que
-         Sveltia detecte popup.closed). -->
+    <!-- Fix iPadOS: Safari throttlea el admin tab mientras el popup OAuth está abierto.
+         El postMessage del popup se encola pero Sveltia detecta popup.closed primero
+         (via setInterval 1000ms) y lanza "Authentication aborted".
+         Solución: interceptar ese setInterval y entregar el token desde localStorage
+         usando window.postMessage — NO window.dispatchEvent(new MessageEvent(...)).
+         Safari ignora el campo `origin` del MessageEvent constructor (queda vacío ''),
+         y Sveltia valida event.origin === new URL(authURL).origin estrictamente. -->
     <script>
       (function () {
         var _realSetInterval = window.setInterval;
@@ -35,24 +24,11 @@
         function enviarToken(token) {
           _tokenDelivered = true;
           localStorage.removeItem('sveltia-cms-auth-pending');
-          // dispatchEvent es síncrono: Sveltia procesa el token antes de que
-          // esta función retorne, y source=_popupWin lo identifica como popup
-          try {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   token,
-              origin: _origin,
-              source: _popupWin || null,
-            }));
-          } catch (_) {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   token,
-              origin: _origin,
-            }));
-          }
+          // El navegador asigna event.origin = window.location.origin automáticamente
+          window.postMessage(token, _origin);
         }
 
-        // Solo interceptamos el intervalo de 1000ms (el que usa Sveltia para
-        // monitorear popup.closed). Otros intervalos pasan sin modificar.
+        // Solo interceptar el intervalo de 1000ms (Sveltia lo usa para monitorear popup.closed)
         window.setInterval = function (fn, delay) {
           var rest = Array.prototype.slice.call(arguments, 2);
           if (delay === 1000) {
@@ -76,27 +52,14 @@
       })();
     </script>
 
-    <!-- BroadcastChannel: relay adicional para cuando window.opener es nulo.
-         Usa el mismo dispatchEvent con source=_popupWin para que Sveltia
-         reconozca el mensaje como proveniente del popup. -->
+    <!-- BroadcastChannel: relay adicional para cuando el popup usa este canal -->
     <script>
       (function () {
         if (typeof BroadcastChannel === 'undefined') return;
         var bc = new BroadcastChannel('decap-cms-auth');
         bc.onmessage = function (e) {
           bc.close();
-          try {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   e.data,
-              origin: window.location.origin,
-              source: _popupWin || null,
-            }));
-          } catch (_) {
-            window.dispatchEvent(new MessageEvent('message', {
-              data:   e.data,
-              origin: window.location.origin,
-            }));
-          }
+          window.postMessage(e.data, window.location.origin);
         };
       })();
     </script>
