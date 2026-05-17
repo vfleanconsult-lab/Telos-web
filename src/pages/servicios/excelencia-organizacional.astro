@@ -1,0 +1,344 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getEntry } from 'astro:content';
+import {
+  GitFork, ClipboardList, Layers, BarChart2,
+  CalendarClock, TrendingUp, BookOpen, Search, Footprints,
+} from 'lucide-astro';
+
+const entry    = await getEntry('site', 'servicios');
+const excelencia = entry!.data.serviciosList![1];
+const cta        = entry!.data.serviciosCta!;
+
+const tools = [
+  {
+    id:      'vsm',
+    eyebrow: '01 — FLUJO',
+    name:    'Value Stream Mapping',
+    abbr:    'VSM',
+    Icon:    GitFork,
+    tagline: 'Mapea el flujo completo de valor, desde la materia prima hasta el cliente.',
+    problem: 'Nadie tiene visibilidad del proceso completo. Cada área conoce su parte, pero nadie ve dónde se pierde tiempo, dónde hay esperas, sobreproducción o reprocesos. El VSM pone todo el flujo en una sola hoja y hace visible lo invisible.',
+  },
+  {
+    id:      'estandarizacion',
+    eyebrow: '02 — VARIABILIDAD',
+    name:    'Estandarización de procesos',
+    abbr:    'STD',
+    Icon:    ClipboardList,
+    tagline: 'Define la mejor forma conocida de hacer cada tarea y la convierte en el estándar.',
+    problem: 'El desempeño depende de quién esté trabajando ese día. Sin estándar, cada operario hace la tarea a su manera, la variabilidad se dispara y los problemas no se pueden diagnosticar ni resolver de raíz.',
+  },
+  {
+    id:      '5s',
+    eyebrow: '03 — ENTORNO',
+    name:    '5S',
+    abbr:    '5S',
+    Icon:    Layers,
+    tagline: 'Organiza y sostiene el lugar de trabajo: Clasificar, Ordenar, Limpiar, Estandarizar, Sostener.',
+    problem: 'Lugares de trabajo desorganizados donde se pierde tiempo buscando herramientas, los defectos pasan inadvertidos y los accidentes ocurren porque el entorno no está bajo control. Las 5S crean las condiciones básicas para operar con disciplina.',
+  },
+  {
+    id:      'gestion-visual',
+    eyebrow: '04 — VISIBILIDAD',
+    name:    'Gestión visual',
+    abbr:    'GV',
+    Icon:    BarChart2,
+    tagline: 'Hace que el estado del proceso sea visible para todos, de un solo vistazo.',
+    problem: 'Los problemas se detectan tarde porque la información vive en sistemas, planillas o en la cabeza del supervisor. La gestión visual pone los indicadores clave en el lugar de trabajo para que cualquier desviación sea evidente antes de que escale.',
+  },
+  {
+    id:      'rutina-diaria',
+    eyebrow: '05 — RITMO',
+    name:    'Gestión de la rutina diaria',
+    abbr:    'GRD',
+    Icon:    CalendarClock,
+    tagline: 'Establece reuniones y rituales diarios para monitorear indicadores y resolver problemas en el día.',
+    problem: 'Los equipos reaccionan a los problemas días después de que ocurrieron, cuando ya es tarde. La rutina diaria crea el hábito de revisar, actuar y cerrar el ciclo cada 24 horas, manteniendo el proceso bajo control continuo.',
+  },
+  {
+    id:      'mip',
+    eyebrow: '06 — MEJORA',
+    name:    'Gestión de proyectos de mejora',
+    abbr:    'MIP',
+    Icon:    TrendingUp,
+    tagline: 'Estructura y prioriza los proyectos de mejora con metodología, responsable y seguimiento.',
+    problem: 'Las ideas de mejora abundan pero pocas se concretan. Sin un sistema de gestión, los proyectos se acumulan, se fragmentan o mueren en la agenda de alguien. El MIP garantiza que cada iniciativa tenga dueño, hitos y resultado medible.',
+  },
+  {
+    id:      'lsw',
+    eyebrow: '07 — LIDERAZGO',
+    name:    'Agenda estándar',
+    abbr:    'LSW',
+    Icon:    BookOpen,
+    tagline: 'Define la rutina de liderazgo: qué hace el líder cada día, semana y mes para sostener el sistema.',
+    problem: 'Los líderes operativos apagan incendios en lugar de gestionar el proceso. Sin una agenda estándar, el tiempo se fragmenta y las visitas al terreno, las reuniones de seguimiento y el desarrollo del equipo quedan desplazados por lo urgente.',
+  },
+  {
+    id:      'rdp',
+    eyebrow: '08 — CAUSA RAÍZ',
+    name:    'Resolución de Problemas',
+    abbr:    'A3',
+    Icon:    Search,
+    tagline: 'Metodología estructurada para resolver problemas de raíz, documentada en una sola hoja A3.',
+    problem: 'Los equipos atacan síntomas en lugar de causas. El problema vuelve porque nadie se detuvo a entender por qué ocurrió de verdad. El A3 obliga a definir bien el problema, analizar la causa raíz, probar contramedidas y verificar resultados antes de cerrar.',
+  },
+  {
+    id:      'gemba',
+    eyebrow: '09 — TERRENO',
+    name:    'Gemba Walk',
+    abbr:    'GW',
+    Icon:    Footprints,
+    tagline: 'Visita estructurada al lugar donde ocurre el trabajo, para observar, preguntar y aprender.',
+    problem: 'Las decisiones se toman lejos del proceso real, basadas en reportes que no reflejan lo que pasa en el piso. El Gemba Walk lleva al líder al terreno con preguntas — no con soluciones — para desarrollar capacidad en el equipo y tomar decisiones desde la realidad.',
+  },
+];
+---
+
+<Layout
+  title="Excelencia Organizacional"
+  description={excelencia.p1}
+>
+  <Header />
+  <main>
+
+    <!-- ── Hero ────────────────────────────────────────────────── -->
+    <section
+      class="py-24"
+      style="background: radial-gradient(ellipse at top left, #111a06 0%, transparent 45%), radial-gradient(ellipse at bottom right, #111a06 0%, transparent 45%), radial-gradient(ellipse at center, #2f4012 0%, #243010 55%, #1a2408 100%);"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
+
+          <!-- Eyebrow + título -->
+          <div class="lg:col-span-1">
+            <p class="font-mono text-xs uppercase tracking-widest text-white/40 mb-4">
+              Servicios
+            </p>
+            <p
+              class="font-mono font-bold leading-none select-none"
+              style="font-size: 3rem; color: #D6D5C9; line-height: 1; margin-bottom: 8px;"
+              aria-hidden="true"
+            >
+              {excelencia.numero}
+            </p>
+            <h1 class="font-sans text-3xl sm:text-4xl font-bold text-white leading-snug">
+              {excelencia.titulo}
+            </h1>
+          </div>
+
+          <!-- Descripción -->
+          <div class="lg:col-span-2 flex flex-col justify-center gap-6">
+            <p class="text-white/80 leading-relaxed">{excelencia.p1}</p>
+            <p class="text-white/80 leading-relaxed">{excelencia.p2}</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Herramientas Lean Management ────────────────────────── -->
+    <section class="py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="max-w-3xl mx-auto mb-12">
+          <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
+            Lean Management
+          </p>
+          <h2 class="font-sans text-3xl sm:text-4xl font-bold text-black-forest leading-snug">
+            Herramientas que aplicamos
+          </h2>
+        </div>
+
+        <!-- Hint -->
+        <div class="max-w-3xl mx-auto">
+          <p class="font-mono text-[0.6rem] tracking-[0.15em] text-ash-grey mb-3 uppercase">
+            Expandir para ver el problema que resuelve →
+          </p>
+
+          <!-- Acordeón -->
+          {tools.map(tool => (
+            <div class="tool-row" data-open="false" style="border-top: 1px solid #D6D5C9; cursor: pointer;">
+
+              <!-- Cabecera de la fila -->
+              <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 2rem 0;">
+
+                <!-- Caja de icono -->
+                <div
+                  class="tool-icon-box"
+                  style="width:48px; height:48px; flex-shrink:0; display:flex; align-items:center; justify-content:center; background-color:#D6D5C9; color:#243010; transition: background-color 0.25s ease, color 0.25s ease;"
+                >
+                  <tool.Icon size={20} strokeWidth={1.2} />
+                </div>
+
+                <!-- Texto -->
+                <div style="flex:1; min-width:0;">
+                  <p style="font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.18em; color:#B9BAA3; margin:0 0 0.35rem 0; font-weight:500; text-transform:uppercase;">
+                    {tool.eyebrow}
+                  </p>
+                  <div style="display:flex; align-items:baseline; gap:0.75rem; flex-wrap:wrap;">
+                    <h3 style="font-family:'Noto Sans',sans-serif; font-size:clamp(1rem,2vw,1.2rem); font-weight:500; color:#1A1A1A; margin:0; letter-spacing:-0.02em;">
+                      {tool.name}
+                    </h3>
+                    <span style="font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.12em; color:#B9BAA3; border:1px solid #D6D5C9; padding:0.1rem 0.45rem;">
+                      {tool.abbr}
+                    </span>
+                  </div>
+                  <p style="font-family:'Noto Sans',sans-serif; font-size:0.875rem; color:#B9BAA3; margin:0.4rem 0 0 0; line-height:1.5;">
+                    {tool.tagline}
+                  </p>
+                </div>
+
+                <!-- Chevron -->
+                <svg
+                  class="tool-chevron"
+                  width="16" height="16" viewBox="0 0 24 24"
+                  fill="none" stroke="#B9BAA3" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"
+                  style="flex-shrink:0; margin-top:0.35rem; transition:transform 0.25s ease;"
+                  aria-hidden="true"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+
+              </div>
+
+              <!-- Bloque expandido: problema -->
+              <div
+                class="tool-problem"
+                style="display:none; margin-left:calc(48px + 1.5rem); padding-left:1.25rem; padding-bottom:2rem; border-left:2px solid #243010;"
+              >
+                <p style="font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.18em; color:#243010; margin:0 0 0.5rem 0; font-weight:500; text-transform:uppercase;">
+                  Problema que resuelve
+                </p>
+                <p style="font-family:'Noto Sans',sans-serif; font-size:0.9rem; color:#1A1A1A; line-height:1.7; margin:0;">
+                  {tool.problem}
+                </p>
+              </div>
+
+            </div>
+          ))}
+
+          <!-- Borde inferior -->
+          <div style="border-top: 1px solid #D6D5C9;"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Herramientas en acción (carrusel) ───────────────────── -->
+    <section class="py-20 bg-dust-grey">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="mb-10">
+          <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-4">
+            En terreno
+          </p>
+          <h2 class="font-sans text-3xl sm:text-4xl font-bold text-black-forest leading-snug">
+            Herramientas en acción
+          </h2>
+        </div>
+
+        <!-- Carrusel -->
+        <div class="relative">
+          <div
+            id="carousel-track"
+            style="display:flex; gap:1rem; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -ms-overflow-style:none; padding-bottom:0.5rem;"
+          >
+            <!-- Las fotos se agregarán próximamente -->
+            {[1,2,3,4].map(i => (
+              <div style="flex:0 0 calc(50% - 0.5rem); min-width:280px; aspect-ratio:4/3; background:#B9BAA3; scroll-snap-align:start; display:flex; align-items:center; justify-content:center; filter:grayscale(100%);">
+                <p style="font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.12em; color:#243010; text-transform:uppercase;">
+                  Foto {i}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <!-- Navegación -->
+          <div class="flex items-center gap-4 mt-6">
+            <button
+              id="carousel-prev"
+              aria-label="Anterior"
+              style="width:40px; height:40px; border:1px solid #243010; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#243010" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            <button
+              id="carousel-next"
+              aria-label="Siguiente"
+              style="width:40px; height:40px; border:1px solid #243010; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#243010" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── CTA final ────────────────────────────────────────────── -->
+    <section class="py-24 bg-black-forest">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+        <p class="font-mono text-xs uppercase tracking-widest text-white/50 mb-5">
+          Siguiente paso
+        </p>
+        <h2 class="font-sans text-3xl sm:text-4xl font-bold mb-6">
+          {cta.texto}
+        </h2>
+        <p class="text-white/75 text-lg leading-relaxed mb-10 max-w-xl mx-auto">
+          {cta.descripcion}
+        </p>
+        <a
+          href={cta.href}
+          class="inline-flex items-center justify-center border border-white text-white font-sans font-medium text-sm px-8 py-4 hover:bg-white hover:text-black-forest transition-colors duration-200"
+        >
+          {cta.boton}
+        </a>
+      </div>
+    </section>
+
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  #carousel-track::-webkit-scrollbar { display: none; }
+</style>
+
+<script>
+  // ── Acordeón ──────────────────────────────────────────────────
+  document.querySelectorAll<HTMLElement>('.tool-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const isOpen  = row.dataset.open === 'true';
+      const iconBox = row.querySelector<HTMLElement>('.tool-icon-box');
+      const chevron = row.querySelector<SVGElement>('.tool-chevron');
+      const problem = row.querySelector<HTMLElement>('.tool-problem');
+
+      row.dataset.open = isOpen ? 'false' : 'true';
+
+      if (iconBox) {
+        iconBox.style.backgroundColor = isOpen ? '#D6D5C9' : '#243010';
+        iconBox.style.color            = isOpen ? '#243010' : '#FFFFFF';
+      }
+      if (chevron)  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+      if (problem)  problem.style.display   = isOpen ? 'none'         : 'block';
+    });
+  });
+
+  // ── Carrusel ──────────────────────────────────────────────────
+  const track = document.getElementById('carousel-track') as HTMLElement;
+  const prev  = document.getElementById('carousel-prev');
+  const next  = document.getElementById('carousel-next');
+
+  const scrollBy = () => (track?.firstElementChild as HTMLElement)?.offsetWidth + 16 || 300;
+
+  prev?.addEventListener('click', () => track?.scrollBy({ left: -scrollBy(), behavior: 'smooth' }));
+  next?.addEventListener('click', () => track?.scrollBy({ left:  scrollBy(), behavior: 'smooth' }));
+</script>

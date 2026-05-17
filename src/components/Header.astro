@@ -5,7 +5,6 @@ import { Menu, X } from 'lucide-astro';
 const navItems = [
   { href: '/nosotros',  label: 'Nosotros'  },
   { href: '/equipo',    label: 'Equipo'    },
-  { href: '/servicios', label: 'Servicios' },
   { href: '/cfo',       label: 'fCFO'      },
   { href: '/articulos', label: 'Artículos' },
   { href: '/descargas', label: 'Descargas' },
@@ -19,7 +18,39 @@ const navItems = [
 
       <!-- Navegación desktop -->
       <nav class="hidden md:flex items-center gap-8" aria-label="Navegación principal">
-        {navItems.map(item => (
+        {navItems.slice(0, 2).map(item => (
+          <a
+            href={item.href}
+            class="font-sans text-sm text-ink hover:text-black-forest transition-colors duration-150"
+          >
+            {item.label}
+          </a>
+        ))}
+
+        <!-- Servicios con dropdown -->
+        <div class="relative group">
+          <a
+            href="/servicios"
+            class="font-sans text-sm text-ink hover:text-black-forest transition-colors duration-150 flex items-center gap-1"
+          >
+            Servicios
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transition: transform 0.2s ease;" class="group-hover:rotate-180">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </a>
+          <div class="absolute top-full left-0 pt-2 hidden group-hover:block z-50">
+            <div class="bg-white border border-dust-grey shadow-sm py-1 min-w-[220px]">
+              <a
+                href="/servicios/excelencia-organizacional"
+                class="block px-4 py-2.5 font-sans text-sm text-ink hover:text-black-forest hover:bg-dust-grey/30 transition-colors duration-150"
+              >
+                Excelencia Organizacional
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {navItems.slice(2).map(item => (
           <a
             href={item.href}
             class="font-sans text-sm text-ink hover:text-black-forest transition-colors duration-150"
@@ -53,7 +84,21 @@ const navItems = [
   <!-- Menú mobile -->
   <div id="mobile-menu" class="hidden md:hidden border-t border-dust-grey bg-white" role="navigation" aria-label="Navegación mobile">
     <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-4">
-      {navItems.map(item => (
+      {navItems.slice(0, 2).map(item => (
+        <a
+          href={item.href}
+          class="font-sans text-sm text-ink hover:text-black-forest transition-colors duration-150"
+        >
+          {item.label}
+        </a>
+      ))}
+      <a href="/servicios" class="font-sans text-sm text-ink hover:text-black-forest transition-colors duration-150">
+        Servicios
+      </a>
+      <a href="/servicios/excelencia-organizacional" class="font-sans text-sm text-ink/60 hover:text-black-forest transition-colors duration-150 pl-3 border-l border-dust-grey">
+        Excelencia Organizacional
+      </a>
+      {navItems.slice(2).map(item => (
         <a
           href={item.href}
           class="font-sans text-sm text-ink hover:text-black-forest transition-colors duration-150"
