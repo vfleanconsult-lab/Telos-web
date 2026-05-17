@@ -117,6 +117,8 @@ Todas en `public/images/`. Las actuales:
 | `cfo-hero.png` | fCFO hero |
 | `cfo-caos.png` | fCFO sección Problema |
 | `cfo-orden.png` | fCFO sección Solución |
+| `hero-servicios.jpg` | Servicios hero — columna derecha (mozjpeg 82, 1400px, 77 KB) |
+| `excelencia/carrusel-1…9.jpeg` | Carrusel Excelencia Organizacional (mozjpeg 72, 900px, ~70 KB c/u) |
 
 ## CMS — Sveltia CMS + GitHub
 
@@ -145,13 +147,13 @@ backend:
   name: github
   repo: vfleanconsult-lab/Telos-web
   branch: main
-  base_url: https://telos-web-pi.vercel.app   # ⚠️ cambiar a https://telos.cl al lanzar dominio
+  base_url: https://www.telos.cl
   auth_endpoint: api/auth
 ```
 
 La variable de entorno `GITHUB_CLIENT_SECRET` debe estar en Vercel. El Client ID del GitHub OAuth App es `Ov23liJhis0KyJECIdZA`.
 
-> **Pendiente al lanzar telos.cl:** actualizar `base_url` a `https://telos.cl` aquí y en `src/pages/api/cms-config.ts`. Además, agregar `https://telos.cl/api/callback` como Authorization callback URL en el GitHub OAuth App (Settings → Developer settings → OAuth Apps — lo hace el dueño de la cuenta manualmente).
+> **OAuth callback URL configurada:** `https://www.telos.cl/api/callback` está registrada en el GitHub OAuth App. Si se cambia el dominio, actualizar aquí, en `src/pages/api/cms-config.ts` y en el OAuth App de GitHub.
 
 ### Campo imagen en Sveltia CMS
 
@@ -228,19 +230,21 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 
 ### Sprints completados
 
-| Sprint | Descripción |
-|---|---|
-| Sprint 1 | Setup inicial — Astro 5, Tailwind, estructura de páginas y colección de contenido |
-| Sprint CMS | Sveltia CMS + OAuth GitHub; fix Vercel bloquea `.yml`; fix Astro 5 API breaks |
-| Sprint 8a | Iconografía con lucide-astro; wordmark "Telos — Consultores" en Header |
-| Sprint imágenes | Reemplazo de placeholders por imágenes reales (home, nosotros, cfo) |
-| Sprint footer | Correo real `victor@telos.cl` + icono LinkedIn |
-| Sprint rediseño | Rediseño visual completo Nosotros y Servicios |
-| Sprint gradientes | Gradiente Forest multicapa en Nosotros, Servicios, Home CTA y fCFO |
-| Sprint 9 | Migración a telos.cl + fix OAuth CMS en iPadOS (4 bugs: www mismatch, dispatchEvent, popup.closed race, fetch throttle) |
+| Sprint | Issue | Descripción |
+|---|---|---|
+| Sprint 1 | — | Setup inicial — Astro 5, Tailwind, estructura de páginas y colección de contenido |
+| Sprint CMS | — | Sveltia CMS + OAuth GitHub; fix Vercel bloquea `.yml`; fix Astro 5 API breaks |
+| Sprint 8a | #60 | Iconografía con lucide-astro; wordmark "Telos — Consultores" en Header |
+| Sprint imágenes | #61 | Reemplazo de placeholders por imágenes reales (home, nosotros, cfo) |
+| Sprint footer | #61 | Correo real `victor@telos.cl` + icono LinkedIn |
+| Sprint rediseño | #62 | Rediseño visual completo Nosotros y Servicios |
+| Sprint gradientes | #62 | Gradiente Forest multicapa en Nosotros, Servicios, Home CTA y fCFO |
+| Sprint 9 | #109 | Migración a telos.cl + fix OAuth CMS en iPadOS (4 bugs: www mismatch, dispatchEvent, popup.closed race, fetch throttle) |
+| Sprint SEO | #110 | Sitemap dinámico, robots.txt, OG tags, Twitter Card, JSON-LD Organization + Article |
+| Sprint Excelencia | #111 | Página /servicios/excelencia-organizacional: acordeón 9 herramientas Lean, carrusel 9 fotos B&N auto-play, dropdown header, hero servicios 2 columnas, categoría blog "Inteligencia Artificial" |
 
 ### Sprints pendientes
 
 | Sprint | Descripción |
 |---|---|
-| Sprint SEO | Meta tags OG, sitemap.xml, robots.txt |
+| Sprint artículos Lean | Serie de artículos del blog sobre las 9 herramientas Lean |
