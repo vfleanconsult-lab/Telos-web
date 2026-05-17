@@ -247,13 +247,13 @@ const tools = [
             id="carousel-track"
             style="display:flex; gap:1rem; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -ms-overflow-style:none; padding-bottom:0.5rem;"
           >
-            <!-- Las fotos se agregarán próximamente -->
-            {[1,2,3,4].map(i => (
-              <div style="flex:0 0 calc(50% - 0.5rem); min-width:280px; aspect-ratio:4/3; background:#B9BAA3; scroll-snap-align:start; display:flex; align-items:center; justify-content:center; filter:grayscale(100%);">
-                <p style="font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.12em; color:#243010; text-transform:uppercase;">
-                  Foto {i}
-                </p>
-              </div>
+            {[1,2,3,4,5,6,7,8,9].map(i => (
+              <img
+                src={`/images/excelencia/carrusel-${i}.jpeg`}
+                alt={`Herramienta Lean en terreno — foto ${i}`}
+                style="flex:0 0 calc(50% - 0.5rem); min-width:280px; aspect-ratio:4/3; object-fit:cover; scroll-snap-align:start; filter:grayscale(100%);"
+                loading="lazy"
+              />
             ))}
           </div>
 
