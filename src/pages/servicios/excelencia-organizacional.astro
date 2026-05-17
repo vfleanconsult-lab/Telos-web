@@ -251,7 +251,7 @@ const tools = [
               <img
                 src={`/images/excelencia/carrusel-${i}.jpeg`}
                 alt={`Herramienta Lean en terreno — foto ${i}`}
-                style="flex:0 0 calc(50% - 0.5rem); min-width:280px; aspect-ratio:4/3; object-fit:cover; scroll-snap-align:start; filter:grayscale(100%);"
+                style="flex:0 0 calc(33.333% - 0.667rem); min-width:200px; aspect-ratio:4/3; object-fit:cover; scroll-snap-align:start; filter:grayscale(100%);"
                 loading="lazy"
               />
             ))}
@@ -337,8 +337,18 @@ const tools = [
   const prev  = document.getElementById('carousel-prev');
   const next  = document.getElementById('carousel-next');
 
-  const scrollBy = () => (track?.firstElementChild as HTMLElement)?.offsetWidth + 16 || 300;
+  const slideWidth = () => (track?.firstElementChild as HTMLElement)?.offsetWidth + 16 || 300;
 
-  prev?.addEventListener('click', () => track?.scrollBy({ left: -scrollBy(), behavior: 'smooth' }));
-  next?.addEventListener('click', () => track?.scrollBy({ left:  scrollBy(), behavior: 'smooth' }));
+  const advance = () => {
+    const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    track.scrollTo({ left: atEnd ? 0 : track.scrollLeft + slideWidth(), behavior: 'smooth' });
+  };
+
+  prev?.addEventListener('click', () => track?.scrollBy({ left: -slideWidth(), behavior: 'smooth' }));
+  next?.addEventListener('click', () => track?.scrollBy({ left:  slideWidth(), behavior: 'smooth' }));
+
+  // Auto-play: avanza cada 4 s, pausa al pasar el cursor
+  let timer = setInterval(advance, 4000);
+  track.addEventListener('mouseenter', () => clearInterval(timer));
+  track.addEventListener('mouseleave', () => { timer = setInterval(advance, 4000); });
 </script>
