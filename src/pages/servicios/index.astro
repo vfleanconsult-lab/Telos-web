@@ -20,7 +20,7 @@ const { paginaHero, serviciosList, serviciosCta } = entry!.data;
     <!-- ── Hero de página ──────────────────────────────────── -->
     <section class="border-b border-dust-grey overflow-hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch min-h-[420px]">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch">
 
           <!-- Columna izquierda — texto -->
           <div class="py-20 flex flex-col justify-center lg:pr-16">
@@ -36,11 +36,11 @@ const { paginaHero, serviciosList, serviciosCta } = entry!.data;
           </div>
 
           <!-- Columna derecha — imagen (solo desktop) -->
-          <div class="hidden lg:block relative -mr-8">
+          <div class="hidden lg:flex items-stretch -mr-8">
             <img
               src="/images/hero-servicios.jpg"
               alt="Consultor trabajando en estrategia organizacional"
-              class="absolute inset-0 w-full h-full object-cover object-left"
+              class="w-full object-cover object-center"
             />
           </div>
 
