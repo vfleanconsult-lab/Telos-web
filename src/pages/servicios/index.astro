@@ -18,17 +18,33 @@ const { paginaHero, serviciosList, serviciosCta } = entry!.data;
   <main>
 
     <!-- ── Hero de página ──────────────────────────────────── -->
-    <section class="py-20 border-b border-dust-grey">
+    <section class="border-b border-dust-grey overflow-hidden">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
-          {paginaHero!.eyebrow}
-        </p>
-        <h1 class="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold text-black-forest max-w-3xl leading-tight mb-6">
-          {paginaHero!.h1}
-        </h1>
-        <p class="text-lg text-ink/70 max-w-2xl leading-relaxed">
-          {paginaHero!.subtitle}
-        </p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch min-h-[420px]">
+
+          <!-- Columna izquierda — texto -->
+          <div class="py-20 flex flex-col justify-center lg:pr-16">
+            <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
+              {paginaHero!.eyebrow}
+            </p>
+            <h1 class="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold text-black-forest leading-tight mb-6">
+              {paginaHero!.h1}
+            </h1>
+            <p class="text-lg text-ink/70 leading-relaxed">
+              {paginaHero!.subtitle}
+            </p>
+          </div>
+
+          <!-- Columna derecha — imagen (solo desktop) -->
+          <div class="hidden lg:block relative -mr-8">
+            <img
+              src="/images/hero-servicios.png"
+              alt="Consultor trabajando en estrategia organizacional"
+              class="absolute inset-0 w-full h-full object-cover object-left"
+            />
+          </div>
+
+        </div>
       </div>
     </section>
 
