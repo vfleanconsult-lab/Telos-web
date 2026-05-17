@@ -149,7 +149,7 @@ const blogCollection = defineCollection({
     fecha:     z.union([z.string(), z.date()]).transform(v =>
       v instanceof Date ? v.toISOString().split('T')[0] : v
     ),
-    categoria: z.enum(['Estrategia', 'Excelencia Organizacional', 'Liderazgo']),
+    categoria: z.enum(['Estrategia', 'Excelencia Organizacional', 'Liderazgo', 'Inteligencia Artificial']),
     imagen:    z.string().optional(),
   }),
 });
