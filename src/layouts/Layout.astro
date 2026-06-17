@@ -62,5 +62,32 @@ const fullTitle = `${title} | ${siteName}`;
   <body class="font-sans text-ink bg-white antialiased">
     <slot />
     <CookieBanner />
+
+    <!-- GA4 — carga solo si el visitante aceptó todas las cookies -->
+    <script is:inline>
+      (function () {
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+
+        function loadGA() {
+          if (document.getElementById('ga-script')) return;
+          gtag('js', new Date());
+          gtag('config', 'G-DMD4FTDRRX');
+          var s = document.createElement('script');
+          s.id = 'ga-script';
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-DMD4FTDRRX';
+          document.head.appendChild(s);
+        }
+
+        if (localStorage.getItem('telos-cookie-consent') === 'all') {
+          loadGA();
+        }
+
+        document.addEventListener('cookieConsent', function (e) {
+          if (e.detail.level === 'all') loadGA();
+        });
+      })();
+    </script>
   </body>
 </html>
