@@ -81,14 +81,18 @@ const { contactoHero, contactoInfo, contactoFormulario } = entry!.data;
               {contactoFormulario!.subtitulo}
             </p>
 
-            <!-- Script HubSpot — defer para no bloquear el render -->
-            <script is:inline src="https://js.hsforms.net/forms/embed/51460878.js" defer></script>
-            <div
-              class="hs-form-frame"
-              data-region="na1"
-              data-form-id="ff2b75ed-b9e8-48ab-a10e-baff2d4eeadf"
-              data-portal-id="51460878"
-            ></div>
+            <!-- HubSpot se inyecta dinámicamente tras consentimiento — Ley 21.719 -->
+            <div id="hs-form-wrapper">
+              <p id="hs-consent-placeholder" class="font-sans text-sm text-ink/40 py-8 border border-dust-grey px-4">
+                Para usar el formulario, acepta las cookies en el aviso inferior de la página.
+              </p>
+            </div>
+            <p class="font-sans text-xs text-ink/40 mt-4 leading-relaxed">
+              Al enviar, autorizas el tratamiento de tus datos conforme a nuestra
+              <a href="/privacidad" class="underline underline-offset-2 hover:text-ink/70 transition-colors">
+                Política de Privacidad
+              </a>.
+            </p>
 
           </div>
 
@@ -99,6 +103,41 @@ const { contactoHero, contactoInfo, contactoFormulario } = entry!.data;
   </main>
   <Footer />
 </Layout>
+
+<script is:inline>
+  (function () {
+    var KEY     = 'telos-cookie-consent';
+    var PORTAL  = '51460878';
+    var FORM_ID = 'ff2b75ed-b9e8-48ab-a10e-baff2d4eeadf';
+
+    function loadHubSpot() {
+      if (document.getElementById('hs-script')) return;
+      var ph = document.getElementById('hs-consent-placeholder');
+      if (ph) ph.remove();
+      var wrapper = document.getElementById('hs-form-wrapper');
+      if (!wrapper) return;
+      var frame = document.createElement('div');
+      frame.className = 'hs-form-frame';
+      frame.setAttribute('data-region', 'na1');
+      frame.setAttribute('data-form-id', FORM_ID);
+      frame.setAttribute('data-portal-id', PORTAL);
+      wrapper.appendChild(frame);
+      var s = document.createElement('script');
+      s.id = 'hs-script';
+      s.src = 'https://js.hsforms.net/forms/embed/' + PORTAL + '.js';
+      s.defer = true;
+      document.head.appendChild(s);
+    }
+
+    if (localStorage.getItem(KEY) === 'all') {
+      loadHubSpot();
+    } else {
+      document.addEventListener('cookieConsent', function (e) {
+        if (e.detail.level === 'all') loadHubSpot();
+      });
+    }
+  })();
+</script>
 
 <!-- Sobrescritura global de estilos HubSpot para respetar la paleta Telos.
      is:global necesario porque HubSpot inyecta el HTML vía JS después del render. -->

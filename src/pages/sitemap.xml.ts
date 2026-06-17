@@ -10,6 +10,7 @@ const staticRoutes = [
   { path: '/cfo/',       priority: '0.8', changefreq: 'monthly' },
   { path: '/contacto/',  priority: '0.7', changefreq: 'monthly' },
   { path: '/articulos/', priority: '0.9', changefreq: 'weekly'  },
+  { path: '/privacidad/', priority: '0.3', changefreq: 'yearly' },
 ];
 
 export const GET: APIRoute = async () => {
