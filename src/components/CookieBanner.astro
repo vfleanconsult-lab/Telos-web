@@ -1,0 +1,68 @@
+---
+// Banner de consentimiento de cookies — requerido por Ley 21.719.
+// Solo se muestra si el titular no ha respondido previamente (localStorage).
+// Emite el evento `cookieConsent` para que otros componentes reaccionen.
+---
+
+<div
+  id="cookie-banner"
+  role="dialog"
+  aria-label="Aviso de cookies"
+  aria-modal="true"
+  style="display:none;"
+  class="cookie-banner"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center gap-4">
+    <p class="font-sans text-sm text-dust-grey leading-relaxed flex-1">
+      Usamos cookies funcionales de HubSpot para gestionar el formulario de contacto.
+      Consulta nuestra
+      <a href="/privacidad" class="underline underline-offset-2 hover:text-white transition-colors">
+        Política de Privacidad
+      </a>.
+    </p>
+    <div class="flex gap-3 flex-shrink-0">
+      <button
+        id="cookie-accept"
+        class="font-sans text-sm font-medium bg-white text-black-forest px-5 py-2 hover:bg-dust-grey transition-colors whitespace-nowrap"
+      >
+        Aceptar
+      </button>
+      <button
+        id="cookie-essential"
+        class="font-sans text-sm text-ash-grey border border-ash-grey px-5 py-2 hover:text-dust-grey hover:border-dust-grey transition-colors whitespace-nowrap"
+      >
+        Solo esenciales
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var KEY = 'telos-cookie-consent';
+    var banner = document.getElementById('cookie-banner');
+    if (!banner || localStorage.getItem(KEY)) return;
+    banner.style.display = 'block';
+
+    function store(level) {
+      localStorage.setItem(KEY, level);
+      banner.style.display = 'none';
+      document.dispatchEvent(new CustomEvent('cookieConsent', { detail: { level: level } }));
+    }
+
+    document.getElementById('cookie-accept').addEventListener('click', function () { store('all'); });
+    document.getElementById('cookie-essential').addEventListener('click', function () { store('essential'); });
+  })();
+</script>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #243010;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+</style>

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import CookieBanner from '../components/CookieBanner.astro';
 
 interface Props {
   title:          string;
@@ -66,5 +67,6 @@ const fullTitle = `${title} | ${siteName}`;
   </head>
   <body class="font-sans text-ink bg-white antialiased">
     <slot />
+    <CookieBanner />
   </body>
 </html>
