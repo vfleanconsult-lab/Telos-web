@@ -224,7 +224,7 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 
 ## Gestión del proyecto
 
-- Rama de desarrollo activa: `claude/telos-sprint-1-5SqER`
+- Rama de desarrollo activa: `claude/telos-ley-21719-audit-ers737`
 - Cada sprint se documenta como un issue cerrado en GitHub con etiquetas `documentation` y `sprint-N`
 - Las páginas pendientes de implementar son stubs en `src/pages/` con un comentario que describe qué irá ahí
 
@@ -242,6 +242,7 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 | Sprint 9 | #109 | Migración a telos.cl + fix OAuth CMS en iPadOS (4 bugs: www mismatch, dispatchEvent, popup.closed race, fetch throttle) |
 | Sprint SEO | #110 | Sitemap dinámico, robots.txt, OG tags, Twitter Card, JSON-LD Organization + Article |
 | Sprint Excelencia | #111 | Página /servicios/excelencia-organizacional: acordeón 9 herramientas Lean, carrusel 9 fotos B&N auto-play, dropdown header, hero servicios 2 columnas, categoría blog "Inteligencia Artificial" |
+| Sprint Ley 21.719 | #117 | Headers de seguridad HTTP (CSP, HSTS, nosniff, X-Frame-Options); política de privacidad con tabla de cookies HubSpot y GA4; integración Google Analytics 4 con carga condicional por consentimiento |
 
 ### Sprints pendientes
 
