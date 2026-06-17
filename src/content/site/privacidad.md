@@ -3,7 +3,7 @@
 # No usa campos frontmatter propios; la página lo renderiza con render().
 ---
 
-**Última actualización:** 17 de junio de 2026 (rev. 2)
+**Última actualización:** 17 de junio de 2026 (rev. 3)
 
 ## 1. Responsable del tratamiento
 
@@ -15,8 +15,10 @@ Contacto para consultas sobre privacidad: **victor@telos.cl**.
 
 Al completar el formulario de contacto recopilamos: nombre, correo electrónico, teléfono
 (opcional) y el mensaje que nos envía. No recopilamos datos sensibles (estado de salud, origen
-étnico, afiliaciones políticas ni similares). El sitio no instala cookies de seguimiento
-publicitario ni herramientas de analítica de terceros.
+étnico, afiliaciones políticas ni similares). Si usted acepta las cookies de analítica,
+recopilamos datos de navegación anonimizados mediante Google Analytics 4 (páginas visitadas,
+tiempo de sesión, país de origen) con la finalidad de mejorar el sitio web. Estos datos
+no permiten identificarle directamente.
 
 ## 3. Finalidad y base legal
 
@@ -35,6 +37,11 @@ Sus datos pueden ser comunicados a los siguientes prestadores de servicios ubica
 región NA1. Actúa como encargado del tratamiento y cuenta con Cláusulas Contractuales Tipo
 aprobadas como garantía para la transferencia internacional.
 [Política de privacidad de HubSpot](https://legal.hubspot.com/privacy-policy).
+
+**Google LLC** (EE.UU.) — Google Analytics 4, servicio de analítica web. Los datos de
+navegación se transfieren a servidores de Google en EE.UU. Google está adherido al Marco de
+Privacidad de Datos UE–EE.UU. (DPF). La IP se anonimiza antes de su almacenamiento.
+[Política de privacidad de Google](https://policies.google.com/privacy).
 
 Al aceptar las cookies y enviar el formulario, usted autoriza expresamente la transferencia
 internacional de sus datos a los proveedores indicados (Art. 14 quáter, Ley 21.719).
@@ -68,6 +75,13 @@ Se activan únicamente si usted hace clic en **"Aceptar"** en el aviso de consen
 | `__hstc` | 13 meses | Cookie principal de seguimiento de HubSpot |
 | `__hssc` | 30 minutos | Registra la sesión actual y el número de visitas |
 | `__hssrc` | Sesión | Detecta si el visitante abrió una nueva sesión del navegador |
+
+**Google Analytics 4** — analítica anónima de navegación:
+
+| Cookie | Duración | Propósito |
+|---|---|---|
+| `_ga` | 2 años | Distingue visitantes únicos; no contiene información personal |
+| `_ga_DMD4FTDRRX` | 2 años | Mantiene el estado de la sesión de GA4 para esta propiedad |
 
 Puede retirar su consentimiento en cualquier momento borrando las cookies del navegador
 o escribiéndonos a victor@telos.cl.
