@@ -3,7 +3,7 @@
 # No usa campos frontmatter propios; la página lo renderiza con render().
 ---
 
-**Última actualización:** 17 de junio de 2026
+**Última actualización:** 17 de junio de 2026 (rev. 2)
 
 ## 1. Responsable del tratamiento
 
@@ -36,11 +36,6 @@ región NA1. Actúa como encargado del tratamiento y cuenta con Cláusulas Contr
 aprobadas como garantía para la transferencia internacional.
 [Política de privacidad de HubSpot](https://legal.hubspot.com/privacy-policy).
 
-**Google LLC** (EE.UU.) — Servicio de tipografías web (Google Fonts). Al cargar el sitio,
-el navegador se conecta a `fonts.googleapis.com`, lo que implica la transmisión de su
-dirección IP a Google. Google está adherido al Marco de Privacidad de Datos UE–EE.UU.
-[Política de privacidad de Google](https://policies.google.com/privacy).
-
 Al aceptar las cookies y enviar el formulario, usted autoriza expresamente la transferencia
 internacional de sus datos a los proveedores indicados (Art. 14 quáter, Ley 21.719).
 
@@ -51,13 +46,31 @@ un máximo de tres (3) años desde el último contacto, salvo que solicite su su
 
 ## 6. Cookies
 
-**Cookies esenciales** — Necesarias para el funcionamiento técnico del sitio. No requieren
-consentimiento previo.
+### Cookies esenciales
 
-**Cookies funcionales de HubSpot** — Se activan únicamente si usted acepta el uso de cookies
-mediante el aviso de consentimiento que aparece al visitar el sitio. Permiten procesar el
-formulario de contacto. Puede retirar su consentimiento en cualquier momento borrando las
-cookies del navegador o escribiéndonos a victor@telos.cl.
+No requieren consentimiento previo.
+
+| Cookie | Origen | Duración | Propósito |
+|---|---|---|---|
+| `telos-cookie-consent` | Telos (localStorage) | Indefinida | Guarda la preferencia de consentimiento del visitante para no volver a mostrar el aviso |
+
+> Esta preferencia se almacena en `localStorage` del navegador, no como cookie HTTP, y no se envía al servidor.
+
+### Cookies funcionales y de analítica (requieren consentimiento)
+
+Se activan únicamente si usted hace clic en **"Aceptar"** en el aviso de consentimiento.
+
+**HubSpot** — permiten gestionar el formulario de contacto y registrar la consulta en el CRM:
+
+| Cookie | Duración | Propósito |
+|---|---|---|
+| `hubspotutk` | 13 meses | Identifica al visitante entre sesiones para asociar la consulta al CRM |
+| `__hstc` | 13 meses | Cookie principal de seguimiento de HubSpot |
+| `__hssc` | 30 minutos | Registra la sesión actual y el número de visitas |
+| `__hssrc` | Sesión | Detecta si el visitante abrió una nueva sesión del navegador |
+
+Puede retirar su consentimiento en cualquier momento borrando las cookies del navegador
+o escribiéndonos a victor@telos.cl.
 
 ## 7. Sus derechos como titular
 
