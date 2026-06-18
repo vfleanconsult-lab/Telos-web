@@ -16,15 +16,23 @@ El CSP se implementó sin verificar en producción que el formulario cargara cor
 
 ### Dominios completos que HubSpot necesita en CSP
 
+El CSP se descubrió de forma incremental — cada deploy revelaba un dominio bloqueado adicional en la consola del navegador. La lista final validada en producción:
+
 ```
 script-src:   https://js.hsforms.net https://forms.hsforms.com
               https://static.hsappstatic.net https://js.hubspot.com
               'unsafe-eval'
 font-src:     https://fonts.googleapis.com https://fonts.gstatic.com
-frame-src:    https://forms.hsforms.com https://*.hubspot.com
+frame-src:    https://js.hsforms.net https://forms.hsforms.com https://*.hubspot.com
 connect-src:  https://*.hubspot.com https://*.hubapi.com
               https://api.hsforms.com https://track.hubspot.com
 ```
+
+El dominio que faltó en el primer fix fue `https://js.hsforms.net` en `frame-src` — HubSpot carga el formulario como iframe desde ese mismo dominio del script, no solo desde `forms.hsforms.com`.
+
+### Advertencia en DevTools que es normal e inofensiva
+
+Chrome muestra en la pestaña "Issues": *"A form field element should have an id or name attribute"*. Es una advertencia de accesibilidad generada por el HTML interno del iframe de HubSpot — código de terceros que no podemos modificar. No impide el envío del formulario ni es un error nuestro.
 
 ### Lección de proceso
 
