@@ -1,0 +1,255 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import { getSupabaseAdmin } from '../../lib/supabase'
+
+const isAuth = Astro.cookies.get('eval_admin')?.value === 'authenticated'
+
+let evaluaciones: any[] = []
+if (isAuth) {
+  const supabase = getSupabaseAdmin()
+  const { data } = await supabase
+    .from('evaluaciones')
+    .select(`
+      id, nombre_empresa, rut_empresa, fecha_evaluacion, created_at,
+      evaluadores ( id, nombre, email, correo_enviado )
+    `)
+    .order('created_at', { ascending: false })
+    .limit(20)
+  evaluaciones = data ?? []
+}
+---
+<Layout title="Panel Admin — Diagnóstico de Madurez" description="Administración del sistema de evaluación de madurez.">
+  <div class="min-h-screen bg-dust-grey">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+      <!-- Header -->
+      <div class="mb-10">
+        <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-2">Telos · Sistema de Evaluación</p>
+        <h1 class="text-2xl font-semibold text-ink">Panel de Administración</h1>
+      </div>
+
+      {!isAuth ? (
+        <!-- Login form -->
+        <div class="bg-white rounded border border-ash-grey/30 p-8 max-w-sm">
+          <h2 class="font-semibold text-ink mb-6">Acceso restringido</h2>
+          <form id="loginForm" class="space-y-4">
+            <div>
+              <label class="block text-sm text-ink/70 mb-1">Contraseña</label>
+              <input
+                type="password"
+                id="passwordInput"
+                class="w-full border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest"
+                placeholder="••••••••"
+                autocomplete="current-password"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-black-forest text-white rounded px-4 py-2 text-sm font-semibold hover:bg-black-forest/90 transition"
+            >
+              Entrar
+            </button>
+            <p id="loginError" class="text-red-600 text-sm hidden">Contraseña incorrecta.</p>
+          </form>
+        </div>
+      ) : (
+        <div class="space-y-10">
+          <!-- Nueva evaluación -->
+          <div class="bg-white rounded border border-ash-grey/30 p-8">
+            <h2 class="font-semibold text-ink mb-6">Nueva evaluación</h2>
+            <form id="nuevaEval" class="space-y-5">
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-mono uppercase tracking-wider text-ink/50 mb-1">Empresa evaluada</label>
+                  <input type="text" name="nombre_empresa" required
+                    class="w-full border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest"
+                    placeholder="Nombre de la empresa" />
+                </div>
+                <div>
+                  <label class="block text-xs font-mono uppercase tracking-wider text-ink/50 mb-1">RUT empresa</label>
+                  <input type="text" name="rut_empresa" required
+                    class="w-full border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest"
+                    placeholder="76.123.456-7" />
+                </div>
+              </div>
+              <div class="max-w-xs">
+                <label class="block text-xs font-mono uppercase tracking-wider text-ink/50 mb-1">Fecha de evaluación</label>
+                <input type="date" name="fecha_evaluacion" required
+                  class="w-full border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest" />
+              </div>
+
+              <!-- Evaluadores -->
+              <div>
+                <label class="block text-xs font-mono uppercase tracking-wider text-ink/50 mb-3">Evaluadores</label>
+                <div id="evaluadoresList" class="space-y-3">
+                  <div class="evaluador-row grid sm:grid-cols-2 gap-3">
+                    <input type="text" placeholder="Nombre" data-field="nombre"
+                      class="border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest" />
+                    <input type="email" placeholder="correo@empresa.cl" data-field="email"
+                      class="border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest" />
+                  </div>
+                </div>
+                <button type="button" id="addEvaluador"
+                  class="mt-3 text-sm text-black-forest/70 hover:text-black-forest font-mono underline underline-offset-4">
+                  + Agregar evaluador
+                </button>
+              </div>
+
+              <div class="pt-2">
+                <button type="submit"
+                  class="bg-black-forest text-white rounded px-6 py-2.5 text-sm font-semibold hover:bg-black-forest/90 transition">
+                  Crear evaluación y enviar accesos
+                </button>
+              </div>
+            </form>
+
+            <!-- Resultado de creación -->
+            <div id="evalResult" class="hidden mt-6 bg-dust-grey rounded p-6 space-y-4">
+              <p class="font-semibold text-ink">✓ Evaluación creada</p>
+              <div id="evalLinks" class="space-y-2 text-sm"></div>
+            </div>
+          </div>
+
+          <!-- Evaluaciones existentes -->
+          {evaluaciones.length > 0 && (
+            <div class="bg-white rounded border border-ash-grey/30 p-8">
+              <h2 class="font-semibold text-ink mb-6">Evaluaciones recientes</h2>
+              <div class="space-y-6">
+                {evaluaciones.map((ev) => (
+                  <div class="border-b border-ash-grey/20 pb-6 last:border-0 last:pb-0">
+                    <div class="flex flex-wrap items-start justify-between gap-2 mb-3">
+                      <div>
+                        <p class="font-semibold text-ink">{ev.nombre_empresa}</p>
+                        <p class="text-xs text-ink/50 font-mono">{ev.rut_empresa} · {ev.fecha_evaluacion}</p>
+                      </div>
+                      <div class="flex gap-3 text-xs">
+                        <a href={`/evaluacion/${ev.id}/calibracion`}
+                          class="text-black-forest underline underline-offset-4 hover:text-black-forest/70">
+                          Calibración
+                        </a>
+                        <a href={`/evaluacion/${ev.id}/resultado`}
+                          class="text-black-forest underline underline-offset-4 hover:text-black-forest/70">
+                          Resultado
+                        </a>
+                      </div>
+                    </div>
+                    <div class="space-y-1">
+                      {ev.evaluadores?.map((e: any) => (
+                        <div class="flex items-center gap-2 text-sm">
+                          <span class={`w-2 h-2 rounded-full shrink-0 ${e.correo_enviado ? 'bg-green-500' : 'bg-ash-grey'}`}></span>
+                          <span class="text-ink">{e.nombre}</span>
+                          <span class="text-ink/40 text-xs">{e.email}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<script>
+// Login
+const loginForm = document.getElementById('loginForm')
+loginForm?.addEventListener('submit', async (e) => {
+  e.preventDefault()
+  const pwd = (document.getElementById('passwordInput') as HTMLInputElement).value
+  const res = await fetch('/api/evaluacion/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pwd })
+  })
+  if (res.ok) {
+    window.location.reload()
+  } else {
+    document.getElementById('loginError')?.classList.remove('hidden')
+  }
+})
+
+// Agregar fila de evaluador
+document.getElementById('addEvaluador')?.addEventListener('click', () => {
+  const row = document.createElement('div')
+  row.className = 'evaluador-row grid sm:grid-cols-2 gap-3'
+  row.innerHTML = `
+    <input type="text" placeholder="Nombre" data-field="nombre"
+      class="border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest" />
+    <input type="email" placeholder="correo@empresa.cl" data-field="email"
+      class="border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest" />
+  `
+  document.getElementById('evaluadoresList')?.appendChild(row)
+})
+
+// Crear evaluación
+document.getElementById('nuevaEval')?.addEventListener('submit', async (e) => {
+  e.preventDefault()
+  const form = e.target as HTMLFormElement
+  const formData = new FormData(form)
+
+  const evaluadores: { nombre: string; email: string }[] = []
+  document.querySelectorAll('.evaluador-row').forEach(row => {
+    const nombre = (row.querySelector('[data-field="nombre"]') as HTMLInputElement)?.value.trim()
+    const email = (row.querySelector('[data-field="email"]') as HTMLInputElement)?.value.trim()
+    if (nombre && email) evaluadores.push({ nombre, email })
+  })
+
+  if (!evaluadores.length) {
+    alert('Agrega al menos un evaluador.')
+    return
+  }
+
+  const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement
+  btn.disabled = true
+  btn.textContent = 'Creando...'
+
+  const res = await fetch('/api/evaluacion/crear', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      nombre_empresa: formData.get('nombre_empresa'),
+      rut_empresa: formData.get('rut_empresa'),
+      fecha_evaluacion: formData.get('fecha_evaluacion'),
+      evaluadores
+    })
+  })
+
+  btn.disabled = false
+  btn.textContent = 'Crear evaluación y enviar accesos'
+
+  if (!res.ok) {
+    alert('Error al crear la evaluación. Intenta nuevamente.')
+    return
+  }
+
+  const data = await res.json()
+  const resultDiv = document.getElementById('evalResult')!
+  const linksDiv = document.getElementById('evalLinks')!
+
+  linksDiv.innerHTML = `
+    <p class="text-ink/60 text-xs font-mono uppercase tracking-wider mb-2">Links de control</p>
+    <p>Calibración: <a href="${data.calibracion_url}" class="text-black-forest underline" target="_blank">${data.calibracion_url}</a></p>
+    <p>Resultado: <a href="${data.resultado_url}" class="text-black-forest underline" target="_blank">${data.resultado_url}</a></p>
+    <p class="text-ink/60 text-xs font-mono uppercase tracking-wider mt-4 mb-2">Links de evaluadores</p>
+    ${data.evaluadores.map((ev: any) => `
+      <p>
+        ${ev.nombre} ${ev.correo_ok ? '✉️' : '⚠️ sin email'}:
+        <a href="${ev.link}" class="text-black-forest underline break-all" target="_blank">${ev.link}</a>
+      </p>
+    `).join('')}
+  `
+  resultDiv.classList.remove('hidden')
+  form.reset()
+  document.getElementById('evaluadoresList')!.innerHTML = `
+    <div class="evaluador-row grid sm:grid-cols-2 gap-3">
+      <input type="text" placeholder="Nombre" data-field="nombre"
+        class="border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest" />
+      <input type="email" placeholder="correo@empresa.cl" data-field="email"
+        class="border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest" />
+    </div>
+  `
+})
+</script>

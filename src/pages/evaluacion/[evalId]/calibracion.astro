@@ -1,0 +1,277 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+import { getSupabaseAdmin } from '../../../lib/supabase'
+import { RUBRICA } from '../../../data/rubrica'
+
+if (Astro.cookies.get('eval_admin')?.value !== 'authenticated') {
+  return Astro.redirect('/evaluacion/admin')
+}
+
+const { evalId } = Astro.params
+const supabase = getSupabaseAdmin()
+
+const [evalResult, evaluadoresResult, respuestasResult, consensoResult] = await Promise.all([
+  supabase.from('evaluaciones').select('*').eq('id', evalId!).single(),
+  supabase.from('evaluadores').select('id, nombre, email').eq('evaluacion_id', evalId!),
+  supabase.from('respuestas').select('evaluador_id, codigo, puntuacion').eq('evaluacion_id', evalId!),
+  supabase.from('consenso').select('codigo, nota_consenso, comentario_calibracion').eq('evaluacion_id', evalId!)
+])
+
+if (evalResult.error || !evalResult.data) {
+  return Astro.redirect('/evaluacion/admin')
+}
+
+const evaluacion = evalResult.data
+const evaluadores = evaluadoresResult.data ?? []
+const respuestas = respuestasResult.data ?? []
+const consensos = consensoResult.data ?? []
+
+const consensoMap: Record<string, { nota: number | null; comentario: string }> = {}
+consensos.forEach(c => { consensoMap[c.codigo] = { nota: c.nota_consenso, comentario: c.comentario_calibracion ?? '' } })
+
+function getScore(evalId: string, codigo: string): number | null {
+  const r = respuestas.find(r => r.evaluador_id === evalId && r.codigo === codigo)
+  return r?.puntuacion ?? null
+}
+
+function brecha(codigo: string): number {
+  const vals = evaluadores
+    .map(ev => getScore(ev.id, codigo))
+    .filter((v): v is number => v !== null)
+  if (vals.length < 2) return 0
+  return Math.max(...vals) - Math.min(...vals)
+}
+
+const totalConsensados = consensos.filter(c => c.nota_consenso !== null).length
+const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
+const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString('es-CL', {
+  day: 'numeric', month: 'long', year: 'numeric'
+})
+---
+<Layout title={`Calibración — ${evaluacion.nombre_empresa}`} description="Calibración de notas entre evaluadores.">
+  <div class="min-h-screen bg-dust-grey">
+    <!-- Barra superior -->
+    <div class="sticky top-0 z-30 bg-white border-b border-ash-grey/30 shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+        <div>
+          <p class="font-semibold text-ink text-sm">{evaluacion.nombre_empresa} · Calibración</p>
+          <p class="text-xs text-ink/50">{evaluacion.rut_empresa} · {fechaFormateada}</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <p id="calCount" class="text-sm font-mono font-bold text-black-forest">{totalConsensados}/20</p>
+          <div class="w-24 bg-ash-grey/30 rounded-full h-2 overflow-hidden">
+            <div id="calBar" class="h-2 bg-black-forest rounded-full transition-all duration-300"
+              style={`width:${Math.round((totalConsensados / 20) * 100)}%`}></div>
+          </div>
+          <span id="saveStatus" class="text-xs text-ink/40 font-mono w-16 text-right">listo</span>
+          <a href={`/evaluacion/${evalId}/resultado`}
+            class="text-xs bg-black-forest text-white rounded px-3 py-1.5 hover:bg-black-forest/90 transition whitespace-nowrap">
+            Ver resultado →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+
+      {RUBRICA.map((dim) => (
+        <section>
+          <div class="mb-4">
+            <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-1">Dimensión {dim.id}</p>
+            <h2 class="text-lg font-semibold text-ink">{dim.nombre}</h2>
+          </div>
+
+          <!-- Cabeceras de columnas -->
+          <div class="hidden sm:grid gap-3 px-4 pb-2 text-xs font-mono uppercase tracking-wider text-ink/40"
+            style={`grid-template-columns: 2fr ${evaluadores.map(() => '1fr').join(' ')} 0.8fr 2fr 0.6fr`}>
+            <span>Práctica</span>
+            {evaluadores.map(ev => <span class="text-center">{ev.nombre.split(' ')[0]}</span>)}
+            <span class="text-center">Brecha</span>
+            <span>Consenso</span>
+            <span></span>
+          </div>
+
+          <div class="space-y-2">
+            {dim.practicas.map((practica) => {
+              const br = brecha(practica.codigo)
+              const altaBrecha = br >= 1.5
+              const cons = consensoMap[practica.codigo]
+
+              return (
+                <div
+                  id={`cal-${practica.codigo}`}
+                  class={`bg-white rounded border overflow-hidden ${altaBrecha ? 'border-red-200' : 'border-ash-grey/30'}`}
+                >
+                  <div class={`p-4 ${altaBrecha ? 'bg-red-50/50' : ''}`}>
+                    <!-- Mobile layout -->
+                    <div class="sm:hidden space-y-3">
+                      <div>
+                        <span class="font-mono text-xs text-ash-grey">{practica.codigo}</span>
+                        <p class="font-semibold text-ink text-sm">{practica.nombre}</p>
+                        {altaBrecha && <p class="text-xs text-red-600 font-mono">⚠ Brecha {br}</p>}
+                      </div>
+                      <div class="flex flex-wrap gap-3 text-sm">
+                        {evaluadores.map(ev => {
+                          const sc = getScore(ev.id, practica.codigo)
+                          return (
+                            <span>
+                              <span class="text-ink/40 text-xs">{ev.nombre.split(' ')[0]}: </span>
+                              <span class="font-mono font-bold">{sc ?? '—'}</span>
+                            </span>
+                          )
+                        })}
+                      </div>
+                      <div>
+                        <p class="text-xs text-ink/50 mb-1.5">Consenso</p>
+                        <div class="flex flex-wrap gap-1.5 mb-2">
+                          {SCORES.map(score => {
+                            const sel = cons?.nota === score
+                            return (
+                              <button type="button"
+                                data-practica={practica.codigo}
+                                data-score={score}
+                                class={`cal-btn px-2 py-0.5 text-xs font-mono rounded border transition ${sel ? 'bg-black-forest text-white border-black-forest' : 'border-ash-grey text-ink/70 hover:border-black-forest'}`}>
+                                {score}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <textarea data-practica={practica.codigo}
+                          class="cal-comentario w-full border border-ash-grey/50 rounded px-2 py-1 text-xs resize-none focus:outline-none focus:border-black-forest"
+                          rows="2" placeholder="Comentario de alineación...">{cons?.comentario ?? ''}</textarea>
+                      </div>
+                    </div>
+
+                    <!-- Desktop layout -->
+                    <div class="hidden sm:grid items-start gap-3"
+                      style={`grid-template-columns: 2fr ${evaluadores.map(() => '1fr').join(' ')} 0.8fr 2fr 0.6fr`}>
+                      <div>
+                        <span class="font-mono text-xs text-ash-grey">{practica.codigo}</span>
+                        <p class="font-semibold text-ink text-sm leading-snug">{practica.nombre}</p>
+                      </div>
+                      {evaluadores.map(ev => {
+                        const sc = getScore(ev.id, practica.codigo)
+                        return (
+                          <div class="text-center">
+                            <span class={`font-mono text-lg font-bold ${sc === null ? 'text-ash-grey' : 'text-ink'}`}>
+                              {sc ?? '—'}
+                            </span>
+                          </div>
+                        )
+                      })}
+                      <div class="text-center">
+                        <span class={`font-mono text-lg font-bold ${altaBrecha ? 'text-red-600' : 'text-ink/40'}`}>
+                          {br > 0 ? br : '—'}
+                        </span>
+                      </div>
+                      <div>
+                        <div class="flex flex-wrap gap-1 mb-2">
+                          {SCORES.map(score => {
+                            const sel = cons?.nota === score
+                            return (
+                              <button type="button"
+                                data-practica={practica.codigo}
+                                data-score={score}
+                                class={`cal-btn px-1.5 py-0.5 text-xs font-mono rounded border transition ${sel ? 'bg-black-forest text-white border-black-forest' : 'border-ash-grey text-ink/70 hover:border-black-forest'}`}>
+                                {score}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <textarea data-practica={practica.codigo}
+                          class="cal-comentario w-full border border-ash-grey/50 rounded px-2 py-1 text-xs resize-none focus:outline-none focus:border-black-forest"
+                          rows="2" placeholder="Comentario de alineación...">{cons?.comentario ?? ''}</textarea>
+                      </div>
+                      <div class="text-right">
+                        {cons?.nota !== null && cons?.nota !== undefined && (
+                          <span class="text-xs text-green-600 font-mono">✓</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ evalId }}>
+  let calCount = parseInt(document.getElementById('calCount')?.textContent?.split('/')[0] ?? '0', 10)
+  const timers = {}
+
+  function setSaveStatus(status) {
+    const el = document.getElementById('saveStatus')
+    if (!el) return
+    if (status === 'saving') el.textContent = 'guardando…'
+    else if (status === 'saved') el.textContent = 'guardado ✓'
+    else el.textContent = 'error'
+  }
+
+  function updateCalProgress(practica, wasNull, isNowSet) {
+    if (wasNull && isNowSet) calCount++
+    else if (!wasNull && !isNowSet) calCount--
+    const el = document.getElementById('calCount')
+    const bar = document.getElementById('calBar')
+    if (el) el.textContent = `${calCount}/20`
+    if (bar) bar.style.width = `${Math.round((calCount / 20) * 100)}%`
+  }
+
+  async function saveConsenso(practica) {
+    const btn = document.querySelector(`.cal-btn[data-practica="${practica}"].bg-black-forest`)
+    const nota_consenso = btn ? parseFloat(btn.dataset.score) : null
+    const ta = document.querySelector(`textarea.cal-comentario[data-practica="${practica}"]`)
+    const comentario_calibracion = ta?.value ?? ''
+
+    setSaveStatus('saving')
+    try {
+      const res = await fetch('/api/evaluacion/consenso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ evaluacion_id: evalId, codigo: practica, nota_consenso, comentario_calibracion })
+      })
+      if (res.ok) { setSaveStatus('saved'); setTimeout(() => setSaveStatus('ready'), 2000) }
+      else setSaveStatus('error')
+    } catch { setSaveStatus('error') }
+  }
+
+  function debouncedSave(practica) {
+    clearTimeout(timers[practica])
+    timers[practica] = setTimeout(() => saveConsenso(practica), 800)
+  }
+
+  document.querySelectorAll('.cal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const practica = btn.dataset.practica
+      const wasSet = !!document.querySelector(`.cal-btn[data-practica="${practica}"].bg-black-forest`)
+      const isMe = btn.classList.contains('bg-black-forest')
+
+      document.querySelectorAll(`.cal-btn[data-practica="${practica}"]`).forEach(b => {
+        b.classList.remove('bg-black-forest', 'text-white', 'border-black-forest')
+        b.classList.add('border-ash-grey', 'text-ink\/70', 'hover:border-black-forest')
+      })
+
+      if (!isMe) {
+        btn.classList.add('bg-black-forest', 'text-white', 'border-black-forest')
+        btn.classList.remove('border-ash-grey', 'text-ink\/70')
+        updateCalProgress(practica, !wasSet, true)
+
+        // Mostrar check en desktop
+        const card = document.getElementById(`cal-${practica}`)
+        const checkEl = card?.querySelector('.cal-check-icon')
+        if (checkEl) checkEl.textContent = '✓'
+      } else {
+        updateCalProgress(practica, wasSet, false)
+      }
+
+      debouncedSave(practica)
+    })
+  })
+
+  document.querySelectorAll('.cal-comentario').forEach(ta => {
+    ta.addEventListener('input', () => debouncedSave(ta.dataset.practica))
+  })
+</script>

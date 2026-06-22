@@ -1,0 +1,307 @@
+---
+import Layout from '../../../layouts/Layout.astro'
+import { getSupabaseAdmin } from '../../../lib/supabase'
+import { RUBRICA, TOTAL_PRACTICAS } from '../../../data/rubrica'
+
+const { token } = Astro.params
+
+const supabase = getSupabaseAdmin()
+
+const { data: evaluador, error } = await supabase
+  .from('evaluadores')
+  .select(`
+    id, nombre, email, token, evaluacion_id,
+    evaluaciones ( nombre_empresa, fecha_evaluacion, rut_empresa )
+  `)
+  .eq('token', token!)
+  .single()
+
+if (error || !evaluador) {
+  return Astro.redirect('/evaluacion')
+}
+
+const { data: respuestasDB } = await supabase
+  .from('respuestas')
+  .select('codigo, puntuacion, comentario')
+  .eq('evaluador_id', evaluador.id)
+
+const respuestas: Record<string, { puntuacion: number | null; comentario: string }> = {}
+for (const r of respuestasDB ?? []) {
+  respuestas[r.codigo] = { puntuacion: r.puntuacion, comentario: r.comentario ?? '' }
+}
+
+const totalCompletadas = Object.values(respuestas).filter(r => r.puntuacion !== null).length
+const empresa = (evaluador.evaluaciones as any)
+const fechaFormateada = empresa?.fecha_evaluacion
+  ? new Date(empresa.fecha_evaluacion).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })
+  : ''
+
+const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
+---
+<Layout title={`Evaluación — ${empresa?.nombre_empresa ?? 'Diagnóstico'}`} description="Formulario de evaluación de madurez organizacional.">
+  <div class="min-h-screen bg-dust-grey">
+    <!-- Barra superior fija -->
+    <div class="sticky top-0 z-30 bg-white border-b border-ash-grey/30 shadow-sm">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+        <div class="min-w-0">
+          <p class="font-semibold text-ink text-sm truncate">{evaluador.nombre}</p>
+          <p class="text-xs text-ink/50 truncate">{empresa?.nombre_empresa} · {fechaFormateada}</p>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="text-right">
+            <p id="progressCount" class="text-sm font-mono font-bold text-black-forest">{totalCompletadas}/{TOTAL_PRACTICAS}</p>
+            <p class="text-xs text-ink/40">completadas</p>
+          </div>
+          <div class="w-24 bg-ash-grey/30 rounded-full h-2 overflow-hidden">
+            <div id="progressBar"
+              class="h-2 bg-black-forest rounded-full transition-all duration-300"
+              style={`width:${Math.round((totalCompletadas / TOTAL_PRACTICAS) * 100)}%`}>
+            </div>
+          </div>
+          <span id="saveStatus" class="text-xs text-ink/40 font-mono w-16 text-right">listo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+
+      {RUBRICA.map((dim) => (
+        <section>
+          <!-- Cabecera de dimensión -->
+          <div class="mb-6">
+            <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-1">{dim.id}/4</p>
+            <h2 class="text-xl font-semibold text-ink">{dim.nombre}</h2>
+            <p class="text-sm text-ink/50">{dim.descripcion}</p>
+          </div>
+
+          <!-- Prácticas de la dimensión -->
+          <div class="space-y-4">
+            {dim.practicas.map((practica) => {
+              const respuesta = respuestas[practica.codigo]
+              const puntuacionActual = respuesta?.puntuacion ?? null
+              const comentarioActual = respuesta?.comentario ?? ''
+              const completada = puntuacionActual !== null
+
+              return (
+                <div
+                  id={`practica-${practica.codigo}`}
+                  class={`bg-white rounded border ${completada ? 'border-black-forest/20' : 'border-ash-grey/30'} overflow-hidden`}
+                >
+                  <!-- Cabecera de práctica -->
+                  <div class="flex items-start gap-3 px-5 pt-5 pb-4">
+                    <span class="font-mono text-xs text-ash-grey shrink-0 mt-0.5">{practica.codigo}</span>
+                    <div class="flex-1 min-w-0">
+                      <h3 class="font-semibold text-ink leading-snug">{practica.nombre}</h3>
+                      <p class="text-xs text-black-forest/50 mt-1 font-mono">{practica.queObservar}</p>
+                    </div>
+                    {completada && (
+                      <span class="shrink-0 w-6 h-6 rounded-full bg-black-forest/10 flex items-center justify-center">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M2 6l3 3 5-5" stroke="#243010" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </span>
+                    )}
+                  </div>
+
+                  <!-- Descriptores de nivel (colapsables) -->
+                  <details class="group">
+                    <summary class="px-5 pb-3 flex items-center gap-2 cursor-pointer list-none text-xs text-black-forest/50 hover:text-black-forest/80 transition select-none">
+                      <svg class="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                      Ver descriptores de nivel
+                    </summary>
+                    <div class="mx-5 mb-4 border border-ash-grey/30 rounded overflow-hidden">
+                      {practica.niveles.map((desc, idx) => (
+                        <div class={`flex gap-3 px-4 py-3 text-sm ${idx < 4 ? 'border-b border-ash-grey/20' : ''}`}>
+                          <span class="font-mono font-bold text-black-forest shrink-0 w-4">{idx}</span>
+                          <span class="text-ink/70 leading-snug">{desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+
+                  <!-- Selector de puntuación -->
+                  <div class="px-5 pb-4">
+                    <p class="text-xs text-ink/50 mb-2">Puntuación</p>
+                    <div class="flex flex-wrap gap-1.5">
+                      {SCORES.map((score) => {
+                        const seleccionado = puntuacionActual === score
+                        return (
+                          <button
+                            type="button"
+                            data-practica={practica.codigo}
+                            data-score={score}
+                            class={`score-btn px-2.5 py-1 text-sm font-mono rounded border transition
+                              ${seleccionado
+                                ? 'bg-black-forest text-white border-black-forest'
+                                : 'border-ash-grey text-ink/70 hover:border-black-forest hover:text-black-forest'
+                              }`}
+                          >
+                            {score}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <!-- Comentario -->
+                  <div class="px-5 pb-5">
+                    <label class="text-xs text-ink/50 block mb-1">Evidencia / Comentario</label>
+                    <textarea
+                      data-practica={practica.codigo}
+                      class="comentario-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
+                      rows="2"
+                      placeholder="Anota la evidencia observada..."
+                    >{comentarioActual}</textarea>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      ))}
+
+      <!-- Mensaje final -->
+      <div id="completedMsg" class={`text-center py-8 ${totalCompletadas === TOTAL_PRACTICAS ? '' : 'hidden'}`}>
+        <div class="inline-block bg-white rounded border border-black-forest/20 px-8 py-6">
+          <p class="text-2xl mb-2">✓</p>
+          <p class="font-semibold text-ink mb-1">Evaluación completada</p>
+          <p class="text-sm text-ink/60">Tu evaluación ha sido guardada. El equipo consultor tomará contacto contigo.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ token, TOTAL_PRACTICAS }}>
+  const DEBOUNCE_MS = 800
+  let timers = {}
+  let completadas = parseInt(document.getElementById('progressCount')?.textContent?.split('/')[0] ?? '0', 10)
+
+  function setSaveStatus(status) {
+    const el = document.getElementById('saveStatus')
+    if (!el) return
+    if (status === 'saving') { el.textContent = 'guardando…'; el.classList.add('text-ink/60'); el.classList.remove('text-green-600', 'text-red-500') }
+    else if (status === 'saved') { el.textContent = 'guardado ✓'; el.classList.add('text-green-600'); el.classList.remove('text-ink/60', 'text-red-500') }
+    else { el.textContent = 'error'; el.classList.add('text-red-500'); el.classList.remove('text-ink/60', 'text-green-600') }
+  }
+
+  function updateProgress() {
+    const count = document.getElementById('progressCount')
+    const bar = document.getElementById('progressBar')
+    if (count) count.textContent = `${completadas}/${TOTAL_PRACTICAS}`
+    if (bar) bar.style.width = `${Math.round((completadas / TOTAL_PRACTICAS) * 100)}%`
+    if (completadas >= TOTAL_PRACTICAS) {
+      document.getElementById('completedMsg')?.classList.remove('hidden')
+    }
+  }
+
+  function getScore(practica) {
+    const btn = document.querySelector(`.score-btn[data-practica="${practica}"].bg-black-forest`)
+    return btn ? parseFloat(btn.dataset.score) : null
+  }
+
+  function getComentario(practica) {
+    const ta = document.querySelector(`textarea[data-practica="${practica}"]`)
+    return ta ? ta.value : ''
+  }
+
+  async function saveRespuesta(practica) {
+    setSaveStatus('saving')
+    const puntuacion = getScore(practica)
+    const comentario = getComentario(practica)
+
+    try {
+      const res = await fetch('/api/evaluacion/respuesta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, codigo: practica, puntuacion, comentario })
+      })
+      if (res.ok) {
+        setSaveStatus('saved')
+        setTimeout(() => setSaveStatus('ready'), 2000)
+      } else {
+        setSaveStatus('error')
+      }
+    } catch {
+      setSaveStatus('error')
+    }
+  }
+
+  function debouncedSave(practica) {
+    clearTimeout(timers[practica])
+    timers[practica] = setTimeout(() => saveRespuesta(practica), DEBOUNCE_MS)
+  }
+
+  // Score buttons
+  document.querySelectorAll('.score-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const practica = btn.dataset.practica
+      const isSelected = btn.classList.contains('bg-black-forest')
+      const wasEmpty = getScore(practica) === null
+
+      // Deselect all buttons for this practice
+      document.querySelectorAll(`.score-btn[data-practica="${practica}"]`).forEach(b => {
+        b.classList.remove('bg-black-forest', 'text-white', 'border-black-forest')
+        b.classList.add('border-ash-grey', 'text-ink\/70', 'hover:border-black-forest', 'hover:text-black-forest')
+      })
+
+      if (!isSelected) {
+        btn.classList.add('bg-black-forest', 'text-white', 'border-black-forest')
+        btn.classList.remove('border-ash-grey', 'text-ink\/70', 'hover:border-black-forest', 'hover:text-black-forest')
+
+        // Marcar práctica como completada
+        const card = document.getElementById(`practica-${practica}`)
+        if (card && wasEmpty) {
+          completadas++
+          updateProgress()
+          card.classList.replace('border-ash-grey\/30', 'border-black-forest\/20')
+          const checkEl = card.querySelector('h3').parentElement.parentElement
+          // Agregar check si no existe
+          if (!card.querySelector('.practica-check')) {
+            const check = document.createElement('span')
+            check.className = 'practica-check shrink-0 w-6 h-6 rounded-full bg-black-forest/10 flex items-center justify-center'
+            check.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#243010" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            const header = card.querySelector('.flex.items-start.gap-3')
+            if (header) header.appendChild(check)
+          }
+        }
+      } else if (!wasEmpty) {
+        completadas--
+        updateProgress()
+        const card = document.getElementById(`practica-${practica}`)
+        if (card) {
+          card.classList.replace('border-black-forest\/20', 'border-ash-grey\/30')
+          card.querySelector('.practica-check')?.remove()
+        }
+      }
+
+      debouncedSave(practica)
+    })
+  })
+
+  // Comment fields
+  document.querySelectorAll('.comentario-field').forEach(ta => {
+    ta.addEventListener('input', () => {
+      debouncedSave(ta.dataset.practica)
+    })
+  })
+
+  // Scroll a la primera práctica sin responder
+  const allPracticaIds = Array.from(document.querySelectorAll('[data-practica]'))
+    .map(el => el.dataset.practica)
+    .filter((v, i, a) => a.indexOf(v) === i)
+
+  const firstUnanswered = allPracticaIds.find(codigo => {
+    return !document.querySelector(`.score-btn[data-practica="${codigo}"].bg-black-forest`)
+  })
+
+  if (firstUnanswered) {
+    setTimeout(() => {
+      document.getElementById(`practica-${firstUnanswered}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 300)
+  }
+</script>
