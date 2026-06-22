@@ -303,17 +303,16 @@ const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
   })
 
   // Botón salir — envía email de resumen y redirige a página de gracias
-  document.getElementById('exitBtn')?.addEventListener('click', async (e) => {
-    const btn = e.currentTarget as HTMLButtonElement
-    btn.disabled = true
-    btn.textContent = 'Enviando resumen...'
+  document.getElementById('exitBtn')?.addEventListener('click', async function() {
+    this.disabled = true
+    this.textContent = 'Enviando resumen...'
     try {
       await fetch('/api/evaluacion/completar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token })
       })
-    } catch { /* si falla el email igual redirigimos */ }
+    } catch (_) { /* si falla el email igual redirigimos */ }
     window.location.href = '/evaluacion/gracias'
   })
 
