@@ -13,7 +13,7 @@ const supabase = getSupabaseAdmin()
 const [evalResult, evaluadoresResult, respuestasResult, consensoResult] = await Promise.all([
   supabase.from('evaluaciones').select('*').eq('id', evalId!).single(),
   supabase.from('evaluadores').select('id, nombre, email').eq('evaluacion_id', evalId!),
-  supabase.from('respuestas').select('evaluador_id, codigo, puntuacion').eq('evaluacion_id', evalId!),
+  supabase.from('respuestas').select('evaluador_id, codigo, puntuacion, comentario').eq('evaluacion_id', evalId!),
   supabase.from('consenso').select('codigo, nota_consenso, comentario_calibracion').eq('evaluacion_id', evalId!)
 ])
 
@@ -32,6 +32,11 @@ consensos.forEach(c => { consensoMap[c.codigo] = { nota: c.nota_consenso, coment
 function getScore(evalId: string, codigo: string): number | null {
   const r = respuestas.find(r => r.evaluador_id === evalId && r.codigo === codigo)
   return r?.puntuacion ?? null
+}
+
+function getComentario(evalId: string, codigo: string): string {
+  const r = respuestas.find(r => r.evaluador_id === evalId && r.codigo === codigo)
+  return (r as any)?.comentario ?? ''
 }
 
 function brecha(codigo: string): number {
@@ -110,14 +115,16 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
                         <p class="font-semibold text-ink text-sm">{practica.nombre}</p>
                         {altaBrecha && <p class="text-xs text-red-600 font-mono">⚠ Brecha {br}</p>}
                       </div>
-                      <div class="flex flex-wrap gap-3 text-sm">
+                      <div class="space-y-2">
                         {evaluadores.map(ev => {
                           const sc = getScore(ev.id, practica.codigo)
+                          const cm = getComentario(ev.id, practica.codigo)
                           return (
-                            <span>
+                            <div>
                               <span class="text-ink/40 text-xs">{ev.nombre.split(' ')[0]}: </span>
-                              <span class="font-mono font-bold">{sc ?? '—'}</span>
-                            </span>
+                              <span class="font-mono font-bold text-sm">{sc ?? '—'}</span>
+                              {cm && <p class="text-xs text-ink/50 italic mt-0.5">{cm}</p>}
+                            </div>
                           )
                         })}
                       </div>
@@ -151,11 +158,15 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
                       </div>
                       {evaluadores.map(ev => {
                         const sc = getScore(ev.id, practica.codigo)
+                        const cm = getComentario(ev.id, practica.codigo)
                         return (
                           <div class="text-center">
                             <span class={`font-mono text-lg font-bold ${sc === null ? 'text-ash-grey' : 'text-ink'}`}>
                               {sc ?? '—'}
                             </span>
+                            {cm && (
+                              <p class="text-xs text-ink/50 mt-1 text-left leading-snug italic">{cm}</p>
+                            )}
                           </div>
                         )
                       })}

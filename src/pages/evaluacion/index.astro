@@ -1,6 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro'
 
+const token = Astro.url.searchParams.get('token')
+
 const niveles = [
   { n: 0, label: 'Inexistente', desc: 'La práctica no está presente o es reactiva/caótica.' },
   { n: 1, label: 'Incipiente', desc: 'Existe de forma informal, aislada o poco confiable.' },
@@ -18,7 +20,7 @@ const niveles = [
         Evaluación de madurez<br class="hidden sm:block"> organizacional
       </h1>
       <p class="text-dust-grey text-lg max-w-2xl mx-auto leading-relaxed">
-        Instrumento de diagnóstico basado en rúbrica para evaluar el nivel de madurez
+        Instrumento de diagnóstico para evaluar el nivel de madurez
         de los procesos, personas, estrategia y tecnología de un área de la organización.
       </p>
     </div>
@@ -82,12 +84,37 @@ const niveles = [
     </div>
   </section>
 
-  <!-- Acceso evaluador -->
-  <section class="bg-white py-16 border-t border-ash-grey/20">
-    <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
-      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">¿Eres evaluador?</p>
-      <p class="text-ink/70 mb-2">Usa el enlace personal que recibiste por correo para acceder a tu evaluación.</p>
-      <p class="text-sm text-ink/40">Si no recibiste tu enlace, contacta al equipo consultor.</p>
+  <!-- CTA evaluador: visible solo si hay token en la URL -->
+  {token ? (
+    <section class="bg-white py-16 border-t border-ash-grey/20">
+      <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">Todo listo</p>
+        <p class="text-ink/70 mb-8">Ya leíste las instrucciones. Cuando estés listo, comienza tu evaluación.</p>
+        <a
+          href={`/evaluacion/eval/${token}`}
+          class="inline-block bg-black-forest text-white rounded px-8 py-3.5 font-semibold text-base hover:bg-black-forest/90 transition"
+        >
+          Comenzar evaluación →
+        </a>
+        <p class="mt-4 text-xs text-ink/40">Tu progreso se guarda automáticamente. Puedes pausar y retomar cuando quieras.</p>
+      </div>
+    </section>
+  ) : (
+    <section class="bg-white py-16 border-t border-ash-grey/20">
+      <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">¿Eres evaluador?</p>
+        <p class="text-ink/70 mb-2">Usa el enlace personal que recibiste por correo para acceder a tu evaluación.</p>
+        <p class="text-sm text-ink/40">Si no recibiste tu enlace, contacta al equipo consultor.</p>
+      </div>
+    </section>
+  )}
+
+  <!-- Link admin — acceso discreto al panel de administración -->
+  <div class="bg-white border-t border-ash-grey/10 py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
+      <a href="/evaluacion/admin" class="text-xs text-ink/30 hover:text-ink/60 transition font-mono">
+        Administrador →
+      </a>
     </div>
-  </section>
+  </div>
 </Layout>

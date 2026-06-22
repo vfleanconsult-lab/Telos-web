@@ -53,7 +53,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   const emailResults = await Promise.allSettled(
     evalRows.map(async (ev: any) => {
-      const link = `${baseUrl}/evaluacion/eval/${ev.token}`
+      const link = `${baseUrl}/evaluacion?token=${ev.token}`
       const html = emailEvaluador({
         nombre: ev.nombre,
         empresa: nombre_empresa,
@@ -85,7 +85,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       id: evalRows[i].id,
       nombre: evalRows[i].nombre,
       email: evalRows[i].email,
-      link: `${baseUrl}/evaluacion/eval/${evalRows[i].token}`,
+      link: `${baseUrl}/evaluacion?token=${evalRows[i].token}`,
       correo_ok: false
     }
   })
