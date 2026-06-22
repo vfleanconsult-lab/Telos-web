@@ -1,0 +1,40 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+<Layout title="Evaluación completada — Telos" description="Tu evaluación ha sido guardada correctamente.">
+  <div class="min-h-screen flex items-center justify-center bg-dust-grey px-4">
+    <div class="max-w-md w-full text-center">
+
+      <!-- Icono check -->
+      <div class="w-16 h-16 rounded-full bg-black-forest/10 flex items-center justify-center mx-auto mb-8">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 16l8 8 12-12" stroke="#243010" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">Diagnóstico de Madurez · Telos</p>
+      <h1 class="text-2xl font-semibold text-ink mb-4">Evaluación guardada</h1>
+      <p class="text-ink/60 leading-relaxed mb-8">
+        Gracias por completar la evaluación. Tus respuestas han sido registradas
+        y recibirás un correo con el resumen de tus puntuaciones.
+      </p>
+
+      <!-- Instrucción de cierre -->
+      <div class="bg-white rounded border border-ash-grey/30 px-6 py-5 mb-6">
+        <p class="text-ink/50 text-sm leading-relaxed">
+          Puedes <strong class="text-ink">cerrar esta ventana o pestaña</strong> de tu navegador con seguridad.
+        </p>
+      </div>
+
+      <!-- Link para volver a corregir -->
+      <p class="text-sm text-ink/40">
+        ¿Olvidaste anotar algo?
+        <a href="javascript:history.back()"
+          class="text-black-forest underline underline-offset-4 hover:text-black-forest/70 transition">
+          Vuelve a tu evaluación
+        </a>
+      </p>
+
+    </div>
+  </div>
+</Layout>

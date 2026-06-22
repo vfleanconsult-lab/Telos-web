@@ -165,10 +165,20 @@ const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
 
       <!-- Mensaje final -->
       <div id="completedMsg" class={`text-center py-8 ${totalCompletadas === TOTAL_PRACTICAS ? '' : 'hidden'}`}>
-        <div class="inline-block bg-white rounded border border-black-forest/20 px-8 py-6">
-          <p class="text-2xl mb-2">✓</p>
-          <p class="font-semibold text-ink mb-1">Evaluación completada</p>
-          <p class="text-sm text-ink/60">Tu evaluación ha sido guardada. El equipo consultor tomará contacto contigo.</p>
+        <div class="inline-block bg-white rounded border border-black-forest/20 px-8 py-8 max-w-sm">
+          <div class="w-12 h-12 rounded-full bg-black-forest/10 flex items-center justify-center mx-auto mb-4">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M4 12l6 6 10-10" stroke="#243010" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p class="font-semibold text-ink mb-2">Evaluación completada</p>
+          <p class="text-sm text-ink/60 mb-6 leading-relaxed">Todas tus respuestas han sido guardadas. Recibirás un correo con el resumen de tu evaluación.</p>
+          <button
+            id="exitBtn"
+            class="w-full bg-black-forest text-white rounded px-6 py-2.5 text-sm font-semibold hover:bg-black-forest/90 transition disabled:opacity-50"
+          >
+            Salir de la evaluación
+          </button>
         </div>
       </div>
 
@@ -184,9 +194,11 @@ const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
   function setSaveStatus(status) {
     const el = document.getElementById('saveStatus')
     if (!el) return
-    if (status === 'saving') { el.textContent = 'guardando…'; el.classList.add('text-ink/60'); el.classList.remove('text-green-600', 'text-red-500') }
-    else if (status === 'saved') { el.textContent = 'guardado ✓'; el.classList.add('text-green-600'); el.classList.remove('text-ink/60', 'text-red-500') }
-    else { el.textContent = 'error'; el.classList.add('text-red-500'); el.classList.remove('text-ink/60', 'text-green-600') }
+    el.classList.remove('text-ink/40', 'text-ink/60', 'text-green-600', 'text-red-500')
+    if (status === 'saving') { el.textContent = 'guardando…'; el.classList.add('text-ink/60') }
+    else if (status === 'saved') { el.textContent = 'guardado ✓'; el.classList.add('text-green-600') }
+    else if (status === 'ready') { el.textContent = 'listo'; el.classList.add('text-ink/40') }
+    else { el.textContent = 'error ↺'; el.classList.add('text-red-500') }
   }
 
   function updateProgress() {
@@ -288,6 +300,21 @@ const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
     ta.addEventListener('input', () => {
       debouncedSave(ta.dataset.practica)
     })
+  })
+
+  // Botón salir — envía email de resumen y redirige a página de gracias
+  document.getElementById('exitBtn')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget as HTMLButtonElement
+    btn.disabled = true
+    btn.textContent = 'Enviando resumen...'
+    try {
+      await fetch('/api/evaluacion/completar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      })
+    } catch { /* si falla el email igual redirigimos */ }
+    window.location.href = '/evaluacion/gracias'
   })
 
   // Scroll a la primera práctica sin responder
