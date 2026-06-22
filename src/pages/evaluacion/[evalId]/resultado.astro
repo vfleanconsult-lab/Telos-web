@@ -9,8 +9,8 @@ const supabase = getSupabaseAdmin()
 const [evalResult, evaluadoresResult, consensoResult, respuestasResult] = await Promise.all([
   supabase.from('evaluaciones').select('*').eq('id', evalId!).single(),
   supabase.from('evaluadores').select('id, nombre').eq('evaluacion_id', evalId!),
-  supabase.from('consenso').select('codigo, nota_consenso').eq('evaluacion_id', evalId!),
-  supabase.from('respuestas').select('evaluador_id, codigo, puntuacion').eq('evaluacion_id', evalId!)
+  supabase.from('consenso').select('codigo, nota_consenso, comentario_calibracion').eq('evaluacion_id', evalId!),
+  supabase.from('respuestas').select('evaluador_id, codigo, puntuacion, comentario').eq('evaluacion_id', evalId!)
 ])
 
 if (evalResult.error || !evalResult.data) {
@@ -57,6 +57,20 @@ const practicasConBrecha = RUBRICA.flatMap(dim => dim.practicas).map(p => {
   }
 }).sort((a, b) => b.brecha - a.brecha).slice(0, 10)
 
+// Mapa de comentarios por práctica y por evaluador
+const comentariosMap: Record<string, Record<string, string>> = {}
+respuestas.forEach(r => {
+  const ev = evaluadores.find(e => e.id === r.evaluador_id)
+  const cm = (r as any).comentario as string | null
+  if (ev && cm && cm.trim()) {
+    if (!comentariosMap[r.codigo]) comentariosMap[r.codigo] = {}
+    comentariosMap[r.codigo][ev.nombre] = cm.trim()
+  }
+})
+
+// Comentario final del proceso (guardado en consenso con codigo '__final')
+const comentarioFinal = consensos.find(c => c.codigo === '__final')?.comentario_calibracion ?? ''
+
 const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString('es-CL', {
   day: 'numeric', month: 'long', year: 'numeric'
 })
@@ -79,11 +93,13 @@ function radarPoint(value: number, idx: number): [number, number] {
 }
 const polygonPoints = dimensiones.map((d, i) => radarPoint(d.puntaje, i).join(',')).join(' ')
 const gridLevels = [1, 2, 3, 4]
+
+const hayComentarios = Object.keys(comentariosMap).length > 0
 ---
 <Layout title={`Resultado — ${evaluacion.nombre_empresa}`} description={`Índice de madurez organizacional — ${evaluacion.nombre_empresa}`}>
   <div class="min-h-screen bg-dust-grey print:bg-white">
 
-    <!-- Header (no imprime nav, solo esto) -->
+    <!-- Header -->
     <div class="bg-white border-b border-ash-grey/20 print:border-0">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 print:py-6">
         <div class="flex flex-wrap items-start justify-between gap-4">
@@ -106,7 +122,6 @@ const gridLevels = [1, 2, 3, 4]
 
       <!-- Índice global + radar -->
       <div class="grid md:grid-cols-2 gap-6">
-        <!-- Índice global -->
         <div class="bg-white rounded border border-ash-grey/30 p-8 flex flex-col items-center justify-center text-center">
           <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">Índice Global de Madurez</p>
           <p class="text-7xl font-bold text-black-forest leading-none mb-2">{indice_global}<span class="text-3xl text-black-forest/40">%</span></p>
@@ -120,22 +135,17 @@ const gridLevels = [1, 2, 3, 4]
           </div>
         </div>
 
-        <!-- Radar SVG -->
         <div class="bg-white rounded border border-ash-grey/30 p-4 flex items-center justify-center">
           <svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
-            <!-- Grid circles -->
             {gridLevels.map(level => (
               <circle cx={CENTER} cy={CENTER} r={(level / 4) * RADIUS}
                 fill="none" stroke="#D6D5C9" stroke-width="1" />
             ))}
-            <!-- Grid lines from center to each vertex -->
             {dimensiones.map((_, i) => {
               const [x, y] = radarPoint(4, i)
               return <line x1={CENTER} y1={CENTER} x2={x} y2={y} stroke="#D6D5C9" stroke-width="1" />
             })}
-            <!-- Data polygon -->
             <polygon points={polygonPoints} fill="#243010" fill-opacity="0.15" stroke="#243010" stroke-width="2" />
-            <!-- Dimension labels -->
             {dimensiones.map((d, i) => {
               const [x, y] = radarPoint(4.6, i)
               return (
@@ -145,7 +155,6 @@ const gridLevels = [1, 2, 3, 4]
                 </text>
               )
             })}
-            <!-- Data points -->
             {dimensiones.map((d, i) => {
               const [x, y] = radarPoint(d.puntaje, i)
               return <circle cx={x} cy={y} r="4" fill="#243010" />
@@ -253,6 +262,68 @@ const gridLevels = [1, 2, 3, 4]
         </div>
       )}
 
+      <!-- Comentarios por práctica -->
+      {hayComentarios && (
+        <div class="bg-white rounded border border-ash-grey/30 overflow-hidden">
+          <div class="px-6 py-4 border-b border-ash-grey/20">
+            <h2 class="font-semibold text-ink">Comentarios por práctica</h2>
+            <p class="text-sm text-ink/50 mt-1">Evidencias y observaciones registradas por los evaluadores.</p>
+          </div>
+          <div class="divide-y divide-ash-grey/20">
+            {RUBRICA.map(dim => {
+              const practicasConCm = dim.practicas.filter(p => comentariosMap[p.codigo])
+              if (practicasConCm.length === 0) return null
+              return (
+                <div class="px-6 py-5">
+                  <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-4">{dim.nombre}</p>
+                  <div class="space-y-5">
+                    {practicasConCm.map(p => (
+                      <div>
+                        <div class="flex items-baseline gap-2 mb-2">
+                          <span class="font-mono text-xs text-ash-grey shrink-0">{p.codigo}</span>
+                          <span class="font-semibold text-sm text-ink">{p.nombre}</span>
+                        </div>
+                        <div class="space-y-2 pl-10">
+                          {evaluadores.map(ev => {
+                            const cm = comentariosMap[p.codigo]?.[ev.nombre]
+                            if (!cm) return null
+                            return (
+                              <div class="flex gap-2">
+                                <span class="font-mono text-xs text-ash-grey shrink-0 pt-0.5 w-20 truncate">{ev.nombre.split(' ')[0]}:</span>
+                                <p class="text-sm text-ink/70 leading-relaxed">{cm}</p>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      <!-- Comentario final del proceso -->
+      <div class="bg-white rounded border border-ash-grey/30 overflow-hidden">
+        <div class="px-6 py-4 border-b border-ash-grey/20 flex items-center justify-between">
+          <div>
+            <h2 class="font-semibold text-ink">Comentario final del proceso</h2>
+            <p class="text-sm text-ink/50 mt-1">Síntesis del consultor — se guarda automáticamente.</p>
+          </div>
+          <span id="cmFinalStatus" class="text-xs text-ink/30 font-mono print:hidden">listo</span>
+        </div>
+        <div class="px-6 py-5">
+          <textarea
+            id="comentarioFinal"
+            rows="8"
+            placeholder="Escribe aquí la síntesis del diagnóstico, los hallazgos principales y las recomendaciones para el informe…"
+            class="w-full border border-ash-grey/40 rounded px-4 py-3 text-sm text-ink leading-relaxed resize-y focus:outline-none focus:border-black-forest placeholder-ink/30 print:border-0 print:px-0 print:resize-none"
+          >{comentarioFinal}</textarea>
+        </div>
+      </div>
+
       <!-- Datos del proceso -->
       <div class="bg-white rounded border border-ash-grey/30 p-6 text-sm text-ink/60 print:hidden">
         <p class="font-mono text-xs uppercase tracking-wider text-ink/40 mb-3">Información del proceso</p>
@@ -268,9 +339,46 @@ const gridLevels = [1, 2, 3, 4]
   </div>
 </Layout>
 
+<script define:vars={{ evalId }}>
+  let timer = null
+  const ta = document.getElementById('comentarioFinal')
+  const status = document.getElementById('cmFinalStatus')
+
+  function setStatus(s) {
+    if (!status) return
+    if (s === 'saving') status.textContent = 'guardando…'
+    else if (s === 'saved') status.textContent = 'guardado ✓'
+    else if (s === 'error') status.textContent = 'error ↺'
+    else status.textContent = 'listo'
+  }
+
+  if (ta) {
+    ta.addEventListener('input', function() {
+      clearTimeout(timer)
+      setStatus('saving')
+      timer = setTimeout(function() {
+        fetch('/api/evaluacion/consenso', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            evaluacion_id: evalId,
+            codigo: '__final',
+            nota_consenso: null,
+            comentario_calibracion: ta.value
+          })
+        }).then(function(res) {
+          if (res.ok) { setStatus('saved'); setTimeout(function() { setStatus('ready') }, 2000) }
+          else setStatus('error')
+        }).catch(function() { setStatus('error') })
+      }, 800)
+    })
+  }
+</script>
+
 <style>
 @media print {
   nav, footer, .print\:hidden { display: none !important; }
   body { background: white !important; }
+  textarea { border: none !important; padding: 0 !important; resize: none !important; }
 }
 </style>
