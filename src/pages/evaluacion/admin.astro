@@ -114,10 +114,12 @@ if (isAuth) {
           {evaluaciones.length > 0 && (
             <div class="bg-white rounded border border-ash-grey/30 p-8">
               <h2 class="font-semibold text-ink mb-6">Evaluaciones recientes</h2>
-              <div class="space-y-6">
+              <div class="space-y-8">
                 {evaluaciones.map((ev) => (
-                  <div class="border-b border-ash-grey/20 pb-6 last:border-0 last:pb-0">
-                    <div class="flex flex-wrap items-start justify-between gap-2 mb-3">
+                  <div class="border-b border-ash-grey/20 pb-8 last:border-0 last:pb-0">
+
+                    <!-- Cabecera de la evaluación -->
+                    <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
                       <div>
                         <p class="font-semibold text-ink">{ev.nombre_empresa}</p>
                         <p class="text-xs text-ink/50 font-mono">{ev.rut_empresa} · {ev.fecha_evaluacion}</p>
@@ -133,15 +135,68 @@ if (isAuth) {
                         </a>
                       </div>
                     </div>
-                    <div class="space-y-1">
+
+                    <!-- Lista de evaluadores gestionable -->
+                    <div
+                      id={`evaluadores-${ev.id}`}
+                      class="space-y-2 mb-4"
+                      data-evaluacion-id={ev.id}
+                    >
                       {ev.evaluadores?.map((e: any) => (
-                        <div class="flex items-center gap-2 text-sm">
+                        <div
+                          id={`ev-row-${e.id}`}
+                          class="flex items-center gap-2 text-sm bg-dust-grey/40 rounded px-3 py-2"
+                        >
                           <span class={`w-2 h-2 rounded-full shrink-0 ${e.correo_enviado ? 'bg-green-500' : 'bg-ash-grey'}`}></span>
-                          <span class="text-ink">{e.nombre}</span>
+                          <span class="text-ink flex-1">{e.nombre}</span>
                           <span class="text-ink/40 text-xs">{e.email}</span>
+                          <button
+                            type="button"
+                            class="delete-evaluador-btn ml-2 text-ink/30 hover:text-red-500 transition shrink-0"
+                            data-id={e.id}
+                            data-nombre={e.nombre}
+                            title="Eliminar evaluador"
+                            aria-label={`Eliminar ${e.nombre}`}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                              <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                          </button>
                         </div>
                       ))}
                     </div>
+
+                    <!-- Formulario agregar evaluador -->
+                    <div class="border border-ash-grey/30 rounded p-4 bg-dust-grey/20">
+                      <p class="text-xs font-mono uppercase tracking-widest text-black-forest/40 mb-3">Agregar evaluador</p>
+                      <form
+                        class="agregar-evaluador-form flex flex-wrap gap-2"
+                        data-evaluacion-id={ev.id}
+                      >
+                        <input
+                          type="text"
+                          name="nombre"
+                          required
+                          placeholder="Nombre"
+                          class="flex-1 min-w-32 border border-ash-grey rounded px-3 py-1.5 text-sm focus:outline-none focus:border-black-forest"
+                        />
+                        <input
+                          type="email"
+                          name="email"
+                          required
+                          placeholder="correo@empresa.cl"
+                          class="flex-1 min-w-48 border border-ash-grey rounded px-3 py-1.5 text-sm focus:outline-none focus:border-black-forest"
+                        />
+                        <button
+                          type="submit"
+                          class="shrink-0 bg-black-forest text-white rounded px-4 py-1.5 text-xs font-semibold hover:bg-black-forest/90 transition disabled:opacity-50"
+                        >
+                          Agregar y enviar invitación
+                        </button>
+                      </form>
+                      <p class="agregar-status text-xs mt-2 hidden"></p>
+                    </div>
+
                   </div>
                 ))}
               </div>
@@ -182,6 +237,103 @@ document.getElementById('addEvaluador')?.addEventListener('click', () => {
       class="border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest" />
   `
   document.getElementById('evaluadoresList')?.appendChild(row)
+})
+
+// Eliminar evaluador
+document.querySelectorAll('.delete-evaluador-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const id = (btn as HTMLElement).dataset.id!
+    const nombre = (btn as HTMLElement).dataset.nombre!
+    if (!confirm(`¿Eliminar a ${nombre}? Se borrarán también sus respuestas.`)) return
+
+    const res = await fetch('/api/evaluacion/evaluador', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ evaluador_id: id })
+    })
+    if (res.ok) {
+      document.getElementById(`ev-row-${id}`)?.remove()
+    } else {
+      alert('Error al eliminar el evaluador.')
+    }
+  })
+})
+
+// Agregar evaluador a evaluación existente
+document.querySelectorAll('.agregar-evaluador-form').forEach(form => {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const f = e.target as HTMLFormElement
+    const evaluacion_id = f.dataset.evaluacionId!
+    const nombre = (f.querySelector('[name="nombre"]') as HTMLInputElement).value.trim()
+    const email = (f.querySelector('[name="email"]') as HTMLInputElement).value.trim()
+    const btn = f.querySelector('button[type="submit"]') as HTMLButtonElement
+    const status = f.parentElement!.querySelector('.agregar-status') as HTMLElement
+
+    btn.disabled = true
+    btn.textContent = 'Agregando...'
+    status.className = 'agregar-status text-xs mt-2'
+    status.textContent = ''
+
+    const res = await fetch('/api/evaluacion/agregar-evaluador', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ evaluacion_id, nombre, email })
+    })
+
+    btn.disabled = false
+    btn.textContent = 'Agregar y enviar invitación'
+
+    if (!res.ok) {
+      status.textContent = 'Error al agregar el evaluador.'
+      status.classList.add('text-red-500')
+      return
+    }
+
+    const data = await res.json()
+    const ev = data.evaluador
+
+    // Insertar fila en la lista
+    const lista = document.getElementById(`evaluadores-${evaluacion_id}`)!
+    const row = document.createElement('div')
+    row.id = `ev-row-${ev.id}`
+    row.className = 'flex items-center gap-2 text-sm bg-dust-grey/40 rounded px-3 py-2'
+    row.innerHTML = `
+      <span class="w-2 h-2 rounded-full shrink-0 ${ev.correo_enviado ? 'bg-green-500' : 'bg-ash-grey'}"></span>
+      <span class="text-ink flex-1">${ev.nombre}</span>
+      <span class="text-ink/40 text-xs">${ev.email}</span>
+      <button
+        type="button"
+        class="delete-evaluador-btn ml-2 text-ink/30 hover:text-red-500 transition shrink-0"
+        data-id="${ev.id}"
+        data-nombre="${ev.nombre}"
+        title="Eliminar evaluador"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    `
+    // Bind delete al nuevo botón
+    row.querySelector('.delete-evaluador-btn')!.addEventListener('click', async () => {
+      if (!confirm(`¿Eliminar a ${ev.nombre}? Se borrarán también sus respuestas.`)) return
+      const delRes = await fetch('/api/evaluacion/evaluador', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ evaluador_id: ev.id })
+      })
+      if (delRes.ok) row.remove()
+      else alert('Error al eliminar el evaluador.')
+    })
+    lista.appendChild(row)
+
+    status.textContent = ev.correo_enviado
+      ? `✓ ${ev.nombre} agregado — invitación enviada a ${ev.email}`
+      : `✓ ${ev.nombre} agregado (email no enviado)`
+    status.classList.add(ev.correo_enviado ? 'text-green-700' : 'text-orange-600')
+    status.classList.remove('hidden')
+    f.reset()
+  })
 })
 
 // Crear evaluación
