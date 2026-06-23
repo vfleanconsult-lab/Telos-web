@@ -160,6 +160,28 @@ const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
               )
             })}
           </div>
+
+          <!-- Fortalezas y Oportunidades de la dimensión -->
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white rounded border border-ash-grey/30 p-5">
+              <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Fortalezas</label>
+              <textarea
+                data-fo-codigo={`__dim${dim.id}_fortalezas`}
+                class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
+                rows="4"
+                placeholder="¿Qué está funcionando bien en esta dimensión?"
+              >{respuestas[`__dim${dim.id}_fortalezas`]?.comentario ?? ''}</textarea>
+            </div>
+            <div class="bg-white rounded border border-ash-grey/30 p-5">
+              <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Oportunidades</label>
+              <textarea
+                data-fo-codigo={`__dim${dim.id}_oportunidades`}
+                class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
+                rows="4"
+                placeholder="¿Qué se puede mejorar o desarrollar en esta dimensión?"
+              >{respuestas[`__dim${dim.id}_oportunidades`]?.comentario ?? ''}</textarea>
+            </div>
+          </div>
         </section>
       ))}
 
@@ -300,6 +322,36 @@ const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
     ta.addEventListener('input', () => {
       debouncedSave(ta.dataset.practica)
     })
+  })
+
+  // Fortalezas y Oportunidades
+  const foTimers = {}
+
+  function getFOComentario(codigo) {
+    const ta = document.querySelector(`textarea[data-fo-codigo="${codigo}"]`)
+    return ta ? ta.value : ''
+  }
+
+  async function saveFO(codigo) {
+    setSaveStatus('saving')
+    try {
+      const res = await fetch('/api/evaluacion/respuesta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, codigo, puntuacion: null, comentario: getFOComentario(codigo) })
+      })
+      if (res.ok) { setSaveStatus('saved'); setTimeout(() => setSaveStatus('ready'), 2000) }
+      else setSaveStatus('error')
+    } catch { setSaveStatus('error') }
+  }
+
+  function debouncedSaveFO(codigo) {
+    clearTimeout(foTimers[codigo])
+    foTimers[codigo] = setTimeout(() => saveFO(codigo), DEBOUNCE_MS)
+  }
+
+  document.querySelectorAll('.fo-field').forEach(ta => {
+    ta.addEventListener('input', () => debouncedSaveFO(ta.dataset.foCodigo))
   })
 
   // Botón salir — envía email de resumen y redirige a página de gracias

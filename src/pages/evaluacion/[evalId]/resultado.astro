@@ -68,6 +68,25 @@ respuestas.forEach(r => {
   }
 })
 
+// Fortalezas y Oportunidades por dimensión
+interface FODim { fortalezas: Record<string, string>; oportunidades: Record<string, string> }
+const foMap: Record<number, FODim> = {}
+RUBRICA.forEach(dim => { foMap[dim.id] = { fortalezas: {}, oportunidades: {} } })
+respuestas.forEach(r => {
+  const fMatch = r.codigo.match(/^__dim(\d+)_fortalezas$/)
+  const oMatch = r.codigo.match(/^__dim(\d+)_oportunidades$/)
+  const ev = evaluadores.find(e => e.id === r.evaluador_id)
+  const cm = (r as any).comentario as string | null
+  if (ev && cm && cm.trim()) {
+    if (fMatch) foMap[parseInt(fMatch[1])]?.fortalezas && (foMap[parseInt(fMatch[1])].fortalezas[ev.nombre] = cm.trim())
+    if (oMatch) foMap[parseInt(oMatch[1])]?.oportunidades && (foMap[parseInt(oMatch[1])].oportunidades[ev.nombre] = cm.trim())
+  }
+})
+const hayFO = RUBRICA.some(dim =>
+  Object.keys(foMap[dim.id]?.fortalezas ?? {}).length > 0 ||
+  Object.keys(foMap[dim.id]?.oportunidades ?? {}).length > 0
+)
+
 // Comentario final del proceso (guardado en consenso con codigo '__final')
 const comentarioFinal = consensos.find(c => c.codigo === '__final')?.comentario_calibracion ?? ''
 
@@ -259,6 +278,72 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      <!-- Fortalezas y Oportunidades por dimensión -->
+      {hayFO && (
+        <div class="bg-white rounded border border-ash-grey/30 overflow-hidden">
+          <div class="px-6 py-4 border-b border-ash-grey/20">
+            <h2 class="font-semibold text-ink">Fortalezas y Oportunidades</h2>
+            <p class="text-sm text-ink/50 mt-1">Observaciones registradas por dimensión durante la evaluación.</p>
+          </div>
+          <div class="divide-y divide-ash-grey/20">
+            {RUBRICA.map(dim => {
+              const fo = foMap[dim.id]
+              const tieneFO =
+                Object.keys(fo?.fortalezas ?? {}).length > 0 ||
+                Object.keys(fo?.oportunidades ?? {}).length > 0
+              if (!tieneFO) return null
+              return (
+                <div class="px-6 py-5">
+                  <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-4">{dim.nombre}</p>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Fortalezas -->
+                    <div>
+                      <p class="font-mono text-xs uppercase tracking-widest text-black-forest/40 mb-2">Fortalezas</p>
+                      {Object.keys(fo.fortalezas).length > 0 ? (
+                        <div class="space-y-2">
+                          {evaluadores.map(ev => {
+                            const txt = fo.fortalezas[ev.nombre]
+                            if (!txt) return null
+                            return (
+                              <div class="flex gap-2">
+                                <span class="font-mono text-xs text-ash-grey shrink-0 pt-0.5 w-20 truncate">{ev.nombre.split(' ')[0]}:</span>
+                                <p class="text-sm text-ink/70 leading-relaxed">{txt}</p>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <p class="text-sm text-ink/30 italic">Sin registro</p>
+                      )}
+                    </div>
+                    <!-- Oportunidades -->
+                    <div>
+                      <p class="font-mono text-xs uppercase tracking-widest text-black-forest/40 mb-2">Oportunidades</p>
+                      {Object.keys(fo.oportunidades).length > 0 ? (
+                        <div class="space-y-2">
+                          {evaluadores.map(ev => {
+                            const txt = fo.oportunidades[ev.nombre]
+                            if (!txt) return null
+                            return (
+                              <div class="flex gap-2">
+                                <span class="font-mono text-xs text-ash-grey shrink-0 pt-0.5 w-20 truncate">{ev.nombre.split(' ')[0]}:</span>
+                                <p class="text-sm text-ink/70 leading-relaxed">{txt}</p>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <p class="text-sm text-ink/30 italic">Sin registro</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
