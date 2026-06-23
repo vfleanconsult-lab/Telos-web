@@ -59,6 +59,12 @@ const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
             </div>
           </div>
           <span id="saveStatus" class="text-xs text-ink/40 font-mono w-16 text-right">listo</span>
+          <button
+            id="pausarBtn"
+            class="shrink-0 border border-ash-grey rounded px-3 py-1.5 text-xs font-semibold text-ink/70 hover:border-black-forest hover:text-black-forest transition"
+          >
+            Guardar y Cerrar
+          </button>
         </div>
       </div>
     </div>
@@ -366,6 +372,20 @@ const SCORES = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
       })
     } catch (_) { /* si falla el email igual redirigimos */ }
     window.location.href = '/evaluacion/gracias'
+  })
+
+  // Botón Guardar y Cerrar — envía email de recordatorio y redirige
+  document.getElementById('pausarBtn')?.addEventListener('click', async function() {
+    this.disabled = true
+    this.textContent = 'Guardando...'
+    try {
+      await fetch('/api/evaluacion/pausar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      })
+    } catch (_) { /* si falla el email igual redirigimos */ }
+    window.location.href = '/evaluacion/gracias?modo=pausado'
   })
 
   // Scroll a la primera práctica sin responder
