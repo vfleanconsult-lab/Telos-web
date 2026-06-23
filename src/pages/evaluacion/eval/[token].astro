@@ -36,13 +36,8 @@ const fechaFormateada = empresa?.fecha_evaluacion
   ? new Date(empresa.fecha_evaluacion).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })
   : ''
 
-const LEVEL_INFO = [
-  { label: 'Inicial',      base: 'bg-red-50 border-red-200 text-red-600 hover:border-red-400',         sel: 'bg-red-600 border-red-600 text-white' },
-  { label: 'Básico',       base: 'bg-orange-50 border-orange-200 text-orange-600 hover:border-orange-400', sel: 'bg-orange-500 border-orange-500 text-white' },
-  { label: 'En proceso',   base: 'bg-amber-50 border-amber-200 text-amber-700 hover:border-amber-400',   sel: 'bg-amber-500 border-amber-500 text-white' },
-  { label: 'Consolidado',  base: 'bg-teal-50 border-teal-200 text-teal-700 hover:border-teal-400',       sel: 'bg-teal-600 border-teal-600 text-white' },
-  { label: 'Pleno',        base: 'bg-green-50 border-green-200 text-green-700 hover:border-green-400',   sel: 'bg-green-600 border-green-600 text-white' },
-]
+const LEVEL_LABELS = ['Inicial', 'Básico', 'En proceso', 'Consolidado', 'Pleno']
+const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
 ---
 <Layout title={`Evaluación — ${empresa?.nombre_empresa ?? 'Diagnóstico'}`} description="Formulario de evaluación de madurez organizacional.">
   <div class="min-h-screen bg-dust-grey">
@@ -136,47 +131,56 @@ const LEVEL_INFO = [
                     </div>
                   </details>
 
-                  <!-- Selector de nivel -->
-                  <div class="px-5 pb-4">
-                    <p class="text-xs text-ink/40 mb-3 font-mono uppercase tracking-wider">Nivel de madurez</p>
-                    <!-- 5 botones de nivel con color semántico -->
-                    <div class="flex gap-2">
-                      {LEVEL_INFO.map((info, lvl) => {
-                        const selectedLevel = puntuacionActual !== null ? Math.floor(puntuacionActual) : -1
-                        const isSelected = lvl === selectedLevel
-                        return (
-                          <button
-                            type="button"
-                            class={`level-btn flex-1 py-3 rounded border text-center transition select-none
-                              ${isSelected ? info.sel : info.base}`}
-                            data-practica={practica.codigo}
-                            data-level={lvl}
-                            data-base-cls={info.base}
-                            data-sel-cls={info.sel}
-                            data-selected={isSelected ? 'true' : 'false'}
-                          >
-                            <span class="block text-2xl font-bold font-mono leading-none">{lvl}</span>
-                            <span class="block text-xs mt-1 font-medium leading-tight">{info.label}</span>
-                          </button>
-                        )
-                      })}
+                  <!-- Selector de nivel — slider -->
+                  <div class="px-5 pb-5">
+                    <!-- Fila superior: label + valor actual -->
+                    <div class="flex items-center justify-between mb-3">
+                      <p class="text-xs text-ink/40 font-mono uppercase tracking-wider">Nivel de madurez</p>
+                      <div
+                        id={`score-display-${practica.codigo}`}
+                        class={`flex items-center gap-2 ${completada ? '' : 'hidden'}`}
+                      >
+                        <span
+                          id={`score-num-${practica.codigo}`}
+                          class="text-2xl font-bold font-mono leading-none"
+                          style={completada ? `color:${LEVEL_COLORS[Math.min(Math.floor(puntuacionActual!), 4)]}` : ''}
+                        >
+                          {completada ? puntuacionActual : ''}
+                        </span>
+                        <span
+                          id={`score-label-${practica.codigo}`}
+                          class="text-sm font-medium"
+                          style={completada ? `color:${LEVEL_COLORS[Math.min(Math.floor(puntuacionActual!), 4)]}` : ''}
+                        >
+                          {completada ? LEVEL_LABELS[Math.min(Math.floor(puntuacionActual!), 4)] : ''}
+                        </span>
+                      </div>
+                      <span
+                        id={`score-empty-${practica.codigo}`}
+                        class={`text-xs text-ink/30 font-mono ${completada ? 'hidden' : ''}`}
+                      >
+                        sin evaluar
+                      </span>
                     </div>
-                    <!-- Toggle media punto — aparece al seleccionar un nivel < 4 -->
-                    <div
-                      class={`half-section mt-3 flex items-center gap-2 ${
-                        puntuacionActual !== null && Math.floor(puntuacionActual) < 4 ? '' : 'hidden'
-                      }`}
+
+                    <!-- Slider -->
+                    <input
+                      type="range"
+                      class="level-slider w-full"
                       data-practica={practica.codigo}
-                    >
-                      <input
-                        type="checkbox"
-                        class="half-toggle w-4 h-4 accent-black-forest cursor-pointer shrink-0"
-                        data-practica={practica.codigo}
-                        checked={puntuacionActual !== null && puntuacionActual % 1 !== 0}
-                      />
-                      <label class="text-sm text-ink/60 cursor-pointer select-none leading-snug">
-                        +0.5 — está entre este nivel y el siguiente
-                      </label>
+                      min="0" max="4" step="0.5"
+                      value={puntuacionActual ?? 0}
+                      data-touched={completada ? 'true' : 'false'}
+                    />
+
+                    <!-- Etiquetas de escala -->
+                    <div class="flex justify-between mt-2 px-0.5">
+                      {LEVEL_LABELS.map((lbl, i) => (
+                        <div class="flex flex-col items-center" style="width:20%">
+                          <span class="text-xs font-mono text-ink/40">{i}</span>
+                          <span class="text-xs text-ink/30 leading-tight text-center hidden sm:block">{lbl}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
@@ -267,12 +271,41 @@ const LEVEL_INFO = [
     }
   }
 
+  const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
+  const LEVEL_LABELS = ['Inicial', 'Básico', 'En proceso', 'Consolidado', 'Pleno']
+
   function getScore(practica) {
-    const btn = document.querySelector(`.level-btn[data-practica="${practica}"][data-selected="true"]`)
-    if (!btn) return null
-    const level = parseInt(btn.dataset.level)
-    const half = document.querySelector(`.half-toggle[data-practica="${practica}"]`)?.checked
-    return half ? level + 0.5 : level
+    const slider = document.querySelector(`.level-slider[data-practica="${practica}"]`)
+    if (!slider || slider.dataset.touched !== 'true') return null
+    return parseFloat(slider.value)
+  }
+
+  function updateSliderUI(slider) {
+    const practica = slider.dataset.practica
+    const value = parseFloat(slider.value)
+    const pct = (value / 4) * 100
+    const colorIdx = Math.min(Math.floor(value), 4)
+    const color = LEVEL_COLORS[colorIdx]
+
+    // Gradiente del track: color hasta el thumb, gris el resto
+    slider.style.setProperty('--pct', `${pct}%`)
+    slider.style.setProperty('--fill', color)
+
+    // Actualizar display de valor
+    const display = document.getElementById(`score-display-${practica}`)
+    const numEl = document.getElementById(`score-num-${practica}`)
+    const lblEl = document.getElementById(`score-label-${practica}`)
+    const emptyEl = document.getElementById(`score-empty-${practica}`)
+
+    if (slider.dataset.touched === 'true') {
+      display?.classList.remove('hidden')
+      emptyEl?.classList.add('hidden')
+      if (numEl) { numEl.textContent = String(value); numEl.style.color = color }
+      if (lblEl) { lblEl.textContent = LEVEL_LABELS[colorIdx]; lblEl.style.color = color }
+    } else {
+      display?.classList.add('hidden')
+      emptyEl?.classList.remove('hidden')
+    }
   }
 
   function getComentario(practica) {
@@ -307,79 +340,37 @@ const LEVEL_INFO = [
     timers[practica] = setTimeout(() => saveRespuesta(practica), DEBOUNCE_MS)
   }
 
-  // Level buttons
-  function applyLevelSelection(practica, levelBtn) {
-    // Quitar selección previa
-    document.querySelectorAll(`.level-btn[data-practica="${practica}"]`).forEach(b => {
-      b.dataset.selected = 'false'
-      b.className = b.className.replace(/\S+/g, c => c)
-      b.classList.remove(...b.dataset.selCls.split(' '))
-      b.classList.add(...b.dataset.baseCls.split(' '))
-    })
+  // Inicializar sliders con estado visual al cargar
+  document.querySelectorAll('.level-slider').forEach(slider => {
+    updateSliderUI(slider)
+  })
 
-    if (levelBtn) {
-      levelBtn.dataset.selected = 'true'
-      levelBtn.classList.remove(...levelBtn.dataset.baseCls.split(' '))
-      levelBtn.classList.add(...levelBtn.dataset.selCls.split(' '))
-    }
+  // Slider de nivel
+  document.querySelectorAll('.level-slider').forEach(slider => {
+    slider.addEventListener('input', () => {
+      const practica = slider.dataset.practica
+      const wasEmpty = slider.dataset.touched !== 'true'
 
-    // Mostrar u ocultar toggle de media punto
-    const halfSection = document.querySelector(`.half-section[data-practica="${practica}"]`)
-    if (halfSection) {
-      const level = levelBtn ? parseInt(levelBtn.dataset.level) : -1
-      if (level >= 0 && level < 4) {
-        halfSection.classList.remove('hidden')
-      } else {
-        halfSection.classList.add('hidden')
-        const toggle = halfSection.querySelector('.half-toggle')
-        if (toggle) toggle.checked = false
-      }
-    }
-  }
+      slider.dataset.touched = 'true'
+      updateSliderUI(slider)
 
-  document.querySelectorAll('.level-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const practica = btn.dataset.practica
-      const wasEmpty = getScore(practica) === null
-      const isAlreadySelected = btn.dataset.selected === 'true'
-
-      if (isAlreadySelected) {
-        // Deseleccionar → desmarcar práctica
-        applyLevelSelection(practica, null)
-        completadas--
+      if (wasEmpty) {
+        completadas++
         updateProgress()
         const card = document.getElementById(`practica-${practica}`)
         if (card) {
-          card.classList.replace('border-black-forest\/20', 'border-ash-grey\/30')
-          card.querySelector('.practica-check')?.remove()
-        }
-      } else {
-        applyLevelSelection(practica, btn)
-        if (wasEmpty) {
-          completadas++
-          updateProgress()
-          const card = document.getElementById(`practica-${practica}`)
-          if (card) {
-            card.classList.replace('border-ash-grey\/30', 'border-black-forest\/20')
-            if (!card.querySelector('.practica-check')) {
-              const check = document.createElement('span')
-              check.className = 'practica-check shrink-0 w-6 h-6 rounded-full bg-black-forest/10 flex items-center justify-center'
-              check.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#243010" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-              const header = card.querySelector('.flex.items-start.gap-3')
-              if (header) header.appendChild(check)
-            }
+          card.classList.replace('border-ash-grey\/30', 'border-black-forest\/20')
+          if (!card.querySelector('.practica-check')) {
+            const check = document.createElement('span')
+            check.className = 'practica-check shrink-0 w-6 h-6 rounded-full bg-black-forest/10 flex items-center justify-center'
+            check.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#243010" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            const header = card.querySelector('.flex.items-start.gap-3')
+            if (header) header.appendChild(check)
           }
         }
       }
 
       debouncedSave(practica)
-    })
-  })
-
-  // Toggle media punto
-  document.querySelectorAll('.half-toggle').forEach(toggle => {
-    toggle.addEventListener('change', () => {
-      debouncedSave(toggle.dataset.practica)
     })
   })
 
@@ -454,7 +445,8 @@ const LEVEL_INFO = [
     .filter((v, i, a) => a.indexOf(v) === i)
 
   const firstUnanswered = allPracticaIds.find(codigo => {
-    return !document.querySelector(`.level-btn[data-practica="${codigo}"][data-selected="true"]`)
+    const s = document.querySelector(`.level-slider[data-practica="${codigo}"]`)
+    return !s || s.dataset.touched !== 'true'
   })
 
   if (firstUnanswered) {
@@ -463,3 +455,54 @@ const LEVEL_INFO = [
     }, 300)
   }
 </script>
+
+<style>
+  /* Slider de nivel de madurez */
+  .level-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    background: linear-gradient(to right, var(--fill, #B9BAA3) 0%, var(--fill, #B9BAA3) var(--pct, 0%), #e2e1d8 var(--pct, 0%), #e2e1d8 100%);
+    transition: background 0.15s;
+  }
+  /* Thumb — WebKit (Chrome, Safari, iPad) */
+  .level-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid var(--fill, #B9BAA3);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.1s;
+  }
+  .level-slider::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+  }
+  /* Thumb — Firefox */
+  .level-slider::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid var(--fill, #B9BAA3);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+  /* Track — Firefox */
+  .level-slider::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
+    background: #e2e1d8;
+  }
+  .level-slider::-moz-range-progress {
+    height: 8px;
+    border-radius: 4px 0 0 4px;
+    background: var(--fill, #B9BAA3);
+  }
+</style>
