@@ -38,7 +38,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '1.01',
         nombre: 'Claridad de los objetivos del área',
-        queObservar: 'P1. ¿Enumera rápido los objetivos? Gerente que duda = desalineación.',
+        queObservar: '¿Enumera rápido los objetivos? Gerente que duda = desalineación.',
         niveles: [
           'No existen objetivos definidos para el área; el trabajo responde a la urgencia del día.',
           'Hay objetivos pero son difusos o solo conocidos por la gerencia; no se enuncian con claridad.',
@@ -50,7 +50,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '1.02',
         nombre: 'Despliegue y comunicación de la estrategia al equipo',
-        queObservar: 'P1↳. ¿Proceso formal o solo conversación? ¿El analista los conoce?',
+        queObservar: '¿Proceso formal o solo conversación? ¿El analista los conoce?',
         niveles: [
           'La estrategia no baja al equipo; los analistas desconocen hacia dónde va el área.',
           'Se transmite informalmente, en conversaciones sueltas, sin mecanismo definido.',
@@ -62,7 +62,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '1.03',
         nombre: 'Seguimiento y control de gestión en tiempo real',
-        queObservar: 'P2. "El cierre mensual" / "cuando me llaman" = vacío de control.',
+        queObservar: '"El cierre mensual" / "cuando me llaman" = vacío de control.',
         niveles: [
           'No hay forma de saber el avance hasta el cierre; el control es reactivo.',
           'El seguimiento depende del cierre mensual; no hay visibilidad intra-mes.',
@@ -74,7 +74,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '1.04',
         nombre: 'Conciencia de la cadena de valor y procesos que impactan al negocio',
-        queObservar: 'P3. ¿Entiende la relación finanzas-negocio? Anota procesos que menciona.',
+        queObservar: '¿Entiende la relación finanzas-negocio? Anota procesos que menciona.',
         niveles: [
           'No se identifica qué procesos del área impactan al negocio; finanzas se ve como tarea aislada.',
           'Reconoce algunos procesos relevantes pero sin claridad de su impacto en la operación.',
@@ -86,7 +86,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '1.05',
         nombre: 'Capacidad de absorción de cambio (iniciativas en curso)',
-        queObservar: 'P4. Muchas iniciativas abiertas = baja absorción de proyectos nuevos.',
+        queObservar: 'Muchas iniciativas abiertas = baja absorción de proyectos nuevos.',
         niveles: [
           'Saturación total: muchas iniciativas abiertas o sin capacidad de tomar nada nuevo.',
           'Varias iniciativas en curso con bajo avance; absorción de cambio limitada.',
@@ -105,7 +105,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '2.01',
         nombre: 'Mentalidad y manejo tecnológico del equipo',
-        queObservar: 'P5. Distinguir "usa bien Excel" de "tiene mentalidad digital".',
+        queObservar: 'Distinguir "usa bien Excel" de "tiene mentalidad digital".',
         niveles: [
           'Manejo tecnológico muy bajo; resistencia o temor generalizado a las herramientas.',
           'Manejo básico de ofimática (Excel) sin mentalidad digital; se hace lo mínimo.',
@@ -117,7 +117,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '2.02',
         nombre: 'Adopción actual de IA (formal o informal)',
-        queObservar: 'P5↳/P8↳. Adopción informal = demanda. Power users = agentes de cambio.',
+        queObservar: 'Adopción informal = demanda. Power users = agentes de cambio.',
         niveles: [
           'No hay uso de IA ni interés manifiesto.',
           'Uso aislado y por cuenta propia (ej. ChatGPT para correos), sin que nadie lo formalice.',
@@ -129,7 +129,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '2.03',
         nombre: 'Capacidad instalada de liderazgo técnico interno',
-        queObservar: 'P6. ¿Sabe quién lideraría? Si no, hay vacío de liderazgo técnico.',
+        queObservar: '¿Sabe quién lideraría? Si no, hay vacío de liderazgo técnico.',
         niveles: [
           'No hay nadie que pueda liderar una automatización; todo dependería de un externo.',
           'Hay interés pero no una persona con capacidad real de liderar mejoras técnicas.',
@@ -141,7 +141,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '2.04',
         nombre: 'Concentración de conocimiento y dependencia de personas clave',
-        queObservar: 'P7. "Si X no está, no funciona" = riesgo operacional crítico.',
+        queObservar: '"Si X no está, no funciona" = riesgo operacional crítico.',
         niveles: [
           'Procesos críticos dependen de una sola persona; si no está, el proceso se detiene (riesgo alto).',
           'Alta dependencia de personas clave con documentación mínima o inexistente.',
@@ -153,7 +153,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '2.05',
         nombre: 'Disposición del equipo al cambio',
-        queObservar: 'P8/P9. "No sé qué haría con el tiempo"/silencio = miedo al reemplazo.',
+        queObservar: '"No sé qué haría con el tiempo" / silencio = miedo al reemplazo.',
         niveles: [
           'Resistencia explícita; experiencias previas negativas con tecnología ("eso no es mi trabajo").',
           'Escepticismo o temor al reemplazo; disposición baja y condicionada.',
@@ -172,7 +172,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '3.01',
         nombre: 'Mapa de procesos y conciencia de procesos críticos',
-        queObservar: 'P10. Enumera con claridad = conciencia de mapa. Input directo.',
+        queObservar: 'Enumera con claridad = conciencia de mapa. Input directo.',
         niveles: [
           'No hay noción de mapa de procesos; se confunden tareas con procesos.',
           'Reconoce algunos procesos pero de forma desordenada y sin priorización.',
@@ -184,7 +184,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '3.02',
         nombre: 'Nivel de digitalización real del área',
-        queObservar: 'P12. "Casi todo en Excel" = Etapa 2 (Digitalizar antes de Automatizar).',
+        queObservar: '"Casi todo en Excel" = Etapa 2 (Digitalizar antes de Automatizar).',
         niveles: [
           'Operación casi totalmente manual; predominan papel, Excel y correos.',
           'Digitalización mínima; la mayoría del trabajo diario pasa por Excel manual.',
@@ -196,7 +196,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '3.03',
         nombre: 'Cuellos de botella, reprocesos y errores frecuentes',
-        queObservar: 'P11/P15. "Excel que se llena a mano"/"el sistema no integra" = caso directo.',
+        queObservar: '"Excel que se llena a mano" / "el sistema no integra" = caso directo.',
         niveles: [
           'Reprocesos y errores constantes asumidos como normales; no se miden.',
           'Cuellos de botella frecuentes, atribuidos a personas o sistemas, sin acción correctiva.',
@@ -208,7 +208,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '3.04',
         nombre: 'Carga de trabajo manual y repetitivo',
-        queObservar: 'P13↳/P14. >1,5-2 h/día = potencial claro. Convierte a horas anuales.',
+        queObservar: '>1,5–2 h/día de trabajo manual = potencial claro. Convierte a horas anuales.',
         niveles: [
           'Gran parte de la jornada se va en tareas manuales repetitivas (>3 h/día).',
           'Carga manual alta (~2-3 h/día) en consolidar, formatear y copiar/pegar.',
@@ -239,7 +239,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '4.01',
         nombre: 'Ecosistema de sistemas (ERP, BI, planillas)',
-        queObservar: 'P16. ¿ERP central o todo en paralelo? Construye el inventario.',
+        queObservar: '¿ERP central o todo en paralelo? Construye el inventario.',
         niveles: [
           'No hay sistemas de soporte; todo corre en planillas y correos.',
           'Sistemas mínimos o muy antiguos; el área opera mayormente fuera de ellos.',
@@ -251,7 +251,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '4.02',
         nombre: 'Integración entre sistemas',
-        queObservar: 'P16↳. Falta de integración = donde se pierde más tiempo y se generan errores.',
+        queObservar: 'Falta de integración = donde se pierde más tiempo y se generan errores.',
         niveles: [
           'Sistemas totalmente aislados; los datos se reingresan a mano entre ellos.',
           'Integración casi nula; se exporta/importa manualmente con frecuencia.',
@@ -263,7 +263,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '4.03',
         nombre: 'Uso real vs. potencial de los sistemas',
-        queObservar: 'P17/P17↳. Brecha capacidad-uso = oportunidad de corto plazo sin costo extra.',
+        queObservar: 'Brecha capacidad-uso = oportunidad de corto plazo sin costo extra.',
         niveles: [
           'Se usa una fracción mínima del sistema; gran capacidad instalada desaprovechada.',
           'Uso bajo (~20-30%); el sistema se subutiliza por falta de capacitación o diseño.',
@@ -275,7 +275,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '4.04',
         nombre: 'Gobernanza y políticas de adopción tecnológica',
-        queObservar: 'P18. ¿Aprobaciones TI? ¿Seguridad? ¿Proveedor exclusivo? Acelera o paraliza.',
+        queObservar: '¿Aprobaciones TI? ¿Seguridad? ¿Proveedor exclusivo? Acelera o paraliza.',
         niveles: [
           'Restricciones que bloquean cualquier herramienta nueva; o nula gobernanza (caos).',
           'Procesos de aprobación poco claros que frenan la adopción; depende de TI central.',
@@ -287,7 +287,7 @@ export const RUBRICA: Dimension[] = [
       {
         codigo: '4.05',
         nombre: 'Brecha tecnológica percibida y oportunidades',
-        queObservar: 'P19/P20. "Lo primero que cambiaría" = hipótesis de mejora. Anota literal.',
+        queObservar: '"Lo primero que cambiaría" = hipótesis de mejora. Anota literal.',
         niveles: [
           'No identifica brechas ni oportunidades; conformismo con el statu quo.',
           'Percibe molestias difusas pero no las traduce en mejoras concretas.',
