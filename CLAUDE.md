@@ -222,9 +222,17 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 
 ---
 
+## Documentación por módulo
+
+| Archivo | Módulo |
+|---|---|
+| [`docs/evaluacion.md`](docs/evaluacion.md) | Módulo de Evaluación de Madurez — arquitectura, BD, rúbrica, flujo completo, emails |
+
+---
+
 ## Gestión del proyecto
 
-- Rama de desarrollo activa: `claude/telos-ley-21719-audit-ers737`
+- Rama de desarrollo activa: `main`
 - Cada sprint se documenta como un issue cerrado en GitHub con etiquetas `documentation` y `sprint-N`
 - Las páginas pendientes de implementar son stubs en `src/pages/` con un comentario que describe qué irá ahí
 
@@ -244,6 +252,7 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 | Sprint Excelencia | #111 | Página /servicios/excelencia-organizacional: acordeón 9 herramientas Lean, carrusel 9 fotos B&N auto-play, dropdown header, hero servicios 2 columnas, categoría blog "Inteligencia Artificial" |
 | Sprint Ley 21.719 | #117 | Headers de seguridad HTTP (CSP, HSTS, nosniff, X-Frame-Options); política de privacidad con tabla de cookies HubSpot y GA4; integración Google Analytics 4 con carga condicional por consentimiento; formulario HubSpot en `/contacto` con carga diferida post-consentimiento (placeholder visible hasta aceptar cookies) |
 | Fix CSP HubSpot | — | CSP del sprint anterior bloqueaba el formulario de contacto — faltaban dominios `static.hsappstatic.net`, `js.hubspot.com`, `unsafe-eval`, Google Fonts y `*.hubspot.com` en frame-src. Headers movidos de dashboard Vercel a `vercel.json` (ahora en código). |
+| Sprint Evaluación | — | Módulo completo `/evaluacion`: rúbrica 20 prácticas × 4 dimensiones, panel admin, formulario multi-evaluador, calibración, informe con radar SVG, emails via Resend. Ver [`docs/evaluacion.md`](docs/evaluacion.md) |
 
 ### Sprints pendientes
 
