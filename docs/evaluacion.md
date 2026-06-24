@@ -105,13 +105,17 @@ Archivo: `src/data/rubrica.ts`
    - Inserta en `evaluaciones`
    - Inserta en `evaluadores` (genera token UUID por evaluador)
    - Envía email de invitación a cada evaluador via Resend con enlace `https://www.telos.cl/evaluacion?token=...`
+3. **Post-creación**: en la sección "Evaluaciones recientes" del admin puede:
+   - Eliminar un evaluador (botón ×) → `DELETE /api/evaluacion/evaluador` (cascade borra sus respuestas)
+   - Agregar un evaluador nuevo con nombre + email → `POST /api/evaluacion/agregar-evaluador` (crea y envía invitación)
 
 ### 2. Evaluador completa el formulario (`/evaluacion/eval/[token]`)
 
 1. Accede por el enlace personal — el token identifica al evaluador sin login
 2. Welcome page (`/evaluacion/index.astro`) muestra empresa y botón "Comenzar evaluación"
-3. Formulario muestra las 20 prácticas agrupadas por dimensión
-4. Auto-save debounced (800 ms) en cada cambio de puntuación o comentario → `POST /api/evaluacion/respuesta`
+3. Formulario muestra las 20 prácticas agrupadas por dimensión. Jerarquía visual: nombre de práctica es el elemento más grande (`text-xl`); la dimensión aparece como eyebrow
+4. Selector de nivel: **slider** de 0 a 4 en pasos de 0.5. Track con gradiente de color (rojo Inicial → verde Pleno) que avanza hasta el thumb. Muestra valor numérico + etiqueta en el color del nivel. Estado "sin evaluar" hasta el primer contacto
+5. Auto-save debounced (800 ms) en cada cambio de puntuación o comentario → `POST /api/evaluacion/respuesta`
 5. Al final de cada dimensión: campos "Fortalezas" y "Oportunidades" (también auto-save)
 6. Barra de progreso superior actualiza en tiempo real
 7. Al completar las 20 prácticas aparece botón "Salir de la evaluación" → llama `completar.ts` (email resumen) y redirige a `/evaluacion/gracias`
@@ -175,3 +179,9 @@ Todos los emails incluyen el enlace personal del evaluador para retomar o correg
 | `4b57527` | Sección comentarios por práctica en resultado; campo "Comentario final del consultor" con auto-save |
 | `fc28fc3` | Campos Fortalezas y Oportunidades al final de cada dimensión; sección F&O en resultado |
 | `02cd0b9` | Botón "Guardar y Cerrar" en header; `pausar.ts` + email recordatorio; `gracias.astro` distingue modo pausado |
+| `65758d4` | Documentación inicial del módulo en `docs/evaluacion.md` |
+| `fd5b209` | Gestión post-creación: eliminar evaluador (DELETE) y agregar nuevo con email (POST) desde admin inline |
+| `756dee7` | Rediseño visual: práctica → `text-xl`; dimensión de-enfatizada; 5 botones con color semántico + toggle +0.5 |
+| `acbed02` | Slider de nivel (0–4, paso 0.5) con track degradado rojo→verde; display valor + etiqueta en color dinámico |
+| `38d9ecc` | Limpieza de `queObservar`: eliminados prefijos internos P1., P8/P9., ↳ de toda la rúbrica |
+| `46c16d5` | Thumb del slider reducido a 18px; borde fijo en `black-forest` (#243010) |
