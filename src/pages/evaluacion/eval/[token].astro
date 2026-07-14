@@ -189,24 +189,16 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
                     data-touched={completada ? 'true' : 'false'}
                   />
 
-                  <!-- Etiquetas de escala -->
-                  <div class="flex justify-between mt-2 px-0.5">
+                  <!-- Etiquetas de escala + definición de cada nivel -->
+                  <div class="flex justify-between mt-2 px-0.5 gap-1.5">
                     {LEVEL_LABELS.map((lbl, i) => (
-                      <div class="flex flex-col items-center" style="width:20%">
+                      <div class="flex flex-col items-center text-center" style="width:20%">
                         <span class="text-xs font-mono text-ink/40">{i}</span>
-                        <span class="text-xs text-ink/30 leading-tight text-center hidden sm:block">{lbl}</span>
+                        <span class="text-xs text-ink/30 leading-tight hidden sm:block">{lbl}</span>
+                        <span class="text-[11px] italic text-ink/40 leading-snug mt-1.5 hidden sm:block">{practica.niveles[i]}</span>
                       </div>
                     ))}
                   </div>
-                </div>
-
-                <!-- Descriptores de nivel — texto de referencia, siempre visible -->
-                <div class="px-5 pb-4 space-y-1.5">
-                  {practica.niveles.map((desc, idx) => (
-                    <p class="text-xs italic text-ink/50 leading-relaxed">
-                      <span class="not-italic font-mono font-semibold text-ink/70">{idx} — {LEVEL_LABELS[idx]}:</span> {desc}
-                    </p>
-                  ))}
                 </div>
 
                 <!-- Comentario -->
