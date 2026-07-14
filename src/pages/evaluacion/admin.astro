@@ -240,10 +240,11 @@ document.getElementById('forgotPasswordBtn')?.addEventListener('click', async (e
   const msg = document.getElementById('forgotPasswordMsg')
   btn.disabled = true
   const res = await fetch('/api/evaluacion/solicitar-reset', { method: 'POST' })
+  const data = await res.json().catch(() => ({}))
   if (msg) {
     msg.textContent = res.ok
       ? 'Revisa tu correo — te enviamos un enlace para definir una nueva contraseña.'
-      : 'No se pudo enviar el correo. Intenta de nuevo.'
+      : `No se pudo enviar el correo: ${data.error || 'error desconocido'}`
     msg.classList.remove('hidden')
     msg.classList.toggle('text-green-700', res.ok)
     msg.classList.toggle('text-red-600', !res.ok)

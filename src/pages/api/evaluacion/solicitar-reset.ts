@@ -21,12 +21,20 @@ export const POST: APIRoute = async () => {
   const link = `https://www.telos.cl/evaluacion/reset?token=${resetToken}`
 
   const resend = new Resend(import.meta.env.RESEND_API_KEY)
-  await resend.emails.send({
+  const { error: emailError } = await resend.emails.send({
     from: 'noreply@telos.cl',
     to: destino,
     subject: 'Restablecer contraseña — Panel Admin Evaluación',
     html: emailResetPassword({ link })
   })
+
+  if (emailError) {
+    console.error('Error enviando email de reset:', emailError)
+    return new Response(JSON.stringify({ ok: false, error: emailError.message }), {
+      status: 502,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,
