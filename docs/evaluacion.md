@@ -81,18 +81,21 @@ Las Fortalezas y Oportunidades se guardan en `respuestas` con `puntuacion = null
 
 Archivo: `src/data/rubrica.ts`
 
-- **4 dimensiones:** Estrategia, Personas, Procesos, Tecnología
-- **5 prácticas por dimensión** = 20 prácticas totales (`TOTAL_PRACTICAS = 20`)
-- Cada práctica tiene: `codigo` (ej. `1.03`), `nombre`, `queObservar`, y `niveles` (array de 5 descriptores, nivel 0–4)
-- Escala de puntuación: 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4
-- Índice de madurez = (puntaje_consenso / 4) × 100 → clasificado en Crítico / Bajo / Medio / Avanzado
+- **4 dimensiones, en este orden:** Estrategia (6) → Procesos (8) → Tecnología (7) → Personas (6) = **27 prácticas totales** (`TOTAL_PRACTICAS` se deriva de `RUBRICA.reduce(...)`, ya no es un literal)
+- Cada práctica tiene: `codigo` (ej. `2.03`), `nombre`, `objetivo` (objetivo de descubrimiento), `queObservar` (incluye prefijo de referencia `P-x.xx` a la Guía de Entrevista v2), y `niveles` (array de 5 descriptores, nivel 0–4)
+- Escala de puntuación: 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4 (sin cambios respecto a v1)
+- Índice de madurez = (puntaje_consenso / 4) × 100 → clasificado en Crítico / Incipiente / En desarrollo / Consolidado
 
 ```
 0–25%  → Crítico
-26–50% → Bajo
-51–75% → Medio
-76–100% → Avanzado
+26–50% → Incipiente
+51–75% → En desarrollo
+76–100% → Consolidado
 ```
+
+> Rúbrica v2 (julio 2026): reemplaza la v1 de 20 prácticas (5 por dimensión). El desglose por
+> dimensión ya no es parejo — usar siempre `dim.practicas.length`, nunca asumir 5 o 20 en código
+> nuevo. `rubrica_id` default en la tabla `evaluaciones`: `madurez-4dim-v2`.
 
 ---
 
@@ -125,7 +128,7 @@ Archivo: `src/data/rubrica.ts`
 
 1. El consultor abre la sesión con los evaluadores
 2. Muestra prácticas ordenadas por brecha (mayor diferencia entre evaluadores primero)
-3. Prácticas con brecha ≥ 1.5 se marcan visualmente en rojo
+3. Prácticas con brecha ≥ 1.0 se marcan visualmente en rojo
 4. El consultor ingresa la nota de consenso por práctica → `POST /api/evaluacion/consenso`
 5. Se muestran los comentarios de cada evaluador por práctica para apoyar la discusión
 
@@ -208,3 +211,13 @@ ambos casos (olvido o cambio voluntario).
 | `acbed02` | Slider de nivel (0–4, paso 0.5) con track degradado rojo→verde; display valor + etiqueta en color dinámico |
 | `38d9ecc` | Limpieza de `queObservar`: eliminados prefijos internos P1., P8/P9., ↳ de toda la rúbrica |
 | `46c16d5` | Thumb del slider reducido a 18px; borde fijo en `black-forest` (#243010) |
+
+## Iteraciones del sprint (14 julio 2026)
+
+| Cambio | Descripción |
+|---|---|
+| Rúbrica v2 | Migración de 20 a 27 prácticas (Estrategia 6 · Procesos 8 · Tecnología 7 · Personas 6), nuevo orden de dimensiones, campo `objetivo` por práctica visible en el formulario, prefijos `P-x.xx` de la Guía de Entrevista v2 mantenidos en `queObservar` |
+| Clasificación | Etiquetas Crítico/Bajo/Medio/Avanzado → Crítico/Incipiente/En desarrollo/Consolidado (mismos cortes de %); etiquetas de nivel del slider → Inexistente/Incipiente/En desarrollo/Consolidada/Óptima |
+| Calibración | Umbral de brecha ≥1,5 → ≥1,0; progreso `/20` hardcodeado → `TOTAL_PRACTICAS` dinámico |
+| Fix Índice Global | El promedio dividía siempre por 4 dimensiones aunque faltaran por calibrar, subestimando el índice; ahora divide solo entre las dimensiones con consenso registrado |
+| Emails | Denominador `/5` por dimensión (hardcodeado) → dinámico según prácticas reales de cada dimensión; copy actualizado a "27 prácticas en 4 dimensiones" |

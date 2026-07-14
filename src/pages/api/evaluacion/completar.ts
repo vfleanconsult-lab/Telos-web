@@ -36,6 +36,7 @@ export const POST: APIRoute = async ({ request }) => {
     return {
       nombre: dim.nombre,
       completadas: puntuaciones.length,
+      total: dim.practicas.length,
       promedio: puntuaciones.length > 0
         ? Math.round((puntuaciones.reduce((a, b) => a + b, 0) / puntuaciones.length) * 10) / 10
         : null

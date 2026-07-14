@@ -1,7 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro'
 import { getSupabaseAdmin } from '../../../lib/supabase'
-import { RUBRICA } from '../../../data/rubrica'
+import { RUBRICA, TOTAL_PRACTICAS } from '../../../data/rubrica'
 
 if (Astro.cookies.get('eval_admin')?.value !== 'authenticated') {
   return Astro.redirect('/evaluacion/admin')
@@ -63,10 +63,10 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
           <p class="text-xs text-ink/50">{evaluacion.rut_empresa} · {fechaFormateada}</p>
         </div>
         <div class="flex items-center gap-3">
-          <p id="calCount" class="text-sm font-mono font-bold text-black-forest">{totalConsensados}/20</p>
+          <p id="calCount" class="text-sm font-mono font-bold text-black-forest">{totalConsensados}/{TOTAL_PRACTICAS}</p>
           <div class="w-24 bg-ash-grey/30 rounded-full h-2 overflow-hidden">
             <div id="calBar" class="h-2 bg-black-forest rounded-full transition-all duration-300"
-              style={`width:${Math.round((totalConsensados / 20) * 100)}%`}></div>
+              style={`width:${Math.round((totalConsensados / TOTAL_PRACTICAS) * 100)}%`}></div>
           </div>
           <span id="saveStatus" class="text-xs text-ink/40 font-mono w-16 text-right">listo</span>
           <a href={`/evaluacion/${evalId}/resultado`}
@@ -99,7 +99,7 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
           <div class="space-y-2">
             {dim.practicas.map((practica) => {
               const br = brecha(practica.codigo)
-              const altaBrecha = br >= 1.5
+              const altaBrecha = br >= 1.0
               const cons = consensoMap[practica.codigo]
 
               return (
@@ -210,7 +210,7 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
   </div>
 </Layout>
 
-<script define:vars={{ evalId }}>
+<script define:vars={{ evalId, TOTAL_PRACTICAS }}>
   let calCount = parseInt(document.getElementById('calCount')?.textContent?.split('/')[0] ?? '0', 10)
   const timers = {}
 
@@ -227,8 +227,8 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
     else if (!wasNull && !isNowSet) calCount--
     const el = document.getElementById('calCount')
     const bar = document.getElementById('calBar')
-    if (el) el.textContent = `${calCount}/20`
-    if (bar) bar.style.width = `${Math.round((calCount / 20) * 100)}%`
+    if (el) el.textContent = `${calCount}/${TOTAL_PRACTICAS}`
+    if (bar) bar.style.width = `${Math.round((calCount / TOTAL_PRACTICAS) * 100)}%`
   }
 
   async function saveConsenso(practica) {

@@ -36,7 +36,7 @@ const fechaFormateada = empresa?.fecha_evaluacion
   ? new Date(empresa.fecha_evaluacion).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })
   : ''
 
-const LEVEL_LABELS = ['Inicial', 'Básico', 'En proceso', 'Consolidado', 'Pleno']
+const LEVEL_LABELS = ['Inexistente', 'Incipiente', 'En desarrollo', 'Consolidada', 'Óptima']
 const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
 ---
 <Layout title={`Evaluación — ${empresa?.nombre_empresa ?? 'Diagnóstico'}`} description="Formulario de evaluación de madurez organizacional.">
@@ -102,7 +102,8 @@ const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
                     <span class="font-mono text-xs text-ash-grey/60 shrink-0 mt-1.5">{practica.codigo}</span>
                     <div class="flex-1 min-w-0">
                       <h3 class="text-xl font-semibold text-ink leading-snug">{practica.nombre}</h3>
-                      <p class="text-sm text-ink/50 mt-1.5 leading-relaxed">{practica.queObservar}</p>
+                      <p class="text-sm text-ink/40 mt-1.5 leading-relaxed italic">{practica.objetivo}</p>
+                      <p class="text-sm text-ink/50 mt-1 leading-relaxed">{practica.queObservar}</p>
                     </div>
                     {completada && (
                       <span class="shrink-0 w-6 h-6 rounded-full bg-black-forest/10 flex items-center justify-center">
@@ -272,7 +273,7 @@ const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
   }
 
   const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
-  const LEVEL_LABELS = ['Inicial', 'Básico', 'En proceso', 'Consolidado', 'Pleno']
+  const LEVEL_LABELS = ['Inexistente', 'Incipiente', 'En desarrollo', 'Consolidada', 'Óptima']
 
   function getScore(practica) {
     const slider = document.querySelector(`.level-slider[data-practica="${practica}"]`)

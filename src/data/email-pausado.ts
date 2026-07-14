@@ -1,6 +1,7 @@
 interface DimResumen {
   nombre: string
   completadas: number
+  total: number
 }
 
 export function emailPausado({
@@ -23,7 +24,7 @@ export function emailPausado({
   const filasDim = dimensiones.map(d => `
     <tr>
       <td style="padding:8px 12px;font-size:14px;color:#1A1A1A;border-bottom:1px solid #e8e8e0;">${d.nombre}</td>
-      <td style="padding:8px 12px;font-size:13px;text-align:center;color:#888;border-bottom:1px solid #e8e8e0;">${d.completadas}/5</td>
+      <td style="padding:8px 12px;font-size:13px;text-align:center;color:#888;border-bottom:1px solid #e8e8e0;">${d.completadas}/${d.total}</td>
     </tr>
   `).join('')
 

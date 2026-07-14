@@ -30,7 +30,8 @@ export const POST: APIRoute = async ({ request }) => {
 
   const dimensiones = RUBRICA.map(dim => ({
     nombre: dim.nombre,
-    completadas: dim.practicas.filter(p => respuestaMap[p.codigo] !== null && respuestaMap[p.codigo] !== undefined).length
+    completadas: dim.practicas.filter(p => respuestaMap[p.codigo] !== null && respuestaMap[p.codigo] !== undefined).length,
+    total: dim.practicas.length
   }))
 
   const completadas = dimensiones.reduce((sum, d) => sum + d.completadas, 0)

@@ -2,6 +2,7 @@ interface DimResumen {
   nombre: string
   promedio: number | null
   completadas: number
+  total: number
 }
 
 export function emailCompletado({
@@ -23,7 +24,7 @@ export function emailCompletado({
       <td style="padding:8px 12px;font-size:14px;text-align:center;font-family:'DM Mono',Courier,monospace;font-weight:bold;color:#243010;border-bottom:1px solid #e8e8e0;">
         ${d.promedio !== null ? d.promedio.toFixed(1) + ' / 4.0' : '—'}
       </td>
-      <td style="padding:8px 12px;font-size:13px;text-align:center;color:#888;border-bottom:1px solid #e8e8e0;">${d.completadas}/5</td>
+      <td style="padding:8px 12px;font-size:13px;text-align:center;color:#888;border-bottom:1px solid #e8e8e0;">${d.completadas}/${d.total}</td>
     </tr>
   `).join('')
 

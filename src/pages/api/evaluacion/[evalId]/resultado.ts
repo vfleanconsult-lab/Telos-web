@@ -42,7 +42,7 @@ export const GET: APIRoute = async ({ params }) => {
 
   const dimConPuntaje = dimensiones.filter(d => d.puntaje > 0)
   const puntaje_global = dimConPuntaje.length > 0
-    ? Math.round((dimConPuntaje.reduce((a, b) => a + b.puntaje, 0) / RUBRICA.length) * 100) / 100
+    ? Math.round((dimConPuntaje.reduce((a, b) => a + b.puntaje, 0) / dimConPuntaje.length) * 100) / 100
     : 0
   const indice_global = Math.round((puntaje_global / 4) * 100)
 

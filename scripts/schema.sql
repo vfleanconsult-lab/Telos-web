@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS evaluaciones (
   nombre_empresa TEXT NOT NULL,
   rut_empresa    TEXT NOT NULL,
   fecha_evaluacion DATE NOT NULL,
-  rubrica_id     TEXT NOT NULL DEFAULT 'finanzas-madurez-v1',
+  rubrica_id     TEXT NOT NULL DEFAULT 'madurez-4dim-v2',
   created_at     TIMESTAMPTZ DEFAULT now()
 );
 

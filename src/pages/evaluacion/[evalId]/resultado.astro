@@ -36,7 +36,7 @@ const dimensiones = RUBRICA.map(dim => {
 
 const dimConPuntaje = dimensiones.filter(d => d.puntaje > 0)
 const puntaje_global = dimConPuntaje.length > 0
-  ? Math.round((dimConPuntaje.reduce((a, b) => a + b.puntaje, 0) / RUBRICA.length) * 100) / 100
+  ? Math.round((dimConPuntaje.reduce((a, b) => a + b.puntaje, 0) / dimConPuntaje.length) * 100) / 100
   : 0
 const indice_global = Math.round((puntaje_global / 4) * 100)
 const nivel_global = indiceLabel(indice_global)
@@ -96,8 +96,8 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
 
 function nivelColor(nivel: string) {
   if (nivel === 'Crítico') return 'text-red-600 bg-red-50'
-  if (nivel === 'Bajo') return 'text-orange-600 bg-orange-50'
-  if (nivel === 'Medio') return 'text-yellow-700 bg-yellow-50'
+  if (nivel === 'Incipiente') return 'text-orange-600 bg-orange-50'
+  if (nivel === 'En desarrollo') return 'text-yellow-700 bg-yellow-50'
   return 'text-green-700 bg-green-50'
 }
 
@@ -149,8 +149,8 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
             {nivel_global}
           </span>
           <div class="mt-6 text-xs text-ink/40 space-y-1">
-            <p>0–25% crítico · 26–50% bajo</p>
-            <p>51–75% medio · 76–100% avanzado</p>
+            <p>0–25% crítico · 26–50% incipiente</p>
+            <p>51–75% en desarrollo · 76–100% consolidado</p>
           </div>
         </div>
 
@@ -258,7 +258,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
             </thead>
             <tbody>
               {practicasConBrecha.filter(p => p.brecha > 0 || p.consenso !== null).map((p, i) => (
-                <tr class={`border-t border-ash-grey/20 ${p.brecha >= 1.5 ? 'bg-red-50/30' : i % 2 === 0 ? '' : 'bg-dust-grey/20'}`}>
+                <tr class={`border-t border-ash-grey/20 ${p.brecha >= 1.0 ? 'bg-red-50/30' : i % 2 === 0 ? '' : 'bg-dust-grey/20'}`}>
                   <td class="px-4 py-3 font-mono text-xs text-ash-grey">{p.codigo}</td>
                   <td class="px-4 py-3 text-ink">{p.nombre}</td>
                   {evaluadores.map(ev => (
@@ -267,7 +267,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
                     </td>
                   ))}
                   <td class="px-4 py-3 text-center">
-                    <span class={`font-mono font-bold ${p.brecha >= 1.5 ? 'text-red-600' : 'text-ink/50'}`}>
+                    <span class={`font-mono font-bold ${p.brecha >= 1.0 ? 'text-red-600' : 'text-ink/50'}`}>
                       {p.brecha > 0 ? p.brecha : '—'}
                     </span>
                   </td>
@@ -416,7 +416,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
           <p><strong class="text-ink">Empresa:</strong> {evaluacion.nombre_empresa} · {evaluacion.rut_empresa}</p>
           <p><strong class="text-ink">Fecha:</strong> {fechaFormateada}</p>
           <p><strong class="text-ink">Evaluadores:</strong> {evaluadores.map(e => e.nombre).join(', ')}</p>
-          <p><strong class="text-ink">Instrumento:</strong> Rúbrica de Madurez v1 — Telos Consultores</p>
+          <p><strong class="text-ink">Instrumento:</strong> Rúbrica de Madurez v2 — Telos Consultores</p>
         </div>
       </div>
 

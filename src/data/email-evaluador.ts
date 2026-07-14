@@ -38,7 +38,7 @@ export function emailEvaluador({
               </p>
               <p style="margin:0 0 32px;font-size:15px;line-height:1.7;color:#444;">
                 Tu evaluación es independiente y confidencial. Usa la rúbrica de 0 a 4 para calificar
-                20 prácticas en 4 dimensiones. El sistema guarda automáticamente tu progreso.
+                27 prácticas en 4 dimensiones. El sistema guarda automáticamente tu progreso.
               </p>
               <!-- CTA Button -->
               <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
