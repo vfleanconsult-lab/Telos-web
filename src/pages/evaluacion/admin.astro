@@ -51,6 +51,14 @@ if (isAuth) {
             </button>
             <p id="loginError" class="text-red-600 text-sm hidden">Contraseña incorrecta.</p>
           </form>
+          <button
+            type="button"
+            id="forgotPasswordBtn"
+            class="mt-4 text-sm text-black-forest/70 hover:text-black-forest font-mono underline underline-offset-4"
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
+          <p id="forgotPasswordMsg" class="text-sm mt-2 hidden"></p>
         </div>
       ) : (
         <div class="space-y-10">
@@ -224,6 +232,23 @@ loginForm?.addEventListener('submit', async (e) => {
   } else {
     document.getElementById('loginError')?.classList.remove('hidden')
   }
+})
+
+// Olvidé mi contraseña
+document.getElementById('forgotPasswordBtn')?.addEventListener('click', async (e) => {
+  const btn = e.currentTarget as HTMLButtonElement
+  const msg = document.getElementById('forgotPasswordMsg')
+  btn.disabled = true
+  const res = await fetch('/api/evaluacion/solicitar-reset', { method: 'POST' })
+  if (msg) {
+    msg.textContent = res.ok
+      ? 'Revisa tu correo — te enviamos un enlace para definir una nueva contraseña.'
+      : 'No se pudo enviar el correo. Intenta de nuevo.'
+    msg.classList.remove('hidden')
+    msg.classList.toggle('text-green-700', res.ok)
+    msg.classList.toggle('text-red-600', !res.ok)
+  }
+  btn.disabled = false
 })
 
 // Agregar fila de evaluador

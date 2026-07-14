@@ -50,3 +50,13 @@ CREATE INDEX IF NOT EXISTS idx_evaluadores_evaluacion ON evaluadores(evaluacion_
 CREATE INDEX IF NOT EXISTS idx_respuestas_evaluador   ON respuestas(evaluador_id);
 CREATE INDEX IF NOT EXISTS idx_respuestas_evaluacion  ON respuestas(evaluacion_id);
 CREATE INDEX IF NOT EXISTS idx_consenso_evaluacion    ON consenso(evaluacion_id);
+
+-- Credenciales del panel admin (fila única, id fijo = 1)
+CREATE TABLE IF NOT EXISTS admin_credenciales (
+  id            INTEGER PRIMARY KEY DEFAULT 1,
+  password_hash TEXT NOT NULL,
+  reset_token   UUID,
+  reset_expira  TIMESTAMPTZ,
+  updated_at    TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT admin_credenciales_single_row CHECK (id = 1)
+);

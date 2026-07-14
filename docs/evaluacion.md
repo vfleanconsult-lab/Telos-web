@@ -165,6 +165,29 @@ Todos los emails incluyen el enlace personal del evaluador para retomar o correg
 | `SUPABASE_URL` | URL del proyecto Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | Clave de servicio (bypasa RLS) |
 | `RESEND_API_KEY` | API key de Resend para envío de emails |
+| `ADMIN_RESET_EMAIL` | Email destino del enlace de recuperación de contraseña del panel admin (default `victor@telos.cl` si no está seteada) |
+
+> `EVAL_ADMIN_KEY` quedó obsoleta — la contraseña del panel admin ya no se compara contra un env var, vive hasheada (scrypt) en la tabla `admin_credenciales`.
+
+---
+
+## Autenticación del panel admin
+
+La contraseña de `/evaluacion/admin` se guarda hasheada (scrypt, `src/lib/password.ts`) en la tabla
+`admin_credenciales` (fila única, `id = 1`) — ya no es un secreto plano en variable de entorno.
+
+### Recuperación de contraseña
+
+1. En el login (`admin.astro`) hay un botón "¿Olvidaste tu contraseña?" → `POST /api/evaluacion/solicitar-reset`
+2. Genera un `reset_token` (UUID) con vencimiento de 1 hora, lo guarda en `admin_credenciales` y envía un email
+   (vía Resend, template `email-reset-password.ts`) a `ADMIN_RESET_EMAIL` con el enlace
+   `https://www.telos.cl/evaluacion/reset?token=...`
+3. `/evaluacion/reset` (con el token en la URL) muestra un formulario para definir la nueva contraseña
+4. `POST /api/evaluacion/actualizar-password` valida que el token coincida y no haya vencido, hashea la
+   nueva contraseña y limpia `reset_token` / `reset_expira`
+
+No hay flujo separado de "cambiar contraseña estando logueado" — solicitar el reset y usar el enlace cubre
+ambos casos (olvido o cambio voluntario).
 
 ---
 

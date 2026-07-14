@@ -1,0 +1,91 @@
+---
+import Layout from '../../layouts/Layout.astro'
+
+const token = Astro.url.searchParams.get('token') ?? ''
+---
+<Layout title="Restablecer contraseña — Panel Admin" description="Define una nueva contraseña para el panel de administración.">
+  <div class="min-h-screen bg-dust-grey flex items-center justify-center px-4">
+    <div class="bg-white rounded border border-ash-grey/30 p-8 max-w-sm w-full">
+      <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-2">Telos · Sistema de Evaluación</p>
+      <h1 class="font-semibold text-ink mb-6">Definir nueva contraseña</h1>
+
+      {!token ? (
+        <p class="text-red-600 text-sm">Enlace inválido — falta el token de restablecimiento.</p>
+      ) : (
+        <form id="resetForm" class="space-y-4">
+          <div>
+            <label class="block text-sm text-ink/70 mb-1">Nueva contraseña</label>
+            <input
+              type="password"
+              id="newPassword"
+              minlength="8"
+              required
+              class="w-full border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest"
+              placeholder="Mínimo 8 caracteres"
+              autocomplete="new-password"
+            />
+          </div>
+          <div>
+            <label class="block text-sm text-ink/70 mb-1">Confirmar contraseña</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              minlength="8"
+              required
+              class="w-full border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest"
+              placeholder="Repite la contraseña"
+              autocomplete="new-password"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-black-forest text-white rounded px-4 py-2 text-sm font-semibold hover:bg-black-forest/90 transition"
+          >
+            Guardar nueva contraseña
+          </button>
+          <p id="resetError" class="text-red-600 text-sm hidden"></p>
+        </form>
+        <p id="resetOk" class="text-green-700 text-sm hidden mt-4">Contraseña actualizada. Ya puedes <a href="/evaluacion/admin" class="underline">iniciar sesión</a>.</p>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ token }}>
+  const form = document.getElementById('resetForm')
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const errorEl = document.getElementById('resetError')
+    const okEl = document.getElementById('resetOk')
+    errorEl?.classList.add('hidden')
+    okEl?.classList.add('hidden')
+
+    const password = document.getElementById('newPassword').value
+    const confirm = document.getElementById('confirmPassword').value
+
+    if (password !== confirm) {
+      if (errorEl) {
+        errorEl.textContent = 'Las contraseñas no coinciden.'
+        errorEl.classList.remove('hidden')
+      }
+      return
+    }
+
+    const res = await fetch('/api/evaluacion/actualizar-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password })
+    })
+
+    if (res.ok) {
+      form.classList.add('hidden')
+      okEl?.classList.remove('hidden')
+    } else {
+      const data = await res.json().catch(() => ({}))
+      if (errorEl) {
+        errorEl.textContent = data.error || 'No se pudo actualizar la contraseña.'
+        errorEl.classList.remove('hidden')
+      }
+    }
+  })
+</script>
