@@ -38,6 +38,23 @@ const fechaFormateada = empresa?.fecha_evaluacion
 
 const LEVEL_LABELS = ['Inexistente', 'Incipiente', 'En desarrollo', 'Consolidada', 'Óptima']
 const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
+
+// Progreso por dimensión — alimenta el stepper de navegación entre páginas
+const dimsProgreso = RUBRICA.map(dim => {
+  const total = dim.practicas.length
+  const completas = dim.practicas.filter(p => respuestas[p.codigo]?.puntuacion !== null && respuestas[p.codigo]?.puntuacion !== undefined).length
+  return { id: dim.id, nombre: dim.nombre, total, completas, completo: completas === total }
+})
+
+// Dimensión activa — por query param ?dim=N, o la primera incompleta si no viene
+const dimParam = parseInt(Astro.url.searchParams.get('dim') ?? '', 10)
+const dimValida = RUBRICA.some(d => d.id === dimParam)
+const dimActivaId = dimValida ? dimParam : (dimsProgreso.find(d => !d.completo)?.id ?? RUBRICA[0].id)
+
+const dimIndex = RUBRICA.findIndex(d => d.id === dimActivaId)
+const dimActiva = RUBRICA[dimIndex]
+const esUltimaDim = dimIndex === RUBRICA.length - 1
+const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
 ---
 <Layout title={`Evaluación — ${empresa?.nombre_empresa ?? 'Diagnóstico'}`} description="Formulario de evaluación de madurez organizacional.">
   <div class="min-h-screen bg-dust-grey">
@@ -60,189 +77,239 @@ const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
             </div>
           </div>
           <span id="saveStatus" class="text-xs text-ink/40 font-mono w-16 text-right">listo</span>
-          <button
-            id="pausarBtn"
-            class="shrink-0 border border-ash-grey rounded px-3 py-1.5 text-xs font-semibold text-ink/70 hover:border-black-forest hover:text-black-forest transition"
-          >
-            Guardar y Cerrar
-          </button>
         </div>
+      </div>
+
+      <!-- Stepper de dimensiones -->
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-3 flex gap-2">
+        {RUBRICA.map((dim, i) => {
+          const prog = dimsProgreso[i]
+          const activa = dim.id === dimActivaId
+          return (
+            <a
+              href={`?dim=${dim.id}`}
+              class={`flex-1 text-center py-2 rounded text-xs font-mono uppercase tracking-wider border transition ${
+                activa
+                  ? 'bg-black-forest text-white border-black-forest'
+                  : prog.completo
+                    ? 'border-black-forest/30 text-black-forest/70 hover:border-black-forest'
+                    : 'border-ash-grey/40 text-ink/40 hover:border-ash-grey'
+              }`}
+            >
+              {dim.nombre} <span class="hidden sm:inline">{prog.completo ? '✓' : `${prog.completas}/${prog.total}`}</span>
+            </a>
+          )
+        })}
       </div>
     </div>
 
-    <!-- Formulario -->
+    <!-- Formulario — una dimensión por página -->
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
 
-      {RUBRICA.map((dim) => (
-        <section>
-          <!-- Cabecera de dimensión -->
-          <div class="mb-6 flex items-center gap-3">
-            <span class="font-mono text-xs text-ash-grey shrink-0">{dim.id}/4</span>
-            <div>
-              <h2 class="text-xs font-mono uppercase tracking-widest text-black-forest/50">{dim.nombre}</h2>
-              <p class="text-xs text-ink/40">{dim.descripcion}</p>
-            </div>
+      <section>
+        <!-- Cabecera de dimensión -->
+        <div class="mb-6 flex items-center gap-3">
+          <span class="font-mono text-xs text-ash-grey shrink-0">{dimIndex + 1}/{RUBRICA.length}</span>
+          <div>
+            <h2 class="text-xs font-mono uppercase tracking-widest text-black-forest/50">{dimActiva.nombre}</h2>
+            <p class="text-xs text-ink/40">{dimActiva.descripcion}</p>
           </div>
+        </div>
 
-          <!-- Prácticas de la dimensión -->
-          <div class="space-y-4">
-            {dim.practicas.map((practica) => {
-              const respuesta = respuestas[practica.codigo]
-              const puntuacionActual = respuesta?.puntuacion ?? null
-              const comentarioActual = respuesta?.comentario ?? ''
-              const completada = puntuacionActual !== null
+        <!-- Prácticas de la dimensión -->
+        <div class="space-y-4">
+          {dimActiva.practicas.map((practica) => {
+            const respuesta = respuestas[practica.codigo]
+            const puntuacionActual = respuesta?.puntuacion ?? null
+            const comentarioActual = respuesta?.comentario ?? ''
+            const completada = puntuacionActual !== null
+            const nivelActualIdx = completada ? Math.min(Math.floor(puntuacionActual!), 4) : 0
 
-              return (
-                <div
-                  id={`practica-${practica.codigo}`}
-                  class={`bg-white rounded border ${completada ? 'border-black-forest/20' : 'border-ash-grey/30'} overflow-hidden`}
-                >
-                  <!-- Cabecera de práctica -->
-                  <div class="flex items-start gap-3 px-5 pt-5 pb-3">
-                    <span class="font-mono text-xs text-ash-grey/60 shrink-0 mt-1.5">{practica.codigo}</span>
-                    <div class="flex-1 min-w-0">
-                      <h3 class="text-xl font-semibold text-ink leading-snug">{practica.nombre}</h3>
-                      <p class="text-sm text-ink/40 mt-1.5 leading-relaxed italic">{practica.objetivo}</p>
-                      <p class="text-sm text-ink/50 mt-1 leading-relaxed">{practica.queObservar}</p>
-                    </div>
-                    {completada && (
-                      <span class="shrink-0 w-6 h-6 rounded-full bg-black-forest/10 flex items-center justify-center">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                          <path d="M2 6l3 3 5-5" stroke="#243010" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </span>
-                    )}
+            return (
+              <div
+                id={`practica-${practica.codigo}`}
+                class={`bg-white rounded border ${completada ? 'border-black-forest/20' : 'border-ash-grey/30'} overflow-hidden`}
+              >
+                <!-- Cabecera de práctica -->
+                <div class="flex items-start gap-3 px-5 pt-5 pb-3">
+                  <span class="font-mono text-xs text-ash-grey/60 shrink-0 mt-1.5">{practica.codigo}</span>
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-xl font-semibold text-ink leading-snug">{practica.nombre}</h3>
+                    <p class="text-sm text-ink/40 mt-1.5 leading-relaxed italic">{practica.objetivo}</p>
+                    <p class="text-sm text-ink/50 mt-1 leading-relaxed">{practica.queObservar}</p>
                   </div>
-
-                  <!-- Descriptores de nivel (colapsables) -->
-                  <details class="group">
-                    <summary class="px-5 pb-3 flex items-center gap-2 cursor-pointer list-none text-xs text-black-forest/50 hover:text-black-forest/80 transition select-none">
-                      <svg class="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  {completada && (
+                    <span class="shrink-0 w-6 h-6 rounded-full bg-black-forest/10 flex items-center justify-center">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="#243010" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
-                      Ver descriptores de nivel
-                    </summary>
-                    <div class="mx-5 mb-4 border border-ash-grey/30 rounded overflow-hidden">
-                      {practica.niveles.map((desc, idx) => (
-                        <div class={`flex gap-3 px-4 py-3 text-sm ${idx < 4 ? 'border-b border-ash-grey/20' : ''}`}>
-                          <span class="font-mono font-bold text-black-forest shrink-0 w-4">{idx}</span>
-                          <span class="text-ink/70 leading-snug">{desc}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
+                    </span>
+                  )}
+                </div>
 
-                  <!-- Selector de nivel — slider -->
-                  <div class="px-5 pb-5">
-                    <!-- Fila superior: label + valor actual -->
-                    <div class="flex items-center justify-between mb-3">
-                      <p class="text-xs text-ink/40 font-mono uppercase tracking-wider">Nivel de madurez</p>
-                      <div
-                        id={`score-display-${practica.codigo}`}
-                        class={`flex items-center gap-2 ${completada ? '' : 'hidden'}`}
-                      >
-                        <span
-                          id={`score-num-${practica.codigo}`}
-                          class="text-2xl font-bold font-mono leading-none"
-                          style={completada ? `color:${LEVEL_COLORS[Math.min(Math.floor(puntuacionActual!), 4)]}` : ''}
-                        >
-                          {completada ? puntuacionActual : ''}
-                        </span>
-                        <span
-                          id={`score-label-${practica.codigo}`}
-                          class="text-sm font-medium"
-                          style={completada ? `color:${LEVEL_COLORS[Math.min(Math.floor(puntuacionActual!), 4)]}` : ''}
-                        >
-                          {completada ? LEVEL_LABELS[Math.min(Math.floor(puntuacionActual!), 4)] : ''}
-                        </span>
+                <!-- Descriptores de nivel (colapsables) -->
+                <details class="group">
+                  <summary class="px-5 pb-3 flex items-center gap-2 cursor-pointer list-none text-xs text-black-forest/50 hover:text-black-forest/80 transition select-none">
+                    <svg class="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    Ver descriptores de nivel
+                  </summary>
+                  <div class="mx-5 mb-4 border border-ash-grey/30 rounded overflow-hidden">
+                    {practica.niveles.map((desc, idx) => (
+                      <div class={`flex gap-3 px-4 py-3 text-sm ${idx < 4 ? 'border-b border-ash-grey/20' : ''}`}>
+                        <span class="font-mono font-bold text-black-forest shrink-0 w-4">{idx}</span>
+                        <span class="text-ink/70 leading-snug">{desc}</span>
                       </div>
+                    ))}
+                  </div>
+                </details>
+
+                <!-- Selector de nivel — slider -->
+                <div class="px-5 pb-5">
+                  <!-- Fila superior: label + valor actual -->
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-xs text-ink/40 font-mono uppercase tracking-wider">Nivel de madurez</p>
+                    <div
+                      id={`score-display-${practica.codigo}`}
+                      class={`flex items-center gap-2 ${completada ? '' : 'hidden'}`}
+                    >
                       <span
-                        id={`score-empty-${practica.codigo}`}
-                        class={`text-xs text-ink/30 font-mono ${completada ? 'hidden' : ''}`}
+                        id={`score-num-${practica.codigo}`}
+                        class="text-2xl font-bold font-mono leading-none"
+                        style={completada ? `color:${LEVEL_COLORS[nivelActualIdx]}` : ''}
                       >
-                        sin evaluar
+                        {completada ? puntuacionActual : ''}
+                      </span>
+                      <span
+                        id={`score-label-${practica.codigo}`}
+                        class="text-sm font-medium"
+                        style={completada ? `color:${LEVEL_COLORS[nivelActualIdx]}` : ''}
+                      >
+                        {completada ? LEVEL_LABELS[nivelActualIdx] : ''}
                       </span>
                     </div>
-
-                    <!-- Slider -->
-                    <input
-                      type="range"
-                      class="level-slider w-full"
-                      data-practica={practica.codigo}
-                      min="0" max="4" step="0.5"
-                      value={puntuacionActual ?? 0}
-                      data-touched={completada ? 'true' : 'false'}
-                    />
-
-                    <!-- Etiquetas de escala -->
-                    <div class="flex justify-between mt-2 px-0.5">
-                      {LEVEL_LABELS.map((lbl, i) => (
-                        <div class="flex flex-col items-center" style="width:20%">
-                          <span class="text-xs font-mono text-ink/40">{i}</span>
-                          <span class="text-xs text-ink/30 leading-tight text-center hidden sm:block">{lbl}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <span
+                      id={`score-empty-${practica.codigo}`}
+                      class={`text-xs text-ink/30 font-mono ${completada ? 'hidden' : ''}`}
+                    >
+                      sin evaluar
+                    </span>
                   </div>
 
-                  <!-- Comentario -->
-                  <div class="px-5 pb-5">
-                    <label class="text-xs text-ink/50 block mb-1">Evidencia / Comentario</label>
-                    <textarea
-                      data-practica={practica.codigo}
-                      class="comentario-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
-                      rows="2"
-                      placeholder="Anota la evidencia observada..."
-                    >{comentarioActual}</textarea>
+                  <!-- Definición del criterio en el nivel actual -->
+                  <p
+                    id={`score-def-${practica.codigo}`}
+                    class={`text-xs text-ink/50 mb-3 leading-relaxed ${completada ? '' : 'hidden'}`}
+                  >
+                    {completada && (
+                      <>
+                        <strong class="text-ink/70">{LEVEL_LABELS[nivelActualIdx]}:</strong> {practica.niveles[nivelActualIdx]}
+                      </>
+                    )}
+                  </p>
+
+                  <!-- Slider -->
+                  <input
+                    type="range"
+                    class="level-slider w-full"
+                    data-practica={practica.codigo}
+                    data-niveles={JSON.stringify(practica.niveles)}
+                    min="0" max="4" step="0.5"
+                    value={puntuacionActual ?? 0}
+                    data-touched={completada ? 'true' : 'false'}
+                  />
+
+                  <!-- Etiquetas de escala -->
+                  <div class="flex justify-between mt-2 px-0.5">
+                    {LEVEL_LABELS.map((lbl, i) => (
+                      <div class="flex flex-col items-center" style="width:20%">
+                        <span class="text-xs font-mono text-ink/40">{i}</span>
+                        <span class="text-xs text-ink/30 leading-tight text-center hidden sm:block">{lbl}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )
-            })}
-          </div>
 
-          <!-- Fortalezas y Oportunidades de la dimensión -->
-          <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-white rounded border border-ash-grey/30 p-5">
-              <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Fortalezas</label>
-              <textarea
-                data-fo-codigo={`__dim${dim.id}_fortalezas`}
-                class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
-                rows="4"
-                placeholder="¿Qué está funcionando bien en esta dimensión?"
-              >{respuestas[`__dim${dim.id}_fortalezas`]?.comentario ?? ''}</textarea>
-            </div>
-            <div class="bg-white rounded border border-ash-grey/30 p-5">
-              <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Oportunidades</label>
-              <textarea
-                data-fo-codigo={`__dim${dim.id}_oportunidades`}
-                class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
-                rows="4"
-                placeholder="¿Qué se puede mejorar o desarrollar en esta dimensión?"
-              >{respuestas[`__dim${dim.id}_oportunidades`]?.comentario ?? ''}</textarea>
-            </div>
-          </div>
-        </section>
-      ))}
-
-      <!-- Mensaje final -->
-      <div id="completedMsg" class={`text-center py-8 ${totalCompletadas === TOTAL_PRACTICAS ? '' : 'hidden'}`}>
-        <div class="inline-block bg-white rounded border border-black-forest/20 px-8 py-8 max-w-sm">
-          <div class="w-12 h-12 rounded-full bg-black-forest/10 flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M4 12l6 6 10-10" stroke="#243010" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <p class="font-semibold text-ink mb-2">Evaluación completada</p>
-          <p class="text-sm text-ink/60 mb-6 leading-relaxed">Todas tus respuestas han sido guardadas. Recibirás un correo con el resumen de tu evaluación.</p>
-          <button
-            id="exitBtn"
-            class="w-full bg-black-forest text-white rounded px-6 py-2.5 text-sm font-semibold hover:bg-black-forest/90 transition disabled:opacity-50"
-          >
-            Salir de la evaluación
-          </button>
+                <!-- Comentario -->
+                <div class="px-5 pb-5">
+                  <label class="text-xs text-ink/50 block mb-1">Evidencia / Comentario</label>
+                  <textarea
+                    data-practica={practica.codigo}
+                    class="comentario-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
+                    rows="2"
+                    placeholder="Anota la evidencia observada..."
+                  >{comentarioActual}</textarea>
+                </div>
+              </div>
+            )
+          })}
         </div>
+
+        <!-- Fortalezas y Oportunidades de la dimensión -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white rounded border border-ash-grey/30 p-5">
+            <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Fortalezas</label>
+            <textarea
+              data-fo-codigo={`__dim${dimActiva.id}_fortalezas`}
+              class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
+              rows="4"
+              placeholder="¿Qué está funcionando bien en esta dimensión?"
+            >{respuestas[`__dim${dimActiva.id}_fortalezas`]?.comentario ?? ''}</textarea>
+          </div>
+          <div class="bg-white rounded border border-ash-grey/30 p-5">
+            <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Oportunidades</label>
+            <textarea
+              data-fo-codigo={`__dim${dimActiva.id}_oportunidades`}
+              class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
+              rows="4"
+              placeholder="¿Qué se puede mejorar o desarrollar en esta dimensión?"
+            >{respuestas[`__dim${dimActiva.id}_oportunidades`]?.comentario ?? ''}</textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Acciones de la página -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 border-t border-ash-grey/20">
+        <button
+          id="pausarPageBtn"
+          type="button"
+          class="order-2 sm:order-1 border border-ash-grey rounded px-5 py-2.5 text-sm font-semibold text-ink/70 hover:border-black-forest hover:text-black-forest transition disabled:opacity-50"
+        >
+          Guardar y continuar más tarde
+        </button>
+        {esUltimaDim ? (
+          <button
+            id="finalizarBtn"
+            type="button"
+            class="order-1 sm:order-2 bg-black-forest text-white rounded px-6 py-2.5 text-sm font-semibold hover:bg-black-forest/90 transition disabled:opacity-50"
+          >
+            Guardar y finalizar →
+          </button>
+        ) : (
+          <button
+            id="continuarBtn"
+            type="button"
+            data-target={`?dim=${siguienteDim!.id}`}
+            class="order-1 sm:order-2 bg-black-forest text-white rounded px-6 py-2.5 text-sm font-semibold hover:bg-black-forest/90 transition disabled:opacity-50"
+          >
+            Guardar y continuar →
+          </button>
+        )}
       </div>
 
+    </div>
+  </div>
+
+  <!-- Modal de confirmación genérico -->
+  <div id="confirmModal" class="fixed inset-0 bg-black/40 z-40 hidden items-center justify-center px-4">
+    <div class="bg-white rounded max-w-sm w-full p-6">
+      <p id="confirmModalTitle" class="font-semibold text-ink mb-2"></p>
+      <p id="confirmModalMsg" class="text-sm text-ink/60 mb-6 leading-relaxed"></p>
+      <div class="flex gap-3 justify-end">
+        <button id="confirmModalCancel" type="button" class="border border-ash-grey rounded px-4 py-2 text-sm hover:border-black-forest transition">Cancelar</button>
+        <button id="confirmModalOk" type="button" class="bg-black-forest text-white rounded px-4 py-2 text-sm font-semibold hover:bg-black-forest/90 transition">Confirmar</button>
+      </div>
     </div>
   </div>
 </Layout>
@@ -267,9 +334,6 @@ const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
     const bar = document.getElementById('progressBar')
     if (count) count.textContent = `${completadas}/${TOTAL_PRACTICAS}`
     if (bar) bar.style.width = `${Math.round((completadas / TOTAL_PRACTICAS) * 100)}%`
-    if (completadas >= TOTAL_PRACTICAS) {
-      document.getElementById('completedMsg')?.classList.remove('hidden')
-    }
   }
 
   const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
@@ -297,15 +361,24 @@ const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
     const numEl = document.getElementById(`score-num-${practica}`)
     const lblEl = document.getElementById(`score-label-${practica}`)
     const emptyEl = document.getElementById(`score-empty-${practica}`)
+    const defEl = document.getElementById(`score-def-${practica}`)
 
     if (slider.dataset.touched === 'true') {
       display?.classList.remove('hidden')
       emptyEl?.classList.add('hidden')
       if (numEl) { numEl.textContent = String(value); numEl.style.color = color }
       if (lblEl) { lblEl.textContent = LEVEL_LABELS[colorIdx]; lblEl.style.color = color }
+      if (defEl) {
+        defEl.classList.remove('hidden')
+        try {
+          const niveles = JSON.parse(slider.dataset.niveles)
+          defEl.innerHTML = `<strong class="text-ink/70">${LEVEL_LABELS[colorIdx]}:</strong> ${niveles[colorIdx]}`
+        } catch { /* noop */ }
+      }
     } else {
       display?.classList.add('hidden')
       emptyEl?.classList.remove('hidden')
+      defEl?.classList.add('hidden')
     }
   }
 
@@ -412,35 +485,119 @@ const LEVEL_COLORS = ['#dc2626', '#f97316', '#d97706', '#0d9488', '#16a34a']
     ta.addEventListener('input', () => debouncedSaveFO(ta.dataset.foCodigo))
   })
 
-  // Botón salir — envía email de resumen y redirige a página de gracias
-  document.getElementById('exitBtn')?.addEventListener('click', async function() {
-    this.disabled = true
-    this.textContent = 'Enviando resumen...'
-    try {
-      await fetch('/api/evaluacion/completar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token })
-      })
-    } catch (_) { /* si falla el email igual redirigimos */ }
-    window.location.href = '/evaluacion/gracias'
-  })
+  // Fuerza el guardado inmediato de todos los campos de la página actual
+  // (cancela debounces pendientes) antes de navegar o salir.
+  async function flushSaves() {
+    Object.values(timers).forEach(t => clearTimeout(t))
+    Object.values(foTimers).forEach(t => clearTimeout(t))
 
-  // Botón Guardar y Cerrar — envía email de recordatorio y redirige
-  document.getElementById('pausarBtn')?.addEventListener('click', async function() {
+    const codigosPractica = new Set()
+    document.querySelectorAll('.level-slider').forEach(s => codigosPractica.add(s.dataset.practica))
+    const codigosFO = Array.from(document.querySelectorAll('.fo-field')).map(f => f.dataset.foCodigo)
+
+    await Promise.all([
+      ...Array.from(codigosPractica).map(c => saveRespuesta(c)),
+      ...codigosFO.map(c => saveFO(c))
+    ])
+  }
+
+  // Modal de confirmación genérico
+  function showConfirm({ title, message, okLabel, onOk }) {
+    const modal = document.getElementById('confirmModal')
+    document.getElementById('confirmModalTitle').textContent = title
+    document.getElementById('confirmModalMsg').textContent = message
+    const okBtn = document.getElementById('confirmModalOk')
+    const cancelBtn = document.getElementById('confirmModalCancel')
+    okBtn.textContent = okLabel
+    modal.classList.remove('hidden')
+    modal.classList.add('flex')
+
+    function cleanup() {
+      modal.classList.add('hidden')
+      modal.classList.remove('flex')
+      okBtn.removeEventListener('click', handleOk)
+      cancelBtn.removeEventListener('click', cleanup)
+    }
+    function handleOk() {
+      cleanup()
+      onOk()
+    }
+    okBtn.addEventListener('click', handleOk)
+    cancelBtn.addEventListener('click', cleanup)
+  }
+
+  // Botón Guardar y continuar → siguiente dimensión
+  document.getElementById('continuarBtn')?.addEventListener('click', async function() {
     this.disabled = true
     this.textContent = 'Guardando...'
-    try {
-      await fetch('/api/evaluacion/pausar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token })
-      })
-    } catch (_) { /* si falla el email igual redirigimos */ }
-    window.location.href = '/evaluacion/gracias?modo=pausado'
+    await flushSaves()
+    window.location.href = this.dataset.target
   })
 
-  // Scroll a la primera práctica sin responder
+  // Botón Guardar y finalizar (última página)
+  document.getElementById('finalizarBtn')?.addEventListener('click', function() {
+    const btn = this
+    if (completadas >= TOTAL_PRACTICAS) {
+      ;(async () => {
+        btn.disabled = true
+        btn.textContent = 'Guardando...'
+        await flushSaves()
+        try {
+          await fetch('/api/evaluacion/completar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token })
+          })
+        } catch (_) { /* si falla el email igual redirigimos */ }
+        window.location.href = '/evaluacion/gracias'
+      })()
+    } else {
+      const faltan = TOTAL_PRACTICAS - completadas
+      showConfirm({
+        title: 'Aún quedan prácticas sin responder',
+        message: `Te faltan ${faltan} de ${TOTAL_PRACTICAS} prácticas por evaluar. Puedes guardar y salir para continuar más tarde con el mismo enlace.`,
+        okLabel: 'Guardar y salir',
+        onOk: async () => {
+          btn.disabled = true
+          btn.textContent = 'Guardando...'
+          await flushSaves()
+          try {
+            await fetch('/api/evaluacion/pausar', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token })
+            })
+          } catch (_) { /* si falla el email igual redirigimos */ }
+          window.location.href = '/evaluacion/gracias?modo=pausado'
+        }
+      })
+    }
+  })
+
+  // Botón Guardar y continuar más tarde — con advertencia
+  document.getElementById('pausarPageBtn')?.addEventListener('click', function() {
+    const btn = this
+    showConfirm({
+      title: 'Vas a salir de la evaluación',
+      message: 'Tus respuestas ya están guardadas. Puedes continuar cuando quieras usando el mismo enlace que recibiste por correo.',
+      okLabel: 'Sí, salir',
+      onOk: async () => {
+        btn.disabled = true
+        btn.textContent = 'Guardando...'
+        await flushSaves()
+        try {
+          await fetch('/api/evaluacion/pausar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token })
+          })
+        } catch (_) { /* si falla el email igual redirigimos */ }
+        window.location.href = '/evaluacion/gracias?modo=pausado'
+      }
+    })
+  })
+
+  // Scroll a la primera práctica sin responder de esta página
   const allPracticaIds = Array.from(document.querySelectorAll('[data-practica]'))
     .map(el => el.dataset.practica)
     .filter((v, i, a) => a.indexOf(v) === i)
