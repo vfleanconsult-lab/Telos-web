@@ -73,17 +73,24 @@ body {
 .body { position: absolute; inset: 0; padding: 44px 64px 62px; display: flex; flex-direction: column; justify-content: center; }
 
 /* ---------- Revelado ---------- */
-[data-step] {
+[data-step], .auto {
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 400ms cubic-bezier(.2,.7,.3,1), transform 400ms cubic-bezier(.2,.7,.3,1);
 }
-[data-step].shown { opacity: 1; transform: translateY(0); }
+[data-step].shown, .auto.shown { opacity: 1; transform: translateY(0); }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-step] { transform: none !important; transition: opacity 250ms linear; }
+  [data-step], .auto { transform: none !important; transition: opacity 250ms linear; }
   .slide { transition: opacity 150ms linear; }
 }
+
+/* ---------- Portada ---------- */
+.cover .deco {
+  position: absolute; border-radius: 50%;
+  background: var(--dark-surf); z-index: 0;
+}
+.cover .txt { position: absolute; left: 67px; z-index: 1; }
 
 /* ---------- Tipografía ---------- */
 h1 { font-family: var(--serif); font-size: 40px; font-weight: 700; line-height: 1.15; letter-spacing: -.01em; }
@@ -174,6 +181,32 @@ p  { font-size: 17px; line-height: 1.5; }
 }
 #hint.gone { opacity: 0; }
 
+/* ---------- Pantalla completa ---------- */
+#fsBtn {
+  position: fixed; z-index: 70;
+  right: calc(22px + env(safe-area-inset-right));
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  display: none; align-items: center; gap: 8px;
+  padding: 10px 18px; border: 1px solid rgba(255,255,255,.18); border-radius: 999px;
+  background: rgba(255,255,255,.07); color: #C7CCD1;
+  font-family: var(--sans); font-size: 14px; cursor: pointer;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  transition: background 200ms linear, color 200ms linear;
+}
+#fsBtn.on { display: inline-flex; }
+#fsBtn:hover { background: rgba(255,255,255,.14); color: #fff; }
+#fsNote {
+  position: fixed; z-index: 70;
+  right: calc(22px + env(safe-area-inset-right));
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  display: none; max-width: 330px;
+  font-size: 12px; line-height: 1.45; color: #8A9099; text-align: right;
+}
+#fsNote.on { display: block; }
+
+/* Cursor oculto tras 3 s sin movimiento */
+body.nocursor, body.nocursor * { cursor: none !important; }
+
 /* ---------- Vista índice ---------- */
 #overview {
   position: fixed; inset: 0; z-index: 80; display: none;
@@ -199,7 +232,24 @@ p  { font-size: 17px; line-height: 1.5; }
 
 <div id="stage">
 
-  <!-- ============ 1 · Recapitulemos ============ -->
+  <!-- ============ 1 · Portada ============ -->
+  <section class="slide dark cover">
+    <!-- círculos decorativos, se salen del lienzo por la derecha -->
+    <div class="deco" style="width:442px;height:442px;left:960px;top:-154px"></div>
+    <div class="deco" style="width:326px;height:326px;left:1085px;top:470px"></div>
+
+    <div class="txt auto" style="top:144px;font-size:17px;font-weight:700;color:var(--yellow);letter-spacing:2px">DUOC UC · ESCUELA DE ADMINISTRACIÓN Y NEGOCIOS</div>
+
+    <h1 class="txt auto" style="top:206px;font-size:69px;color:#fff">La Propuesta de Valor</h1>
+
+    <div class="txt auto" style="top:336px;font-size:27px;line-height:1.35;color:#C7CCD1">Cómo asegurar que lo que ofreces realmente le sirve al cliente</div>
+
+    <div class="txt auto" style="top:432px;width:432px;height:53px;border-radius:999px;background:var(--yellow);color:var(--dark);font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center">Taller Integrado de Negocios · RA5</div>
+
+    <div class="txt auto" style="top:624px;font-size:17px;color:#8A9099">Víctor Figueroa Silva · Clase simulada</div>
+  </section>
+
+  <!-- ============ 2 · Recapitulemos ============ -->
   <section class="slide light">
     <div class="body">
       <h1>Recapitulemos</h1>
@@ -229,7 +279,7 @@ p  { font-size: 17px; line-height: 1.5; }
     </div>
   </section>
 
-  <!-- ============ 2 · ¿Qué vamos a ver hoy? ============ -->
+  <!-- ============ 3 · ¿Qué vamos a ver hoy? ============ -->
   <section class="slide light">
     <div class="body">
       <h1>¿Qué vamos a ver hoy?</h1>
@@ -262,7 +312,7 @@ p  { font-size: 17px; line-height: 1.5; }
     </div>
   </section>
 
-  <!-- ============ 3 · Detonante + concepto ============ -->
+  <!-- ============ 4 · Detonante + concepto ============ -->
   <section class="slide dark">
     <div class="body">
       <h1 style="font-size:37px;max-width:1040px">¿Por qué elegimos un producto por sobre otro,<br>si hacen exactamente lo mismo?</h1>
@@ -292,7 +342,7 @@ p  { font-size: 17px; line-height: 1.5; }
     </div>
   </section>
 
-  <!-- ============ 4 · El Lienzo de Propuesta de Valor ============ -->
+  <!-- ============ 5 · El Lienzo de Propuesta de Valor ============ -->
   <section class="slide light">
     <div class="body">
       <h1>El Lienzo de Propuesta de Valor</h1>
@@ -340,7 +390,7 @@ p  { font-size: 17px; line-height: 1.5; }
     </div>
   </section>
 
-  <!-- ============ 5 · Perfil del Cliente ============ -->
+  <!-- ============ 6 · Perfil del Cliente ============ -->
   <section class="slide light">
     <div class="body">
       <h1>El lado derecho · Perfil del Cliente</h1>
@@ -366,7 +416,7 @@ p  { font-size: 17px; line-height: 1.5; }
     </div>
   </section>
 
-  <!-- ============ 6 · Mapa de Valor ============ -->
+  <!-- ============ 7 · Mapa de Valor ============ -->
   <section class="slide light">
     <div class="body">
       <h1>El lado izquierdo · Mapa de Valor</h1>
@@ -392,7 +442,7 @@ p  { font-size: 17px; line-height: 1.5; }
     </div>
   </section>
 
-  <!-- ============ 7 · Ejercicio ============ -->
+  <!-- ============ 8 · Ejercicio ============ -->
   <section class="slide dark">
     <div class="body">
       <div class="eyebrow">Ejercicio · En parejas</div>
@@ -424,7 +474,7 @@ p  { font-size: 17px; line-height: 1.5; }
     </div>
   </section>
 
-  <!-- ============ 8 · Cierre ============ -->
+  <!-- ============ 9 · Cierre ============ -->
   <section class="slide dark">
     <div class="body">
       <div class="eyebrow">Para cerrar</div>
@@ -455,6 +505,8 @@ p  { font-size: 17px; line-height: 1.5; }
 <div class="tapzone" id="tapPrev"></div>
 <div class="tapzone" id="tapNext"></div>
 <div id="hint">Click o → para avanzar</div>
+<button id="fsBtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>Pantalla completa</button>
+<div id="fsNote">Para pantalla completa: Compartir → Añadir a pantalla de inicio, y abre desde el ícono</div>
 <div id="overview"></div>
 
 <script>
@@ -465,8 +517,9 @@ p  { font-size: 17px; line-height: 1.5; }
   var slides = [].slice.call(document.querySelectorAll('.slide'));
   var N = slides.length;
 
-  // Pie y barra de progreso por lámina
+  // Pie y barra de progreso — la portada (índice 0) no los lleva
   slides.forEach(function (s, i) {
+    if (i === 0) return;
     var f = document.createElement('div');
     f.className = 'foot';
     f.innerHTML = '<span>Propuesta de Valor · JNA1101</span><span>' + (i + 1) + ' / ' + N + '</span>';
@@ -486,10 +539,26 @@ p  { font-size: 17px; line-height: 1.5; }
     return m;
   });
 
-  var cur = 0, step = 0;
+  var cur = 0, step = 0, prevCur = -1;
+
+  // La portada se arma sola: sus elementos entran en cascada, sin consumir pasos.
+  var coverTimers = [];
+  function playCover() {
+    coverTimers.forEach(clearTimeout);
+    coverTimers = [];
+    var els = [].slice.call(slides[0].querySelectorAll('.auto'));
+    els.forEach(function (el) { el.classList.remove('shown'); });
+    void slides[0].offsetWidth; // fuerza reflow para reiniciar la animación
+    els.forEach(function (el, i) {
+      coverTimers.push(setTimeout(function () { el.classList.add('shown'); }, 120 + i * 150));
+    });
+  }
 
   function render() {
     slides.forEach(function (s, i) { s.classList.toggle('active', i === cur); });
+    if (cur === 0 && prevCur !== 0) playCover();
+    prevCur = cur;
+    updateFsBtn();
     var s = slides[cur];
     [].forEach.call(s.querySelectorAll('[data-step]'), function (el) {
       var n = parseInt(el.getAttribute('data-step'), 10) || 0;
@@ -545,10 +614,16 @@ p  { font-size: 17px; line-height: 1.5; }
     else if (k === 'f' || k === 'F') { e.preventDefault(); toggleFull(); }
     else if (k === 'o' || k === 'O') { e.preventDefault(); toggleOverview(); }
     else if (k === 'Escape') { closeOverview(); }
-    else if (k >= '1' && k <= '8') { e.preventDefault(); goto(parseInt(k, 10) - 1); }
+    else if (k >= '1' && k <= '9') { e.preventDefault(); goto(parseInt(k, 10) - 1); }
   });
 
   // ---------- Tap y swipe ----------
+  // Al pulsar el botón de pantalla completa el viewport se redimensiona y la zona
+  // de tap alcanza a recibir el evento, avanzando de lámina sin querer.
+  // Esta ventana corta ignora ese avance fantasma.
+  var suppressTapUntil = 0;
+  function tapSuprimido() { return Date.now() < suppressTapUntil; }
+
   var sx = 0, sy = 0, st = 0, moved = false;
   function onStart(e) {
     var t = e.changedTouches ? e.changedTouches[0] : e;
@@ -567,10 +642,12 @@ p  { font-size: 17px; line-height: 1.5; }
     var z = document.getElementById(id);
     z.addEventListener('touchstart', onStart, { passive: true });
     z.addEventListener('touchend', function (e) {
+      if (tapSuprimido()) return;
       onEnd(e);
       if (!moved) { if (id === 'tapNext') next(); else prev(); }
     }, { passive: true });
     z.addEventListener('click', function () {
+      if (tapSuprimido()) return;
       // El click sintético tras un touch ya fue manejado por touchend
       if (moved) { moved = false; return; }
       hideHint();
@@ -583,16 +660,62 @@ p  { font-size: 17px; line-height: 1.5; }
   });
 
   // ---------- Pantalla completa ----------
+  var fsBtn = document.getElementById('fsBtn');
+  var fsNote = document.getElementById('fsNote');
+  var docEl = document.documentElement;
+
+  var fsSupported = !!(docEl.requestFullscreen || docEl.webkitRequestFullscreen);
+  function isFull() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function isStandalone() {
+    return navigator.standalone === true ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  }
+
+  // Debe dispararse siempre desde un gesto del usuario: nunca se llama al cargar.
   function toggleFull() {
-    var d = document.documentElement;
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      if (d.requestFullscreen) d.requestFullscreen();
-      else if (d.webkitRequestFullscreen) d.webkitRequestFullscreen();
+    if (!fsSupported) { updateFsBtn(); return; }
+    if (!isFull()) {
+      // Si el navegador lo rechaza (falta gesto, o iOS sin soporte) seguimos igual.
+      var p = null;
+      try {
+        if (docEl.requestFullscreen) p = docEl.requestFullscreen();
+        else if (docEl.webkitRequestFullscreen) p = docEl.webkitRequestFullscreen();
+      } catch (err) { /* sin pantalla completa: la presentación funciona igual */ }
+      if (p && p.catch) p.catch(function () { updateFsBtn(); });
     } else {
       if (document.exitFullscreen) document.exitFullscreen();
       else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
     }
   }
+
+  // El botón vive solo en la portada, y desaparece si ya no hace falta.
+  function updateFsBtn() {
+    var quiere = (cur === 0) && !isFull() && !isStandalone();
+    fsBtn.classList.toggle('on', quiere && fsSupported);
+    fsNote.classList.toggle('on', quiere && !fsSupported);
+  }
+
+  fsBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    suppressTapUntil = Date.now() + 700;
+    toggleFull();
+  });
+  fsBtn.addEventListener('touchstart', function (e) {
+    e.stopPropagation();
+    suppressTapUntil = Date.now() + 700;
+  }, { passive: true });
+  document.addEventListener('fullscreenchange', updateFsBtn);
+  document.addEventListener('webkitfullscreenchange', updateFsBtn);
+
+  // ---------- Cursor oculto tras 3 s sin movimiento ----------
+  var curTimer = null;
+  function pokeCursor() {
+    document.body.classList.remove('nocursor');
+    clearTimeout(curTimer);
+    curTimer = setTimeout(function () { document.body.classList.add('nocursor'); }, 3000);
+  }
+  document.addEventListener('mousemove', pokeCursor);
+  pokeCursor();
 
   // ---------- Wake Lock (mejora progresiva) ----------
   var lock = null;
