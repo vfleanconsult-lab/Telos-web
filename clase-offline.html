@@ -204,6 +204,17 @@ p  { font-size: 17px; line-height: 1.5; }
 }
 #fsNote.on { display: block; }
 
+/* Aviso de disponibilidad offline — solo en la portada */
+#offNote {
+  position: fixed; z-index: 70;
+  left: calc(22px + env(safe-area-inset-left));
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  display: none; align-items: center; gap: 7px;
+  font-size: 12px; color: #6E757E;
+}
+#offNote.on { display: inline-flex; }
+#offNote.listo { color: var(--yellow); }
+
 /* Cursor oculto tras 3 s sin movimiento */
 body.nocursor, body.nocursor * { cursor: none !important; }
 
@@ -507,6 +518,7 @@ body.nocursor, body.nocursor * { cursor: none !important; }
 <div id="hint">Click o → para avanzar</div>
 <button id="fsBtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>Pantalla completa</button>
 <div id="fsNote">Para pantalla completa: Compartir → Añadir a pantalla de inicio, y abre desde el ícono</div>
+<div id="offNote">Guardando para uso sin internet…</div>
 <div id="overview"></div>
 
 <script>
@@ -689,10 +701,12 @@ body.nocursor, body.nocursor * { cursor: none !important; }
   }
 
   // El botón vive solo en la portada, y desaparece si ya no hace falta.
+  var offNote = document.getElementById('offNote');
   function updateFsBtn() {
     var quiere = (cur === 0) && !isFull() && !isStandalone();
     fsBtn.classList.toggle('on', quiere && fsSupported);
     fsNote.classList.toggle('on', quiere && !fsSupported);
+    offNote.classList.toggle('on', cur === 0 && !!offEstado);
   }
 
   fsBtn.addEventListener('click', function (e) {
@@ -716,6 +730,29 @@ body.nocursor, body.nocursor * { cursor: none !important; }
   }
   document.addEventListener('mousemove', pokeCursor);
   pokeCursor();
+
+  // ---------- Disponibilidad sin internet ----------
+  // Un service worker guarda la página completa. Tras visitarla una vez con
+  // conexión, el iPad la abre igual en modo avión desde el ícono de inicio.
+  // isSecureContext cubre https y localhost, y excluye file://.
+  var offEstado = '';
+  function marcarOffline(txt, listo) {
+    offEstado = txt;
+    offNote.textContent = txt;
+    offNote.classList.toggle('listo', !!listo);
+    updateFsBtn();
+  }
+  if ('serviceWorker' in navigator && window.isSecureContext) {
+    marcarOffline('Guardando para uso sin internet…', false);
+    navigator.serviceWorker.register('/clase-sw.js', { scope: '/clase' })
+      .then(function () { return navigator.serviceWorker.ready; })
+      .then(function () {
+        marcarOffline('Disponible sin internet', true);
+      })
+      .catch(function () {
+        marcarOffline('No se pudo guardar para uso sin internet', false);
+      });
+  }
 
   // ---------- Wake Lock (mejora progresiva) ----------
   var lock = null;
