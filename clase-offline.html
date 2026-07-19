@@ -157,6 +157,48 @@ p  { font-size: 17px; line-height: 1.5; }
 
 .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 
+/* ---------- Botón amarillo ---------- */
+.btn-amarillo {
+  border: none; cursor: pointer;
+  background: var(--yellow); color: var(--dark);
+  font-family: var(--sans); font-size: 15px; font-weight: 700;
+  padding: 11px 26px; border-radius: 999px;
+  box-shadow: var(--shadow-dk);
+  transition: filter 150ms linear;
+}
+.btn-amarillo:hover { filter: brightness(1.07); }
+
+/* ---------- Anexo de preguntas ---------- */
+#anexo {
+  position: absolute; inset: 0; z-index: 5;
+  display: none; flex-direction: column;
+  background: var(--light); color: var(--text);
+  padding: 32px 44px 22px;
+}
+#anexo.on { display: flex; }
+.anexo-titulo { font-size: 30px; }
+.anexo-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 18px; flex: 1; }
+.anexo-col {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 22px 20px;
+}
+.anexo-head { display: flex; align-items: center; gap: 12px; }
+.anexo-head h3 { font-size: 19px; }
+.anexo-head p { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+.anexo-col ul { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.anexo-col li {
+  position: relative; padding-left: 16px;
+  font-size: 15px; line-height: 1.45; color: #3A3F46;
+}
+.anexo-col li::before {
+  content: ''; position: absolute; left: 0; top: 8px;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--yellow);
+}
+.anexo-pie { display: flex; justify-content: center; margin-top: 16px; }
+
+/* Con el anexo abierto, las zonas de tap no deben avanzar la presentación */
+body.anexo-abierto .tapzone { pointer-events: none; }
+
 /* ---------- Pie ---------- */
 .foot {
   position: absolute; left: 64px; right: 64px; bottom: 22px;
@@ -481,9 +523,82 @@ body.nocursor, body.nocursor * { cursor: none !important; }
         </div>
       </div>
 
-      <p data-step="4" style="margin-top:28px;text-align:center;font-family:var(--serif);font-style:italic;font-size:21px;color:var(--yellow)">Un buen perfil del cliente se construye preguntando, no suponiendo.</p>
+      <p data-step="4" style="margin-top:24px;text-align:center;font-family:var(--serif);font-style:italic;font-size:21px;color:var(--yellow)">Un buen perfil del cliente se construye preguntando, no suponiendo.</p>
+
+      <div data-step="4" style="margin-top:18px;display:flex;justify-content:center">
+        <button type="button" class="btn-amarillo" id="abrirAnexo">Preguntas perfil cliente</button>
+      </div>
     </div>
   </section>
+
+  <!-- ============ Anexo · Preguntas del perfil del cliente ============
+       No es una lámina de la secuencia: se abre desde el botón de la lámina 8
+       y vuelve al mismo punto. Vive dentro de #stage para escalar igual. -->
+  <div id="anexo">
+    <h2 class="anexo-titulo">Preguntas para el perfil del cliente</h2>
+
+    <div class="anexo-cols">
+      <div class="anexo-col">
+        <div class="anexo-head">
+          <span class="dot sm">T</span>
+          <div>
+            <h3>Trabajos</h3>
+            <p>¿qué intenta lograr el cliente?</p>
+          </div>
+        </div>
+        <ul>
+          <li>¿Qué tarea funcional está tratando de completar? (un objetivo concreto)</li>
+          <li>¿Qué necesidad social busca? (verse bien, ganar estatus, pertenecer)</li>
+          <li>¿Qué necesidad emocional persigue? (sentirse seguro, tranquilo, en control)</li>
+          <li>¿Qué está intentando lograr en su trabajo o en su vida?</li>
+          <li>¿Qué hace antes, durante y después? (comparar, decidir, comprar, usar)</li>
+          <li>¿En qué contexto y momento ocurre esa tarea?</li>
+        </ul>
+      </div>
+
+      <div class="anexo-col">
+        <div class="anexo-head">
+          <span class="dot sm">D</span>
+          <div>
+            <h3>Dolores</h3>
+            <p>¿qué le molesta, teme o le cuesta?</p>
+          </div>
+        </div>
+        <ul>
+          <li>¿Qué le resulta difícil, tedioso o costoso hoy?</li>
+          <li>¿Qué lo frustra o molesta de la solución que usa actualmente?</li>
+          <li>¿Qué riesgos teme? (perder dinero, tiempo, prestigio)</li>
+          <li>¿Qué obstáculos le impiden empezar o avanzar?</li>
+          <li>¿Qué sale mal con frecuencia? ¿Qué errores comete?</li>
+          <li>¿Qué lo preocupa o le quita el sueño?</li>
+          <li>¿Cuánto le cuesta el problema en dinero, tiempo o esfuerzo?</li>
+        </ul>
+      </div>
+
+      <div class="anexo-col">
+        <div class="anexo-head">
+          <span class="dot sm">A</span>
+          <div>
+            <h3>Alegrías</h3>
+            <p>¿qué desea o lo sorprendería?</p>
+          </div>
+        </div>
+        <ul>
+          <li>¿Qué resultado necesita o espera obtener sí o sí?</li>
+          <li>¿Qué haría que considere el trabajo «bien hecho»?</li>
+          <li>¿Qué beneficio lo sorprendería gratamente aunque no lo pida?</li>
+          <li>¿Qué le haría la vida más fácil? (más rápido, más barato, menos esfuerzo)</li>
+          <li>¿Qué busca de fondo: ahorro, calidad, estatus, tranquilidad?</li>
+          <li>¿Cómo mide el éxito? ¿Con qué compara?</li>
+          <li>¿Qué lo haría recomendar el producto a otros?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="anexo-pie">
+      <button type="button" class="btn-amarillo" id="cerrarAnexo">← Volver</button>
+    </div>
+  </div>
 
   <!-- ============ 9 · Cierre ============ -->
   <section class="slide dark">
@@ -619,6 +734,12 @@ body.nocursor, body.nocursor * { cursor: none !important; }
   // ---------- Teclado ----------
   document.addEventListener('keydown', function (e) {
     var k = e.key;
+    // Con el anexo abierto solo se puede cerrarlo: nada debe mover la presentación.
+    if (anexoAbierto()) {
+      if (k === 'Escape' || k === 'ArrowLeft' || k === 'Backspace') { e.preventDefault(); cerrarAnexo(); }
+      else if (k !== 'f' && k !== 'F') e.preventDefault();
+      return;
+    }
     if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'Spacebar') { e.preventDefault(); next(); }
     else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); prev(); }
     else if (k === 'Home') { e.preventDefault(); goto(0); }
@@ -730,6 +851,28 @@ body.nocursor, body.nocursor * { cursor: none !important; }
   }
   document.addEventListener('mousemove', pokeCursor);
   pokeCursor();
+
+  // ---------- Anexo de preguntas ----------
+  // Se abre desde la lámina 8 y vuelve al mismo punto. Mientras está abierto
+  // bloquea la navegación: ni teclas ni taps deben mover la presentación.
+  var anexo = document.getElementById('anexo');
+  function anexoAbierto() { return anexo.classList.contains('on'); }
+  function abrirAnexo() {
+    anexo.classList.add('on');
+    document.body.classList.add('anexo-abierto');
+    suppressTapUntil = Date.now() + 400;
+  }
+  function cerrarAnexo() {
+    anexo.classList.remove('on');
+    document.body.classList.remove('anexo-abierto');
+    suppressTapUntil = Date.now() + 400;
+  }
+  document.getElementById('abrirAnexo').addEventListener('click', function (e) {
+    e.stopPropagation(); abrirAnexo();
+  });
+  document.getElementById('cerrarAnexo').addEventListener('click', function (e) {
+    e.stopPropagation(); cerrarAnexo();
+  });
 
   // ---------- Disponibilidad sin internet ----------
   // Un service worker guarda la página completa. Tras visitarla una vez con
