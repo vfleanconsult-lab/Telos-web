@@ -196,9 +196,6 @@ p  { font-size: 17px; line-height: 1.5; }
 }
 .anexo-pie { display: flex; justify-content: center; margin-top: 16px; }
 
-/* Con el anexo abierto, las zonas de tap no deben avanzar la presentación */
-body.anexo-abierto .tapzone { pointer-events: none; }
-
 /* ---------- Pie ---------- */
 .foot {
   position: absolute; left: 64px; right: 64px; bottom: 22px;
@@ -208,10 +205,6 @@ body.anexo-abierto .tapzone { pointer-events: none; }
 .dark .foot { color: #8B929C; }
 .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(127,127,127,.18); }
 .progress > i { display: block; height: 100%; width: 0; background: var(--yellow); transition: width 250ms cubic-bezier(.2,.7,.3,1); }
-
-/* ---------- Zonas táctiles ---------- */
-.tapzone { position: fixed; top: 0; bottom: 0; width: 50%; z-index: 40; background: transparent; }
-#tapPrev { left: 0; } #tapNext { right: 0; }
 
 /* ---------- Ayuda inicial ---------- */
 #hint {
@@ -628,8 +621,6 @@ body.nocursor, body.nocursor * { cursor: none !important; }
 
 </div>
 
-<div class="tapzone" id="tapPrev"></div>
-<div class="tapzone" id="tapNext"></div>
 <div id="hint">Click o → para avanzar</div>
 <button id="fsBtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>Pantalla completa</button>
 <div id="fsNote">Para pantalla completa: Compartir → Añadir a pantalla de inicio, y abre desde el ícono</div>
@@ -757,39 +748,45 @@ body.nocursor, body.nocursor * { cursor: none !important; }
   var suppressTapUntil = 0;
   function tapSuprimido() { return Date.now() < suppressTapUntil; }
 
-  var sx = 0, sy = 0, st = 0, moved = false;
-  function onStart(e) {
-    var t = e.changedTouches ? e.changedTouches[0] : e;
-    sx = t.clientX; sy = t.clientY; st = 0; moved = false;
+  // Se escucha en el documento, no en capas superpuestas. Unas capas con
+  // z-index alto tapaban los botones del lienzo —que viven dentro de #stage,
+  // un contexto de apilamiento propio por su transform— y se tragaban sus
+  // clicks. Aquí basta con respetar los controles interactivos.
+  var sx = 0, sy = 0;
+
+  function esInteractivo(t) {
+    return !!(t && t.closest && t.closest('button, a, #anexo'));
   }
-  function onEnd(e) {
-    var t = e.changedTouches ? e.changedTouches[0] : e;
+  function navegable(e) {
+    return !anexoAbierto() && !esInteractivo(e.target) && !tapSuprimido();
+  }
+  function porMitad(x) {
+    if (x > window.innerWidth / 2) next(); else prev();
+  }
+
+  document.addEventListener('touchstart', function (e) {
+    var t = e.changedTouches[0];
+    sx = t.clientX; sy = t.clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function (e) {
+    if (!navegable(e)) return;
+    var t = e.changedTouches[0];
     var dx = t.clientX - sx, dy = t.clientY - sy;
-    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
-      moved = true;
-      if (dx < 0) next(); else prev();
-    }
     hideHint();
-  }
-  ['tapPrev', 'tapNext'].forEach(function (id) {
-    var z = document.getElementById(id);
-    z.addEventListener('touchstart', onStart, { passive: true });
-    z.addEventListener('touchend', function (e) {
-      if (tapSuprimido()) return;
-      onEnd(e);
-      if (!moved) { if (id === 'tapNext') next(); else prev(); }
-    }, { passive: true });
-    z.addEventListener('click', function () {
-      if (tapSuprimido()) return;
-      // El click sintético tras un touch ya fue manejado por touchend
-      if (moved) { moved = false; return; }
-      hideHint();
-      if (id === 'tapNext') next(); else prev();
-    });
-  });
-  // Evita el doble disparo click+touchend en Safari
-  ['tapPrev', 'tapNext'].forEach(function (id) {
-    document.getElementById(id).addEventListener('touchend', function (e) { e.preventDefault(); }, { passive: false });
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) next(); else prev();     // swipe
+    } else {
+      porMitad(t.clientX);                 // tap
+    }
+    // Safari dispara un click sintético tras el touch: que no repita el avance.
+    suppressTapUntil = Date.now() + 500;
+  }, { passive: true });
+
+  document.addEventListener('click', function (e) {
+    if (!navegable(e)) return;
+    hideHint();
+    porMitad(e.clientX);
   });
 
   // ---------- Pantalla completa ----------

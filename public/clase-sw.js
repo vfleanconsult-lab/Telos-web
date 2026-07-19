@@ -5,7 +5,7 @@
 
 // Subir esta versión en cada cambio de la presentación: fuerza al SW a
 // reinstalarse y recachear la página, en vez de servir la copia vieja.
-var CACHE = 'clase-v2';
+var CACHE = 'clase-v3';
 var PAGINA = '/clase';
 
 self.addEventListener('install', function (e) {
