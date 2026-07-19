@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1F2328">
+<title>Propuesta de Valor</title>
+<style>
+/* ---------- Reset y base ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --dark:        #1F2328;
+  --dark-surf:   #2C3138;
+  --yellow:      #FFC72C;
+  --yellow-dk:   #E0A800;
+  --yellow-soft: #FFF1CC;
+  --light:       #F4F5F7;
+  --card:        #FFFFFF;
+  --text:        #1F2328;
+  --muted:       #6B7280;
+  --border:      #E5E7EB;
+  --serif: Georgia, 'Bookman Old Style', serif;
+  --sans: system-ui, 'Segoe UI', Calibri, sans-serif;
+  --shadow: 0 2px 10px rgba(31,35,40,.08);
+  --shadow-dk: 0 2px 12px rgba(0,0,0,.25);
+}
+
+html, body {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: #000;
+}
+body {
+  position: fixed;
+  top: 0; left: 0;
+  font-family: var(--sans);
+  color: var(--text);
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* ---------- Lienzo fijo 1280x720 escalado ---------- */
+#stage {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 1280px; height: 720px;
+  transform-origin: center center;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  opacity: 0;
+  transition: opacity 250ms linear;
+  overflow: hidden;
+}
+.slide.active { display: block; opacity: 1; }
+.slide.light { background: var(--light); color: var(--text); }
+.slide.dark  { background: var(--dark);  color: #fff; }
+
+/* contenido con márgenes de lámina */
+.body { position: absolute; inset: 0; padding: 44px 64px 62px; display: flex; flex-direction: column; justify-content: center; }
+
+/* ---------- Revelado ---------- */
+[data-step] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 400ms cubic-bezier(.2,.7,.3,1), transform 400ms cubic-bezier(.2,.7,.3,1);
+}
+[data-step].shown { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-step] { transform: none !important; transition: opacity 250ms linear; }
+  .slide { transition: opacity 150ms linear; }
+}
+
+/* ---------- Tipografía ---------- */
+h1 { font-family: var(--serif); font-size: 40px; font-weight: 700; line-height: 1.15; letter-spacing: -.01em; }
+h2 { font-family: var(--serif); font-size: 21px; font-weight: 700; line-height: 1.2; }
+h3 { font-family: var(--sans);  font-size: 18px; font-weight: 700; line-height: 1.25; }
+p  { font-size: 17px; line-height: 1.5; }
+.lead { font-size: 19px; line-height: 1.5; }
+.sub { font-size: 17px; color: var(--muted); }
+.dark .sub { color: #A8AEB8; }
+.note { font-size: 13px; line-height: 1.45; }
+
+.eyebrow {
+  font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--yellow-dk);
+}
+.dark .eyebrow { color: var(--yellow); }
+
+/* ---------- Piezas ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 20px 22px;
+}
+.dark .card {
+  background: var(--dark-surf);
+  border-color: rgba(255,255,255,.08);
+  box-shadow: var(--shadow-dk);
+  color: #fff;
+}
+
+.dot {
+  flex: 0 0 auto;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--yellow); color: var(--dark);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 19px; font-weight: 700; line-height: 1;
+}
+.dot.sm { width: 32px; height: 32px; font-size: 16px; }
+.dot.lg { width: 52px; height: 52px; font-size: 24px; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px; border-radius: 999px;
+  background: var(--yellow); color: var(--dark);
+  font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+}
+.pill.ghost { background: rgba(255,199,44,.16); color: var(--yellow); }
+
+.strip {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--dark); color: #fff;
+  border-radius: 10px; padding: 18px 24px;
+  box-shadow: var(--shadow);
+}
+
+.banner {
+  background: var(--yellow-soft);
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-size: 15px; line-height: 1.45; color: #5B4A12;
+}
+
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* ---------- Pie ---------- */
+.foot {
+  position: absolute; left: 64px; right: 64px; bottom: 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; letter-spacing: .04em; color: var(--muted);
+}
+.dark .foot { color: #8B929C; }
+.progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(127,127,127,.18); }
+.progress > i { display: block; height: 100%; width: 0; background: var(--yellow); transition: width 250ms cubic-bezier(.2,.7,.3,1); }
+
+/* ---------- Zonas táctiles ---------- */
+.tapzone { position: fixed; top: 0; bottom: 0; width: 50%; z-index: 40; background: transparent; }
+#tapPrev { left: 0; } #tapNext { right: 0; }
+
+/* ---------- Ayuda inicial ---------- */
+#hint {
+  position: fixed; z-index: 60; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  background: rgba(31,35,40,.86); color: #fff;
+  font-size: 13px; padding: 8px 16px; border-radius: 999px;
+  transition: opacity 500ms linear; pointer-events: none;
+}
+#hint.gone { opacity: 0; }
+
+/* ---------- Vista índice ---------- */
+#overview {
+  position: fixed; inset: 0; z-index: 80; display: none;
+  background: rgba(31,35,40,.95);
+  padding: calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+  overflow: auto;
+}
+#overview.on { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-content: center; }
+.thumb {
+  aspect-ratio: 16 / 9; border-radius: 8px; cursor: pointer;
+  border: 2px solid transparent; overflow: hidden; position: relative;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 12px; background: var(--light); color: var(--text);
+}
+.thumb.d { background: var(--dark-surf); color: #fff; }
+.thumb:hover, .thumb.cur { border-color: var(--yellow); }
+.thumb b { font-family: var(--serif); font-size: 15px; line-height: 1.2; }
+.thumb span { font-size: 11px; color: var(--muted); }
+.thumb.d span { color: #8B929C; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- ============ 1 · Recapitulemos ============ -->
+  <section class="slide light">
+    <div class="body">
+      <h1>Recapitulemos</h1>
+
+      <div class="strip" data-step="1" style="margin-top:26px">
+        <div class="dot">?</div>
+        <div style="font-family:var(--serif);font-size:23px;font-weight:700">¿Qué aprendimos la clase anterior?</div>
+      </div>
+
+      <div class="row3" style="margin-top:30px">
+        <div class="card" data-step="2">
+          <div class="dot sm">1</div>
+          <h3 style="margin-top:14px">Segmento de clientes</h3>
+          <p class="sub" style="margin-top:8px">Definimos a quién le vende nuestra empresa en el simulador.</p>
+        </div>
+        <div class="card" data-step="3">
+          <div class="dot sm">2</div>
+          <h3 style="margin-top:14px">Modelo de negocio</h3>
+          <p class="sub" style="margin-top:8px">Conocimos el Business Model Canvas como mapa del negocio.</p>
+        </div>
+        <div class="card" data-step="4">
+          <div class="dot sm">3</div>
+          <h3 style="margin-top:14px">El cliente primero</h3>
+          <p class="sub" style="margin-top:8px">El cliente es el punto de partida de toda decisión.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2 · ¿Qué vamos a ver hoy? ============ -->
+  <section class="slide light">
+    <div class="body">
+      <h1>¿Qué vamos a ver hoy?</h1>
+
+      <div class="card" data-step="1" style="margin-top:18px;display:flex;gap:18px;align-items:flex-start">
+        <div class="dot">★</div>
+        <div>
+          <h3>Aprendizaje esperado</h3>
+          <p style="margin-top:8px;max-width:930px">Identificar los elementos de la propuesta de valor de una organización aplicando el Lienzo de Propuesta de Valor a un caso.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px">
+        <div class="card" data-step="2" style="display:flex;gap:18px;align-items:center;padding:14px 22px">
+          <div class="dot sm">1</div>
+          <h3 style="width:390px">¿Qué es la propuesta de valor?</h3>
+          <p class="sub">El concepto y la idea de encaje</p>
+        </div>
+        <div class="card" data-step="3" style="display:flex;gap:18px;align-items:center;padding:14px 22px">
+          <div class="dot sm">2</div>
+          <h3 style="width:390px">El Lienzo de Propuesta de Valor</h3>
+          <p class="sub">Sus dos lados: cliente y empresa</p>
+        </div>
+        <div class="card" data-step="4" style="display:flex;gap:18px;align-items:center;padding:14px 22px">
+          <div class="dot sm">3</div>
+          <h3 style="width:390px">El perfil del cliente</h3>
+          <p class="sub">Cómo caracterizarlo con preguntas</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3 · Detonante + concepto ============ -->
+  <section class="slide dark">
+    <div class="body">
+      <h1 style="font-size:37px;max-width:1040px">¿Por qué elegimos un producto por sobre otro,<br>si hacen exactamente lo mismo?</h1>
+
+      <div data-step="1" style="margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card" style="display:flex;gap:18px;align-items:center">
+          <div class="dot lg">A</div>
+          <div>
+            <h3>Producto A</h3>
+            <p class="sub" style="margin-top:4px">misma necesidad</p>
+          </div>
+        </div>
+        <div class="card" style="display:flex;gap:18px;align-items:center">
+          <div class="dot lg">B</div>
+          <div>
+            <h3>Producto B</h3>
+            <p class="sub" style="margin-top:4px">misma necesidad</p>
+          </div>
+        </div>
+      </div>
+
+      <div data-step="2" style="margin-top:26px;background:var(--yellow);color:var(--dark);border-radius:10px;padding:24px 28px;box-shadow:var(--shadow-dk)">
+        <h2>La propuesta de valor</h2>
+        <p class="lead" style="margin-top:10px">Es el conjunto de beneficios que una empresa promete entregar a un cliente. No es el producto: es el problema que le resuelves.</p>
+        <p style="margin-top:14px;font-family:var(--serif);font-style:italic;font-size:19px">«Los clientes no compran un taladro: compran un hoyo en la pared.»</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4 · El Lienzo de Propuesta de Valor ============ -->
+  <section class="slide light">
+    <div class="body">
+      <h1>El Lienzo de Propuesta de Valor</h1>
+
+      <div class="banner" data-step="1" style="margin-top:12px">
+        Del Business Model Canvas al lienzo de hoy:&nbsp; hacemos zoom en 2 de sus 9 bloques (Propuesta de Valor + Segmento de Clientes). Osterwalder.
+      </div>
+
+      <div style="margin-top:22px;display:flex;align-items:center;justify-content:center;gap:38px">
+
+        <!-- Mapa de Valor -->
+        <div data-step="2" style="width:302px;height:302px;background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:22px 24px;display:flex;flex-direction:column;justify-content:center">
+          <div class="eyebrow">Mapa de Valor</div>
+          <p class="note" style="margin-top:6px;color:var(--muted)">La empresa · lo que ofreces (lo diseñas)</p>
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:11px">
+            <div data-step="3" style="display:flex;gap:10px;align-items:center"><span class="dot sm" style="width:9px;height:9px"></span><span style="font-size:16px;font-weight:600">Productos y servicios</span></div>
+            <div data-step="4" style="display:flex;gap:10px;align-items:center"><span class="dot sm" style="width:9px;height:9px"></span><span style="font-size:16px;font-weight:600">Aliviadores de dolores</span></div>
+            <div data-step="5" style="display:flex;gap:10px;align-items:center"><span class="dot sm" style="width:9px;height:9px"></span><span style="font-size:16px;font-weight:600">Creadores de alegrías</span></div>
+          </div>
+        </div>
+
+        <!-- Encaje -->
+        <div data-step="10" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div style="font-size:26px;color:var(--yellow-dk);letter-spacing:-2px">⇄</div>
+          <div class="pill">Encaje</div>
+          <div style="font-size:26px;color:var(--yellow-dk);letter-spacing:-2px">⇄</div>
+        </div>
+
+        <!-- Perfil del Cliente -->
+        <div data-step="6" style="width:302px;height:302px;background:var(--dark);color:#fff;border-radius:50%;box-shadow:var(--shadow);padding:30px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+          <div class="eyebrow" style="color:var(--yellow)">Perfil del Cliente</div>
+          <p class="note" style="margin-top:6px;color:#A8AEB8">El cliente · lo que necesita<br>(lo observas)</p>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:9px">
+            <div data-step="7" style="font-size:16px;font-weight:600">Trabajos</div>
+            <div data-step="8" style="font-size:16px;font-weight:600">Dolores</div>
+            <div data-step="9" style="font-size:16px;font-weight:600">Alegrías</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card" data-step="11" style="margin-top:20px;padding:14px 22px">
+        <p class="note"><b>¿Por qué dos lados?</b>&nbsp; Un lado describe al cliente —lo que observas, no controlas—; el otro, lo que tu empresa ofrece —lo que diseñas—. El valor nace del encaje entre ambos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5 · Perfil del Cliente ============ -->
+  <section class="slide light">
+    <div class="body">
+      <h1>El lado derecho · Perfil del Cliente</h1>
+      <p class="lead" style="margin-top:12px;color:var(--muted)">Miramos al cliente antes de pensar en el producto.</p>
+
+      <div class="row3" style="margin-top:38px">
+        <div class="card" data-step="1" style="padding:26px 24px">
+          <div class="dot lg">T</div>
+          <h2 style="margin-top:18px">Trabajos</h2>
+          <p class="sub" style="margin-top:10px">Lo que el cliente intenta lograr o resolver en su día a día.</p>
+        </div>
+        <div class="card" data-step="2" style="padding:26px 24px">
+          <div class="dot lg">D</div>
+          <h2 style="margin-top:18px">Dolores</h2>
+          <p class="sub" style="margin-top:10px">Lo que le molesta, le cuesta o arriesga en el proceso.</p>
+        </div>
+        <div class="card" data-step="3" style="padding:26px 24px">
+          <div class="dot lg">A</div>
+          <h2 style="margin-top:18px">Alegrías</h2>
+          <p class="sub" style="margin-top:10px">Lo que espera, desea o lo sorprendería positivamente.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6 · Mapa de Valor ============ -->
+  <section class="slide light">
+    <div class="body">
+      <h1>El lado izquierdo · Mapa de Valor</h1>
+      <p class="lead" style="margin-top:12px;color:var(--muted)">La respuesta de la empresa a cada elemento del perfil del cliente.</p>
+
+      <div class="row3" style="margin-top:38px">
+        <div class="card" data-step="1" style="padding:26px 24px">
+          <div class="dot lg">◍</div>
+          <h2 style="margin-top:18px">Productos y servicios</h2>
+          <p class="sub" style="margin-top:10px">Lo que la empresa ofrece concretamente al cliente.</p>
+        </div>
+        <div class="card" data-step="2" style="padding:26px 24px">
+          <div class="dot lg">◐</div>
+          <h2 style="margin-top:18px">Aliviadores de dolores</h2>
+          <p class="sub" style="margin-top:10px">Cómo eliminan o reducen los dolores del cliente.</p>
+        </div>
+        <div class="card" data-step="3" style="padding:26px 24px">
+          <div class="dot lg">✦</div>
+          <h2 style="margin-top:18px">Creadores de alegrías</h2>
+          <p class="sub" style="margin-top:10px">Cómo generan los beneficios que el cliente desea.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7 · Ejercicio ============ -->
+  <section class="slide dark">
+    <div class="body">
+      <div class="eyebrow">Ejercicio · En parejas</div>
+      <h1 style="margin-top:10px">¿Cómo caracterizar el perfil del cliente?</h1>
+      <p class="lead" style="margin-top:12px;color:#A8AEB8;max-width:1000px">Para llenar el perfil, nos hacemos preguntas. Elijan un cliente de su empresa del simulador y respondan:</p>
+
+      <div class="row3" style="margin-top:30px">
+        <div class="card" data-step="1" style="padding:24px">
+          <div class="dot">T</div>
+          <h3 style="margin-top:16px">Trabajos</h3>
+          <p style="margin-top:10px;font-weight:600">¿Qué intenta lograr?</p>
+          <p class="sub" style="margin-top:6px">¿Qué tarea funcional, social o emocional resuelve?</p>
+        </div>
+        <div class="card" data-step="2" style="padding:24px">
+          <div class="dot">D</div>
+          <h3 style="margin-top:16px">Dolores</h3>
+          <p style="margin-top:10px;font-weight:600">¿Qué le molesta o preocupa?</p>
+          <p class="sub" style="margin-top:6px">¿Qué riesgos teme? ¿Qué le cuesta?</p>
+        </div>
+        <div class="card" data-step="3" style="padding:24px">
+          <div class="dot">A</div>
+          <h3 style="margin-top:16px">Alegrías</h3>
+          <p style="margin-top:10px;font-weight:600">¿Qué resultado espera?</p>
+          <p class="sub" style="margin-top:6px">¿Qué lo sorprendería gratamente?</p>
+        </div>
+      </div>
+
+      <p data-step="4" style="margin-top:28px;text-align:center;font-family:var(--serif);font-style:italic;font-size:21px;color:var(--yellow)">Un buen perfil del cliente se construye preguntando, no suponiendo.</p>
+    </div>
+  </section>
+
+  <!-- ============ 8 · Cierre ============ -->
+  <section class="slide dark">
+    <div class="body">
+      <div class="eyebrow">Para cerrar</div>
+      <h1 style="margin-top:12px;font-size:36px;max-width:1080px">El valor nace del encaje entre lo que<br>el cliente necesita y lo que tu empresa ofrece.</h1>
+
+      <div data-step="1" style="margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card">
+          <h3>Perfil del Cliente</h3>
+          <p class="sub" style="margin-top:8px">Trabajos · Dolores · Alegrías</p>
+        </div>
+        <div class="card">
+          <h3>Mapa de Valor</h3>
+          <p class="sub" style="margin-top:8px">Productos · Aliviadores · Creadores</p>
+        </div>
+      </div>
+
+      <div data-step="2" style="margin-top:22px;background:var(--yellow);color:var(--dark);border-radius:10px;padding:22px 26px;box-shadow:var(--shadow-dk)">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase">Ticket de salida</div>
+        <p class="lead" style="margin-top:10px">Escribe un trabajo, un dolor y una alegría del cliente de tu empresa del simulador.</p>
+      </div>
+
+      <p data-step="3" style="margin-top:26px;text-align:center;font-family:var(--serif);font-size:30px;font-weight:700">¡Gracias!</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="tapzone" id="tapPrev"></div>
+<div class="tapzone" id="tapNext"></div>
+<div id="hint">Click o → para avanzar</div>
+<div id="overview"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var stage = document.getElementById('stage');
+  var slides = [].slice.call(document.querySelectorAll('.slide'));
+  var N = slides.length;
+
+  // Pie y barra de progreso por lámina
+  slides.forEach(function (s, i) {
+    var f = document.createElement('div');
+    f.className = 'foot';
+    f.innerHTML = '<span>Propuesta de Valor · JNA1101</span><span>' + (i + 1) + ' / ' + N + '</span>';
+    s.appendChild(f);
+    var p = document.createElement('div');
+    p.className = 'progress';
+    p.innerHTML = '<i></i>';
+    s.appendChild(p);
+  });
+
+  // Pasos por lámina: 0 = base; el máximo data-step define el total
+  var maxStep = slides.map(function (s) {
+    var m = 0;
+    [].forEach.call(s.querySelectorAll('[data-step]'), function (el) {
+      m = Math.max(m, parseInt(el.getAttribute('data-step'), 10) || 0);
+    });
+    return m;
+  });
+
+  var cur = 0, step = 0;
+
+  function render() {
+    slides.forEach(function (s, i) { s.classList.toggle('active', i === cur); });
+    var s = slides[cur];
+    [].forEach.call(s.querySelectorAll('[data-step]'), function (el) {
+      var n = parseInt(el.getAttribute('data-step'), 10) || 0;
+      el.classList.toggle('shown', n <= step);
+    });
+    var done = 0;
+    for (var i = 0; i < cur; i++) done += maxStep[i] + 1;
+    var totalUnits = maxStep.reduce(function (a, b) { return a + b + 1; }, 0);
+    var bar = s.querySelector('.progress > i');
+    if (bar) bar.style.width = ((done + step + 1) / totalUnits * 100) + '%';
+    var t = document.querySelector('#overview .cur');
+    if (t) t.classList.remove('cur');
+    var th = document.querySelectorAll('#overview .thumb')[cur];
+    if (th) th.classList.add('cur');
+  }
+
+  function next() {
+    if (step < maxStep[cur]) step++;
+    else if (cur < N - 1) { cur++; step = 0; }
+    else return;
+    render();
+  }
+  function prev() {
+    if (step > 0) step--;
+    else if (cur > 0) { cur--; step = maxStep[cur]; }
+    else return;
+    render();
+  }
+  function goto(i, atEnd) {
+    cur = Math.max(0, Math.min(N - 1, i));
+    step = atEnd ? maxStep[cur] : 0;
+    render();
+  }
+
+  // ---------- Escalado del lienzo ----------
+  function fit() {
+    var w = window.innerWidth, h = window.innerHeight;
+    var k = Math.min(w / 1280, h / 720);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + k + ')';
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', function () { setTimeout(fit, 120); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fit);
+  fit();
+
+  // ---------- Teclado ----------
+  document.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'Spacebar') { e.preventDefault(); next(); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); prev(); }
+    else if (k === 'Home') { e.preventDefault(); goto(0); }
+    else if (k === 'End') { e.preventDefault(); goto(N - 1, true); }
+    else if (k === 'f' || k === 'F') { e.preventDefault(); toggleFull(); }
+    else if (k === 'o' || k === 'O') { e.preventDefault(); toggleOverview(); }
+    else if (k === 'Escape') { closeOverview(); }
+    else if (k >= '1' && k <= '8') { e.preventDefault(); goto(parseInt(k, 10) - 1); }
+  });
+
+  // ---------- Tap y swipe ----------
+  var sx = 0, sy = 0, st = 0, moved = false;
+  function onStart(e) {
+    var t = e.changedTouches ? e.changedTouches[0] : e;
+    sx = t.clientX; sy = t.clientY; st = 0; moved = false;
+  }
+  function onEnd(e) {
+    var t = e.changedTouches ? e.changedTouches[0] : e;
+    var dx = t.clientX - sx, dy = t.clientY - sy;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      moved = true;
+      if (dx < 0) next(); else prev();
+    }
+    hideHint();
+  }
+  ['tapPrev', 'tapNext'].forEach(function (id) {
+    var z = document.getElementById(id);
+    z.addEventListener('touchstart', onStart, { passive: true });
+    z.addEventListener('touchend', function (e) {
+      onEnd(e);
+      if (!moved) { if (id === 'tapNext') next(); else prev(); }
+    }, { passive: true });
+    z.addEventListener('click', function () {
+      // El click sintético tras un touch ya fue manejado por touchend
+      if (moved) { moved = false; return; }
+      hideHint();
+      if (id === 'tapNext') next(); else prev();
+    });
+  });
+  // Evita el doble disparo click+touchend en Safari
+  ['tapPrev', 'tapNext'].forEach(function (id) {
+    document.getElementById(id).addEventListener('touchend', function (e) { e.preventDefault(); }, { passive: false });
+  });
+
+  // ---------- Pantalla completa ----------
+  function toggleFull() {
+    var d = document.documentElement;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (d.requestFullscreen) d.requestFullscreen();
+      else if (d.webkitRequestFullscreen) d.webkitRequestFullscreen();
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+  }
+
+  // ---------- Wake Lock (mejora progresiva) ----------
+  var lock = null;
+  function requestLock() {
+    if (!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request('screen').then(function (l) { lock = l; }).catch(function () {});
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') requestLock();
+  });
+  requestLock();
+
+  // ---------- Vista índice ----------
+  var ov = document.getElementById('overview');
+  slides.forEach(function (s, i) {
+    var t = document.createElement('div');
+    t.className = 'thumb' + (s.classList.contains('dark') ? ' d' : '');
+    var h = s.querySelector('h1');
+    t.innerHTML = '<b>' + (h ? h.textContent : '') + '</b><span>' + (i + 1) + ' / ' + N + '</span>';
+    t.addEventListener('click', function () { closeOverview(); goto(i); });
+    ov.appendChild(t);
+  });
+  function toggleOverview() { ov.classList.toggle('on'); render(); }
+  function closeOverview() { ov.classList.remove('on'); }
+
+  // ---------- Aviso inicial ----------
+  var hint = document.getElementById('hint');
+  var hintTimer = setTimeout(hideHint, 4000);
+  function hideHint() { clearTimeout(hintTimer); hint.classList.add('gone'); }
+
+  render();
+})();
+</script>
+</body>
+</html>

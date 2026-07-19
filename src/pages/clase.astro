@@ -1,0 +1,11 @@
+---
+// Presentación de clase (Duoc UC · JNA1101).
+// Se sirve el mismo archivo autocontenido que existe en la raíz del repo
+// (clase-offline.html), para que la versión web y la offline nunca diverjan.
+// No usa el design system de Telos: paleta Duoc propia, todo inline.
+import html from '../../clase-offline.html?raw';
+
+return new Response(html, {
+  headers: { 'Content-Type': 'text/html; charset=utf-8' },
+});
+---
