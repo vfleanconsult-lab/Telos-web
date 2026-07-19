@@ -3,7 +3,9 @@
    Estrategia: responde desde caché al instante y revalida en segundo plano,
    de modo que arranca rápido, funciona offline y se actualiza sola. */
 
-var CACHE = 'clase-v1';
+// Subir esta versión en cada cambio de la presentación: fuerza al SW a
+// reinstalarse y recachear la página, en vez de servir la copia vieja.
+var CACHE = 'clase-v2';
 var PAGINA = '/clase';
 
 self.addEventListener('install', function (e) {
