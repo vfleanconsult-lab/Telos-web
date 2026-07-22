@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BHP Escondida — Roadmap hasta el Día 1</title>
+<style>
+  :root{
+    --gob:#4C82D6; --con:#5F9A3E; --acr:#E23B3B; --rol:#9B5FD0; --est:#E0A81E; --log:#3E93D6; --dia:#F1843A;
+    --gold:#FFC53D; --navy:#0e1b2e; --ink:#dfe8f5; --muted:#8ba0bd;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:100%;height:100%;background:#0a1220;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;}
+  #stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  .slide{
+    width:1280px;height:720px;position:relative;
+    background:radial-gradient(1200px 700px at 20% -10%,#1c3355 0%,#0e1b2e 55%,#0a1523 100%);
+    color:var(--ink);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);
+  }
+  .slide::after{content:"";position:absolute;inset:0;background:
+     radial-gradient(600px 300px at 90% 110%,rgba(255,197,61,.06),transparent 60%);pointer-events:none;}
+  /* Header */
+  .hd{position:absolute;top:34px;left:48px;right:48px;display:flex;justify-content:space-between;align-items:flex-start;
+      opacity:0;animation:fadeDown .7s .1s ease forwards;}
+  .hd h1{font-size:32px;font-weight:800;letter-spacing:.2px;color:#fff;}
+  .hd h1 span{color:var(--gold);}
+  .hd p{font-size:14px;color:var(--muted);margin-top:6px;}
+  .badge{background:rgba(255,197,61,.14);border:1px solid rgba(255,197,61,.5);color:var(--gold);
+     font-size:12px;font-weight:700;padding:7px 12px;border-radius:20px;white-space:nowrap;
+     animation:pulse 2.4s ease-in-out infinite;}
+  /* Road */
+  .road{position:absolute;top:128px;left:0;width:100%;height:150px;}
+  .node{position:absolute;top:38px;transform:translateX(-50%);text-align:center;opacity:0;}
+  .node .dot{width:64px;height:64px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;
+     background:#12233c;border:3px solid var(--gold);box-shadow:0 0 0 6px rgba(255,197,61,.08),0 8px 22px rgba(0,0,0,.45);}
+  .node .dot svg{width:30px;height:30px;stroke:var(--gold);fill:none;stroke-width:2;}
+  .node .lab{margin-top:10px;font-weight:800;font-size:14px;color:#fff;}
+  .node .sub{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .n1{animation:pop .5s 1.0s ease forwards;} .n2{animation:pop .5s 1.5s ease forwards;} .n3{animation:pop .5s 2.0s ease forwards;}
+  .n2 .dot{border-color:var(--gold);background:#2a2412;}
+  .n3 .dot{border-color:#5F9A3E;box-shadow:0 0 0 6px rgba(95,154,62,.12),0 8px 22px rgba(0,0,0,.45);}
+  .n3 .dot svg{stroke:#7ecf5a;}
+  .truck{position:absolute;top:52px;left:0;width:44px;height:44px;opacity:0;animation:drive 3s 1.1s ease-in-out forwards;}
+  .truck svg{width:44px;height:44px;stroke:#fff;fill:#12233c;stroke-width:1.6;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));}
+  /* Panels */
+  .panels{position:absolute;top:300px;left:48px;right:48px;display:grid;grid-template-columns:1fr 1fr;gap:26px;}
+  .panel{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px 20px 14px;
+     backdrop-filter:blur(2px);opacity:0;animation:rise .6s ease forwards;}
+  .panel.p1{animation-delay:2.2s;} .panel.p2{animation-delay:2.5s;}
+  .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .ph .t{font-size:16px;font-weight:800;color:#fff;}
+  .ph .d{font-size:11px;color:var(--muted);}
+  .tag{font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:12px;}
+  .tag.risk{background:rgba(226,59,59,.15);border:1px solid rgba(226,59,59,.5);color:#ff8a8a;}
+  .tag.spr{background:rgba(255,197,61,.14);border:1px solid rgba(255,197,61,.45);color:var(--gold);}
+  .row{display:flex;align-items:flex-start;gap:11px;padding:6px 0;opacity:0;animation:rise .5s ease forwards;}
+  .ic{flex:0 0 30px;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  .ic svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;}
+  .tx b{display:block;font-size:12.5px;color:#eef4ff;font-weight:700;line-height:1.15;}
+  .tx span{font-size:11.5px;color:var(--muted);line-height:1.25;}
+  /* Footer */
+  .ft{position:absolute;bottom:22px;left:48px;right:48px;display:flex;align-items:center;gap:12px;
+     font-size:12.5px;color:#cdd9ea;opacity:0;animation:fadeDown .7s 3.4s ease forwards;}
+  .ft .k{color:var(--gold);font-weight:800;}
+  .ft .sep{color:#37506f;}
+  /* keyframes */
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pop{0%{opacity:0;transform:translateX(-50%) scale(.4);}70%{transform:translateX(-50%) scale(1.12);}100%{opacity:1;transform:translateX(-50%) scale(1);}}
+  @keyframes rise{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,197,61,.35);}50%{box-shadow:0 0 0 8px rgba(255,197,61,0);}}
+  @keyframes dash{to{stroke-dashoffset:0;}}
+  @keyframes drive{0%{opacity:1;left:9%;}100%{opacity:1;left:calc(88% - 22px);}}
+</style>
+</head>
+<body>
+<div id="stage">
+<div class="slide">
+
+  <div class="hd">
+    <div>
+      <h1>Roadmap de arribo a faena — <span>hasta el Día 1</span></h1>
+      <p>BHP Escondida · Servicio Integral de Gestión de EECC · CGP Consulting</p>
+    </div>
+    <div class="badge">Adjudicación 19-ago → Día 1 en ~15 días</div>
+  </div>
+
+  <!-- Road -->
+  <div class="road">
+    <svg width="100%" height="120" viewBox="0 0 1280 120" preserveAspectRatio="none">
+      <line x1="115" y1="30" x2="1127" y2="30" stroke="#1f314d" stroke-width="12" stroke-linecap="round"/>
+      <line id="rd" x1="115" y1="30" x2="1127" y2="30" stroke="#33507a" stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="1015" stroke-dashoffset="1015" style="animation:dash 1.6s .3s ease forwards;"/>
+      <line x1="115" y1="30" x2="1127" y2="30" stroke="#FFC53D" stroke-width="2" stroke-dasharray="10 14" opacity=".65"/>
+    </svg>
+    <div class="node n1" style="left:9%;">
+      <div class="dot"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div>
+      <div class="lab">HOY</div><div class="sub">Preparación previa</div>
+    </div>
+    <div class="node n2" style="left:50%;">
+      <div class="dot"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg></div>
+      <div class="lab">19 AGO · Adjudicación BHP</div><div class="sub">Desde aquí ya se puede contratar</div>
+    </div>
+    <div class="node n3" style="left:88%;">
+      <div class="dot"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+      <div class="lab">DÍA 1 · 1-3 SEP</div><div class="sub">Puesta en marcha en faena</div>
+    </div>
+    <div class="truck">
+      <svg viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+    </div>
+  </div>
+
+  <!-- Panels -->
+  <div class="panels">
+    <div class="panel p1">
+      <div class="ph"><div><div class="t">Tramo 1 · Antes del 19-ago</div><div class="d">Preparación — todo lo reversible se adelanta</div></div>
+        <div class="tag risk">A RIESGO</div></div>
+      <div class="row" data-d="2.4"><div class="ic" style="background:var(--gob)"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
+        <div class="tx"><b>Gobernanza</b><span>Armar el equipo de movilización y responsables por frente</span></div></div>
+      <div class="row" data-d="2.5"><div class="ic" style="background:var(--con)"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></div>
+        <div class="tx"><b>Contratación</b><span>Perfiles, búsqueda, entrevistas y cartas de intención</span></div></div>
+      <div class="row" data-d="2.6"><div class="ic" style="background:var(--acr)"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M8.2 13.9 7 23l5-3 5 3-1.2-9.1"/></svg></div>
+        <div class="tx"><b>Acreditación</b><span>Requisitos, documentación y exámenes preocupacionales</span></div></div>
+      <div class="row" data-d="2.7"><div class="ic" style="background:var(--rol)"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></div>
+        <div class="tx"><b>Roles</b><span>RACI por macroproceso y confirmación de líderes</span></div></div>
+      <div class="row" data-d="2.8"><div class="ic" style="background:var(--est)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg></div>
+        <div class="tx"><b>Estándares</b><span>Priorizar y redactar Tier 1 (SGSST, POE terreno, reportabilidad)</span></div></div>
+      <div class="row" data-d="2.9"><div class="ic" style="background:var(--dia)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+        <div class="tx"><b>Diagnóstico</b><span>Diseñar el diagnóstico en terreno (línea base)</span></div></div>
+    </div>
+
+    <div class="panel p2">
+      <div class="ph"><div><div class="t">Tramo 2 · Sprint 15 días</div><div class="d">Del 19-ago al Día 1 — ejecución pura</div></div>
+        <div class="tag spr">CAMINO CRÍTICO: ACREDITACIÓN</div></div>
+      <div class="row" data-d="2.7"><div class="ic" style="background:var(--gob)"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
+        <div class="tx"><b>Gobernanza</b><span>Garantías, plan de comunicaciones y aprobación del CO</span></div></div>
+      <div class="row" data-d="2.8"><div class="ic" style="background:var(--con)"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></div>
+        <div class="tx"><b>Contratación</b><span>Confeccionar, firmar e incorporar a todo el personal</span></div></div>
+      <div class="row" data-d="2.9"><div class="ic" style="background:var(--acr)"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M8.2 13.9 7 23l5-3 5 3-1.2-9.1"/></svg></div>
+        <div class="tx"><b>Acreditación</b><span>Exámenes ocupacionales → ACCESOMEL → inducción BHP → acceso</span></div></div>
+      <div class="row" data-d="3.0"><div class="ic" style="background:var(--log)"><svg viewBox="0 0 24 24"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div class="tx"><b>Logística</b><span>Radios MEL, vehículos, TI y herramientas digitales</span></div></div>
+      <div class="row" data-d="3.1"><div class="ic" style="background:var(--rol)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="tx"><b>Roles</b><span>Definir estructuras y conformar equipos por turno</span></div></div>
+      <div class="row" data-d="3.2"><div class="ic" style="background:var(--dia)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+        <div class="tx"><b>Diagnóstico</b><span>Preparar la logística de visitas a las EECC</span></div></div>
+    </div>
+  </div>
+
+  <div class="ft">
+    <span class="k">El apalancamiento está antes del 19-ago.</span>
+    <span class="sep">|</span>
+    <span>Los 15 días solo alcanzan para ejecutar; el camino crítico es la acreditación del personal.</span>
+  </div>
+
+</div>
+</div>
+<script>
+  // stagger chip animations by data-d
+  document.querySelectorAll('.row').forEach(function(el){
+    el.style.animationDelay = (el.getAttribute('data-d')||'2.6') + 's';
+  });
+  // scale slide to fit viewport
+  function fit(){
+    var s=document.querySelector('.slide');
+    var k=Math.min(window.innerWidth/1280, window.innerHeight/720);
+    s.style.transform='scale('+k+')';
+  }
+  window.addEventListener('resize',fit); fit();
+</script>
+</body>
+</html>
