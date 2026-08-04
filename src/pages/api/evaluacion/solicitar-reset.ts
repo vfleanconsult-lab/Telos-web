@@ -4,54 +4,64 @@ import { getSupabaseAdmin } from '../../../lib/supabase'
 import { emailResetPassword } from '../../../data/email-reset-password'
 
 export const POST: APIRoute = async () => {
-  const supabase = getSupabaseAdmin()
+  try {
+    const supabase = getSupabaseAdmin()
 
-  // Si ya hay un token vigente (no vencido), lo reutilizamos en vez de generar uno nuevo.
-  // Evita que un segundo clic en "¿Olvidaste tu contraseña?" invalide el correo anterior
-  // antes de que la persona alcance a usarlo.
-  const { data: actual } = await supabase
-    .from('admin_credenciales')
-    .select('reset_token, reset_expira')
-    .eq('id', 1)
-    .single()
-
-  const tokenVigente = actual?.reset_token && actual?.reset_expira && new Date(actual.reset_expira) > new Date()
-
-  const resetToken = tokenVigente ? actual!.reset_token : crypto.randomUUID()
-  const resetExpira = tokenVigente ? actual!.reset_expira : new Date(Date.now() + 60 * 60 * 1000).toISOString()
-
-  if (!tokenVigente) {
-    const { error } = await supabase
+    // Si ya hay un token vigente (no vencido), lo reutilizamos en vez de generar uno nuevo.
+    // Evita que un segundo clic en "¿Olvidaste tu contraseña?" invalide el correo anterior
+    // antes de que la persona alcance a usarlo.
+    const { data: actual } = await supabase
       .from('admin_credenciales')
-      .update({ reset_token: resetToken, reset_expira: resetExpira })
+      .select('reset_token, reset_expira')
       .eq('id', 1)
+      .single()
 
-    if (error) {
-      return new Response(JSON.stringify({ ok: false, error: error.message }), { status: 500 })
+    const tokenVigente = actual?.reset_token && actual?.reset_expira && new Date(actual.reset_expira) > new Date()
+
+    const resetToken = tokenVigente ? actual!.reset_token : crypto.randomUUID()
+    const resetExpira = tokenVigente ? actual!.reset_expira : new Date(Date.now() + 60 * 60 * 1000).toISOString()
+
+    if (!tokenVigente) {
+      const { error } = await supabase
+        .from('admin_credenciales')
+        .update({ reset_token: resetToken, reset_expira: resetExpira })
+        .eq('id', 1)
+
+      if (error) {
+        return new Response(JSON.stringify({ ok: false, error: error.message }), { status: 500 })
+      }
     }
-  }
 
-  const destino = import.meta.env.ADMIN_RESET_EMAIL || 'victor@telos.cl'
-  const link = `https://www.telos.cl/evaluacion/reset?token=${resetToken}`
+    const destino = import.meta.env.ADMIN_RESET_EMAIL || 'victor@telos.cl'
+    const link = `https://www.telos.cl/evaluacion/reset?token=${resetToken}`
 
-  const resend = new Resend(import.meta.env.RESEND_API_KEY)
-  const { error: emailError } = await resend.emails.send({
-    from: 'noreply@telos.cl',
-    to: destino,
-    subject: 'Restablecer contraseña — Panel Admin Evaluación',
-    html: emailResetPassword({ link })
-  })
+    const resend = new Resend(import.meta.env.RESEND_API_KEY)
+    const { error: emailError } = await resend.emails.send({
+      from: 'noreply@telos.cl',
+      to: destino,
+      subject: 'Restablecer contraseña — Panel Admin Evaluación',
+      html: emailResetPassword({ link })
+    })
 
-  if (emailError) {
-    console.error('Error enviando email de reset:', emailError)
-    return new Response(JSON.stringify({ ok: false, error: emailError.message }), {
-      status: 502,
+    if (emailError) {
+      console.error('Error enviando email de reset:', emailError)
+      return new Response(JSON.stringify({ ok: false, error: emailError.message || JSON.stringify(emailError) }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
+
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  } catch (err) {
+    // Cualquier excepción no controlada (timeout de red, SDK, etc.) devolvía antes un
+    // 500 sin cuerpo JSON, que el cliente mostraba como "error desconocido" sin pista alguna.
+    console.error('Excepción no controlada en solicitar-reset:', err)
+    return new Response(JSON.stringify({ ok: false, error: err instanceof Error ? err.message : 'Error inesperado' }), {
+      status: 500,
       headers: { 'Content-Type': 'application/json' }
     })
   }
-
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }
-  })
 }
