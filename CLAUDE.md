@@ -210,6 +210,21 @@ fecha: z.union([z.string(), z.date()]).transform(v =>
 ),
 ```
 
+### Protección CSRF (`security.checkOrigin`) — todo `fetch` POST necesita `Content-Type` + body
+
+Astro 5 activa por defecto `security.checkOrigin`, que bloquea con **403 en texto plano** (no JSON) cualquier POST que "parezca" un envío de formulario cross-site — en la práctica, esto incluye un `fetch(url, { method: 'POST' })` sin `Content-Type` ni body. El texto de la respuesta es literalmente `"Cross-site POST form submissions are forbidden"`.
+
+Efecto colateral: si el cliente hace `await res.json().catch(() => ({}))`, ese `.catch` traga el error de parseo silenciosamente y el usuario ve un mensaje genérico ("error desconocido") sin ninguna pista de la causa real.
+
+**Regla:** todo `fetch` a un endpoint POST del sitio debe llevar siempre:
+```js
+fetch('/api/...', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload) // o '{}' si no hay payload
+})
+```
+
 ---
 
 ## Integraciones externas — limitaciones conocidas

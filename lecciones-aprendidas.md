@@ -4,6 +4,28 @@ Aprendizajes de proceso y decisiones no obvias. Técnica repetible va en CLAUDE.
 
 ---
 
+## 2026-08-04 — Bug reportado con síntoma genérico, causa real dos niveles más abajo
+
+### Lo que pasó
+
+Usuario reportó "no funciona el sistema de cambio de password" tras usarlo en producción. La revisión de código no mostró nada roto — la lógica de `solicitar-reset.ts` / `actualizar-password.ts` era correcta. Se aplicó un primer fix real pero secundario (el token de reset se invalidaba con cada clic en "¿Olvidaste tu contraseña?", así que un segundo intento rompía el correo del primero) y se pusheó. El usuario reprodujo el mismo error en dos navegadores distintos — descartando cache/cookies como causa — con el mensaje exacto "No se pudo enviar el correo: error desconocido".
+
+### Cómo se encontró la causa real
+
+Sin acceso a los logs de Vercel de este proyecto (el MCP de Vercel conectado a esta sesión solo ve el proyecto `dashboard-nlace`, no Telos-web), la única vía fue reproducir la llamada del navegador con `curl` variando los headers hasta reproducir el fallo:
+- `curl -X POST .../solicitar-reset` con `Content-Type: application/json` + body → `200 {"ok":true}`
+- La misma URL sin body ni `Content-Type` (igual que el `fetch` real del botón) → `403` con cuerpo en texto plano `"Cross-site POST form submissions are forbidden"`
+
+Ese 403 no-JSON es lo que rompía el `res.json().catch(() => ({}))` del cliente y producía el mensaje genérico. Ver detalle técnico en `CLAUDE.md` → "Protección CSRF (`security.checkOrigin`)".
+
+### Lección de proceso
+
+**Cuando el reporte del usuario es un síntoma genérico de UI ("no funciona", "error desconocido") y la revisión de código no revela nada, reproducir la llamada de red exacta con `curl` antes de seguir adivinando.** La corrección de la lógica de negocio (token que se invalidaba solo) era real y necesaria, pero no era la causa del bug que el usuario seguía viendo — dos bugs distintos en el mismo flujo, uno tapando al otro. Sin la reproducción por `curl`, el segundo (CSRF) habría quedado sin diagnosticar.
+
+**Efecto colateral a tener presente:** reproducir con `curl` contra el endpoint real de producción disparó un envío de correo real (no datos falsos, pero sí una acción con efecto en el mundo). Avisar al usuario después de hacerlo, como se hizo, en vez de asumir que "solo estoy probando" no tiene consecuencias.
+
+---
+
 ## 2026-06-18 — Fix CSP HubSpot
 
 ### Lo que pasó
