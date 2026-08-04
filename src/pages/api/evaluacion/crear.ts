@@ -75,7 +75,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           .eq('id', ev.id)
       }
 
-      return { id: ev.id, nombre: ev.nombre, email: ev.email, link, correo_ok: !emailError }
+      return { id: ev.id, nombre: ev.nombre, email: ev.email, link, eval_link: `${baseUrl}/evaluacion/eval/${ev.token}`, correo_ok: !emailError }
     })
   )
 
@@ -86,6 +86,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       nombre: evalRows[i].nombre,
       email: evalRows[i].email,
       link: `${baseUrl}/evaluacion?token=${evalRows[i].token}`,
+      eval_link: `${baseUrl}/evaluacion/eval/${evalRows[i].token}`,
       correo_ok: false
     }
   })

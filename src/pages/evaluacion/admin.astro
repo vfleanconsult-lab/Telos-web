@@ -11,7 +11,7 @@ if (isAuth) {
     .from('evaluaciones')
     .select(`
       id, nombre_empresa, rut_empresa, fecha_evaluacion, created_at,
-      evaluadores ( id, nombre, email, correo_enviado )
+      evaluadores ( id, nombre, email, correo_enviado, token )
     `)
     .order('created_at', { ascending: false })
     .limit(20)
@@ -158,6 +158,13 @@ if (isAuth) {
                           <span class={`w-2 h-2 rounded-full shrink-0 ${e.correo_enviado ? 'bg-green-500' : 'bg-ash-grey'}`}></span>
                           <span class="text-ink flex-1">{e.nombre}</span>
                           <span class="text-ink/40 text-xs">{e.email}</span>
+                          <a
+                            href={`/evaluacion/eval/${e.token}`}
+                            target="_blank"
+                            class="text-black-forest/70 hover:text-black-forest underline underline-offset-4 text-xs shrink-0"
+                          >
+                            Ver formulario
+                          </a>
                           <button
                             type="button"
                             class="delete-evaluador-btn ml-2 text-ink/30 hover:text-red-500 transition shrink-0"
@@ -328,6 +335,13 @@ document.querySelectorAll('.agregar-evaluador-form').forEach(form => {
       <span class="w-2 h-2 rounded-full shrink-0 ${ev.correo_enviado ? 'bg-green-500' : 'bg-ash-grey'}"></span>
       <span class="text-ink flex-1">${ev.nombre}</span>
       <span class="text-ink/40 text-xs">${ev.email}</span>
+      <a
+        href="/evaluacion/eval/${ev.token}"
+        target="_blank"
+        class="text-black-forest/70 hover:text-black-forest underline underline-offset-4 text-xs shrink-0"
+      >
+        Ver formulario
+      </a>
       <button
         type="button"
         class="delete-evaluador-btn ml-2 text-ink/30 hover:text-red-500 transition shrink-0"
@@ -416,6 +430,7 @@ document.getElementById('nuevaEval')?.addEventListener('submit', async (e) => {
       <p>
         ${ev.nombre} ${ev.correo_ok ? '✉️' : '⚠️ sin email'}:
         <a href="${ev.link}" class="text-black-forest underline break-all" target="_blank">${ev.link}</a>
+        · <a href="${ev.eval_link}" class="text-black-forest underline" target="_blank">Ver formulario</a>
       </p>
     `).join('')}
   `
