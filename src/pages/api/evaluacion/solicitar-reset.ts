@@ -5,16 +5,30 @@ import { emailResetPassword } from '../../../data/email-reset-password'
 
 export const POST: APIRoute = async () => {
   const supabase = getSupabaseAdmin()
-  const resetToken = crypto.randomUUID()
-  const resetExpira = new Date(Date.now() + 60 * 60 * 1000).toISOString()
 
-  const { error } = await supabase
+  // Si ya hay un token vigente (no vencido), lo reutilizamos en vez de generar uno nuevo.
+  // Evita que un segundo clic en "¿Olvidaste tu contraseña?" invalide el correo anterior
+  // antes de que la persona alcance a usarlo.
+  const { data: actual } = await supabase
     .from('admin_credenciales')
-    .update({ reset_token: resetToken, reset_expira: resetExpira })
+    .select('reset_token, reset_expira')
     .eq('id', 1)
+    .single()
 
-  if (error) {
-    return new Response(JSON.stringify({ ok: false, error: error.message }), { status: 500 })
+  const tokenVigente = actual?.reset_token && actual?.reset_expira && new Date(actual.reset_expira) > new Date()
+
+  const resetToken = tokenVigente ? actual!.reset_token : crypto.randomUUID()
+  const resetExpira = tokenVigente ? actual!.reset_expira : new Date(Date.now() + 60 * 60 * 1000).toISOString()
+
+  if (!tokenVigente) {
+    const { error } = await supabase
+      .from('admin_credenciales')
+      .update({ reset_token: resetToken, reset_expira: resetExpira })
+      .eq('id', 1)
+
+    if (error) {
+      return new Response(JSON.stringify({ ok: false, error: error.message }), { status: 500 })
+    }
   }
 
   const destino = import.meta.env.ADMIN_RESET_EMAIL || 'victor@telos.cl'
