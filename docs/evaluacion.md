@@ -81,7 +81,7 @@ Las Fortalezas y Oportunidades se guardan en `respuestas` con `puntuacion = null
 
 Archivo: `src/data/rubrica.ts`
 
-- **4 dimensiones, en este orden:** Estrategia (6) → Procesos (8) → Tecnología (7) → Personas (6) = **27 prácticas totales** (`TOTAL_PRACTICAS` se deriva de `RUBRICA.reduce(...)`, ya no es un literal)
+- **4 dimensiones, en este orden:** Estrategia (7) → Procesos (8) → Tecnología (7) → Personas (6) = **28 prácticas totales** (`TOTAL_PRACTICAS` se deriva de `RUBRICA.reduce(...)`, ya no es un literal)
 - Cada práctica tiene: `codigo` (ej. `2.03`), `nombre`, `objetivo` (objetivo de descubrimiento), `queObservar` (incluye prefijo de referencia `P-x.xx` a la Guía de Entrevista v2), y `niveles` (array de 5 descriptores, nivel 0–4)
 - Escala de puntuación: 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4 (sin cambios respecto a v1)
 - Índice de madurez = (puntaje_consenso / 4) × 100 → clasificado en Crítico / Incipiente / En desarrollo / Consolidado
@@ -95,7 +95,13 @@ Archivo: `src/data/rubrica.ts`
 
 > Rúbrica v2 (julio 2026): reemplaza la v1 de 20 prácticas (5 por dimensión). El desglose por
 > dimensión ya no es parejo — usar siempre `dim.practicas.length`, nunca asumir 5 o 20 en código
-> nuevo. `rubrica_id` default en la tabla `evaluaciones`: `madurez-4dim-v2`.
+> nuevo. `rubrica_id` default en la tabla `evaluaciones`: `madurez-4dim-v2` (no se actualizó a v3 —
+> es solo una etiqueta informativa que ningún código lee para cambiar de rúbrica).
+>
+> Rúbrica v3 (agosto 2026, insumo del engagement Casa Ideas — Área de Finanzas): agrega el elemento
+> **1.07 "Estructura y roles del área"** a la dimensión Estrategia (6 → 7 prácticas). El resto del
+> contenido (objetivo, niveles, referencia `queObservar`) de las 27 prácticas de v2 se mantiene
+> idéntico. Total 27 → 28 prácticas.
 
 ---
 
@@ -221,3 +227,9 @@ ambos casos (olvido o cambio voluntario).
 | Calibración | Umbral de brecha ≥1,5 → ≥1,0; progreso `/20` hardcodeado → `TOTAL_PRACTICAS` dinámico |
 | Fix Índice Global | El promedio dividía siempre por 4 dimensiones aunque faltaran por calibrar, subestimando el índice; ahora divide solo entre las dimensiones con consenso registrado |
 | Emails | Denominador `/5` por dimensión (hardcodeado) → dinámico según prácticas reales de cada dimensión; copy actualizado a "27 prácticas en 4 dimensiones" |
+
+## Iteración (4 agosto 2026)
+
+| Cambio | Descripción |
+|---|---|
+| Rúbrica v3 | Elemento **1.07 "Estructura y roles del área"** agregado a Estrategia, según insumo del engagement Casa Ideas (Rúbrica de Evaluación v3 / Guía de Entrevista v3). 27 → 28 prácticas totales. Resto de la rúbrica sin cambios de contenido. Copy hardcodeado "27 prácticas en 4 dimensiones" actualizado a "28" en `email-evaluador.ts` y `evaluacion/index.astro`. |

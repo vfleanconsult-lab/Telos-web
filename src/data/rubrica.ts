@@ -111,6 +111,19 @@ export const RUBRICA: Dimension[] = [
           'Actúa como contraparte del negocio en decisiones relevantes, con análisis y proyecciones.',
           'Socio estratégico: anticipa escenarios, influye en decisiones y el negocio la busca proactivamente.'
         ]
+      },
+      {
+        codigo: '1.07',
+        nombre: 'Estructura y roles del área',
+        objetivo: 'Determinar si la estructura organizacional del área (roles, responsabilidades, dimensionamiento) sostiene la operación y la estrategia, o genera sobrecargas y zonas grises.',
+        queObservar: 'P-1.07. ¿Quién es responsable de qué? Funciones que se topan o quedan en tierra de nadie; puestos crónicamente sobrepasados.',
+        niveles: [
+          'Roles difusos definidos por la costumbre; responsabilidades que dependen de personas, no de cargos; sobrecarga crónica en algunos puestos.',
+          'Estructura definida en el papel pero desactualizada; solapamientos y vacíos de responsabilidad frecuentes.',
+          'Roles principales claros, con zonas grises en los procesos transversales; la carga de trabajo no se evalúa formalmente.',
+          'Estructura y roles claros, documentados y conocidos; carga razonablemente equilibrada entre puestos.',
+          'Estructura revisada periódicamente contra la estrategia; roles, respaldos y dimensionamiento gestionados como práctica formal.'
+        ]
       }
     ]
   },
