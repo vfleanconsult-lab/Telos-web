@@ -246,7 +246,11 @@ document.getElementById('forgotPasswordBtn')?.addEventListener('click', async (e
   const btn = e.currentTarget as HTMLButtonElement
   const msg = document.getElementById('forgotPasswordMsg')
   btn.disabled = true
-  const res = await fetch('/api/evaluacion/solicitar-reset', { method: 'POST' })
+  const res = await fetch('/api/evaluacion/solicitar-reset', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}'
+  })
   const data = await res.json().catch(() => ({}))
   if (msg) {
     msg.textContent = res.ok
