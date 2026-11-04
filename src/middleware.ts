@@ -72,7 +72,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
       },
     });
   }
-  const response = await next();
+  const original = await next();
+  // Response.redirect() devuelve cabeceras inmutables: se copia la respuesta antes de modificarla
+  const response = new Response(original.body, original);
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     if (!response.headers.has(key)) response.headers.set(key, value);
   }
