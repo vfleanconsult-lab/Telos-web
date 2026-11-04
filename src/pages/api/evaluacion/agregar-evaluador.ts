@@ -1,3 +1,4 @@
+import { env } from '../../../lib/env'
 import type { APIRoute } from 'astro'
 import { getSupabaseAdmin } from '../../../lib/supabase'
 import { Resend } from 'resend'
@@ -41,7 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
   const link = `https://www.telos.cl/evaluacion?token=${evaluador.token}`
 
   // Enviar email de invitación
-  const resend = new Resend(import.meta.env.RESEND_API_KEY)
+  const resend = new Resend(env("RESEND_API_KEY"))
   const { error: emailError } = await resend.emails.send({
     from: 'noreply@telos.cl',
     to: email,

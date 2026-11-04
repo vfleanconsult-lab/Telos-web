@@ -1,3 +1,4 @@
+import { env } from '../../../lib/env'
 import type { APIRoute } from 'astro'
 import { Resend } from 'resend'
 import { getSupabaseAdmin } from '../../../lib/supabase'
@@ -32,10 +33,10 @@ export const POST: APIRoute = async () => {
       }
     }
 
-    const destino = import.meta.env.ADMIN_RESET_EMAIL || 'victor@telos.cl'
+    const destino = env("ADMIN_RESET_EMAIL") || 'victor@telos.cl'
     const link = `https://www.telos.cl/evaluacion/reset?token=${resetToken}`
 
-    const resend = new Resend(import.meta.env.RESEND_API_KEY)
+    const resend = new Resend(env("RESEND_API_KEY"))
     const { error: emailError } = await resend.emails.send({
       from: 'noreply@telos.cl',
       to: destino,

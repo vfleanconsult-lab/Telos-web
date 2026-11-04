@@ -2,6 +2,10 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # Valores públicos (URL de Supabase, correo de contacto): no son secretos
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,ADMIN_RESET_EMAIL"
+
 [[headers]]
   for = "/*"
   [headers.values]

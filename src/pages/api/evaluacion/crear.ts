@@ -1,3 +1,4 @@
+import { env } from '../../../lib/env'
 import type { APIRoute } from 'astro'
 import { getSupabaseAdmin } from '../../../lib/supabase'
 import { Resend } from 'resend'
@@ -45,7 +46,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   // Enviar emails
-  const resend = new Resend(import.meta.env.RESEND_API_KEY)
+  const resend = new Resend(env("RESEND_API_KEY"))
   const baseUrl = 'https://www.telos.cl'
   const fechaFormateada = new Date(fecha_evaluacion).toLocaleDateString('es-CL', {
     day: 'numeric', month: 'long', year: 'numeric'

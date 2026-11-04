@@ -1,3 +1,4 @@
+import { env } from '../../lib/env'
 // Endpoint: GET /api/callback
 // GitHub redirige aquí con el código de autorización.
 // Intercambia el código por un token y lo pasa a Sveltia CMS.
@@ -12,7 +13,7 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   const clientId     = 'Ov23liJhis0KyJECIdZA';
-  const clientSecret = import.meta.env.GITHUB_CLIENT_SECRET;
+  const clientSecret = env("GITHUB_CLIENT_SECRET");
 
   if (!clientSecret) {
     return new Response('GITHUB_CLIENT_SECRET no configurado en Vercel', { status: 500 });
