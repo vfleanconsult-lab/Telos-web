@@ -14,7 +14,8 @@ Siempre ejecutar `npm run build` y confirmar `[build] Complete!` antes de hacer 
 
 ## Stack
 
-- **Astro 5** — `output: 'server'`, adaptador `@astrojs/vercel`
+- **Astro 5** — `output: 'server'`, adaptador `@astrojs/netlify@6` (la v8 exige Astro 7)
+- **Hosting: Netlify** — sitio `loquacious-dango-8e11b4`, dominio `www.telos.cl` (DNS en Cloudflare). Migrado desde Vercel el 2026-11-04. Deploy por CLI (`npx --yes netlify-cli@latest deploy --build --prod`); además repo de GitHub conectado a Netlify: los deploys del 2026-11-04 (Telos-web) y del 2026-11-06 (CRM) con mensaje de commit como título sugieren que un push a `main` dispara deploy [deducido, no confirmado en el panel]. Verificar el build antes de pushear a `main`. Detalle y gotchas en la memoria `migracion-vercel-a-netlify` y en `lecciones-aprendidas.md`.
 - **Tailwind CSS v3** — vía PostCSS (`postcss.config.mjs`), sin `@astrojs/tailwind`
 - **lucide-astro** — sistema de iconos; importar como `import { NombreIcono } from 'lucide-astro'`
 - **Sin frameworks JS adicionales** — interactividad solo con vanilla JS inline en `<script>` dentro de `.astro`
@@ -136,7 +137,7 @@ El panel de administración vive en `/admin` y usa **Sveltia CMS** (no Decap ni 
 
 ### Por qué /api/cms-config y no config.yml directamente
 
-Vercel bloquea **todas** las URLs que terminen en `.yml`, incluso las servidas desde funciones serverless. La solución es:
+Decisión heredada de Vercel, que bloqueaba las URLs terminadas en `.yml`. En Netlify no se probó si ese bloqueo existe; se mantiene el endpoint porque funciona y el login del CMS está verificado. Funcionamiento:
 1. Crear el endpoint `src/pages/api/cms-config.ts` que sirve el YAML con `Content-Type: text/yaml`
 2. En `public/admin/index.html` apuntar con `<link rel="cms-config-url" href="/api/cms-config" type="text/yaml" />`
 
@@ -151,7 +152,7 @@ backend:
   auth_endpoint: api/auth
 ```
 
-La variable de entorno `GITHUB_CLIENT_SECRET` debe estar en Vercel. El Client ID del GitHub OAuth App es `Ov23liJhis0KyJECIdZA`.
+La variable de entorno `GITHUB_CLIENT_SECRET` debe estar en Netlify. El Client ID del GitHub OAuth App es `Ov23liJhis0KyJECIdZA`.
 
 > **OAuth callback URL configurada:** `https://www.telos.cl/api/callback` está registrada en el GitHub OAuth App. Si se cambia el dominio, actualizar aquí, en `src/pages/api/cms-config.ts` y en el OAuth App de GitHub.
 
@@ -237,6 +238,10 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 
 ---
 
+## Seguridad — headers HTTP
+
+Viven en `netlify.toml` (`[[headers]]`) **y** se reaplican en `src/middleware.ts`, porque Netlify solo aplica `[[headers]]` a archivos estáticos, no a respuestas SSR. `vercel.json` se eliminó (2026-11-08).
+
 ## Documentación por módulo
 
 | Archivo | Módulo |
@@ -256,7 +261,7 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 | Sprint | Issue | Descripción |
 |---|---|---|
 | Sprint 1 | — | Setup inicial — Astro 5, Tailwind, estructura de páginas y colección de contenido |
-| Sprint CMS | — | Sveltia CMS + OAuth GitHub; fix Vercel bloquea `.yml`; fix Astro 5 API breaks |
+| Sprint CMS | — | Sveltia CMS + OAuth GitHub; endpoint `/api/cms-config` (Vercel bloqueaba `.yml`); fix Astro 5 API breaks |
 | Sprint 8a | #60 | Iconografía con lucide-astro; wordmark "Telos — Consultores" en Header |
 | Sprint imágenes | #61 | Reemplazo de placeholders por imágenes reales (home, nosotros, cfo) |
 | Sprint footer | #61 | Correo real `victor@telos.cl` + icono LinkedIn |
@@ -266,7 +271,7 @@ Los scopes `cms.blog.read` y `cms.blog.write` **requieren plan de pago**. No es 
 | Sprint SEO | #110 | Sitemap dinámico, robots.txt, OG tags, Twitter Card, JSON-LD Organization + Article |
 | Sprint Excelencia | #111 | Página /servicios/excelencia-organizacional: acordeón 9 herramientas Lean, carrusel 9 fotos B&N auto-play, dropdown header, hero servicios 2 columnas, categoría blog "Inteligencia Artificial" |
 | Sprint Ley 21.719 | #117 | Headers de seguridad HTTP (CSP, HSTS, nosniff, X-Frame-Options); política de privacidad con tabla de cookies HubSpot y GA4; integración Google Analytics 4 con carga condicional por consentimiento; formulario HubSpot en `/contacto` con carga diferida post-consentimiento (placeholder visible hasta aceptar cookies) |
-| Fix CSP HubSpot | — | CSP del sprint anterior bloqueaba el formulario de contacto — faltaban dominios `static.hsappstatic.net`, `js.hubspot.com`, `unsafe-eval`, Google Fonts y `*.hubspot.com` en frame-src. Headers movidos de dashboard Vercel a `vercel.json` (ahora en código). |
+| Fix CSP HubSpot | — | CSP del sprint anterior bloqueaba el formulario de contacto — faltaban dominios `static.hsappstatic.net`, `js.hubspot.com`, `unsafe-eval`, Google Fonts y `*.hubspot.com` en frame-src. Headers movidos al código (hoy en `netlify.toml` + `src/middleware.ts`, ver lecciones). |
 | Sprint Evaluación | — | Módulo completo `/evaluacion`: rúbrica 20 prácticas × 4 dimensiones, panel admin, formulario multi-evaluador, calibración, informe con radar SVG, emails via Resend. Ver [`docs/evaluacion.md`](docs/evaluacion.md) |
 
 ### Sprints pendientes

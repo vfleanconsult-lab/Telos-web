@@ -73,9 +73,9 @@ El CSP (capa de red) y la lógica de consentimiento de la Ley 21.719 (capa de JS
 
 ## Estructura de seguridad — referencia rápida
 
-Los headers de seguridad viven en `vercel.json` (raíz del repo), **no** en el dashboard de Vercel. Hay dos reglas:
+Los headers de seguridad viven en `netlify.toml` (raíz del repo) y se reaplican en `src/middleware.ts` para las respuestas SSR (Netlify solo aplica `[[headers]]` a archivos estáticos). `vercel.json` ya no se usa (migración a Netlify, 2026-11-04). Hay dos reglas:
 
 - `/(.*)`  — headers generales del sitio (CSP completo + HSTS + X-Frame-Options + etc.)
 - `/admin(.*)` — CSP específico para el panel CMS (permite `unpkg.com`, `api.github.com`, etc.)
 
-Si se agrega un nuevo servicio externo que requiera recursos (scripts, iframes, fuentes), actualizar `vercel.json` y verificar en producción que el recurso carga correctamente **antes de cerrar la sesión**.
+Si se agrega un nuevo servicio externo que requiera recursos (scripts, iframes, fuentes), actualizar `netlify.toml` (y, si afecta a respuestas SSR, comprobar el middleware) y verificar en producción que el recurso carga correctamente **antes de cerrar la sesión**.

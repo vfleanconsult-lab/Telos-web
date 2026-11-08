@@ -154,7 +154,7 @@ Genera el informe final con:
 
 ## Emails
 
-Servicio: **Resend** (`RESEND_API_KEY` en Vercel env vars)
+Servicio: **Resend** (`RESEND_API_KEY` en las variables de entorno de Netlify)
 Remitente: `noreply@telos.cl`
 
 | Evento | Asunto | Template |
