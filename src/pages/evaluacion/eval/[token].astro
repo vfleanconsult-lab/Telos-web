@@ -63,12 +63,12 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
         <div class="min-w-0">
           <p class="font-semibold text-white text-sm truncate">{evaluador.nombre}</p>
-          <p class="text-xs text-white/50 truncate">{empresa?.nombre_empresa} · {fechaFormateada}</p>
+          <p class="text-xs text-white/65 truncate">{empresa?.nombre_empresa} · {fechaFormateada}</p>
         </div>
         <div class="flex items-center gap-3 shrink-0">
           <div class="text-right">
             <p id="progressCount" class="text-sm font-mono font-bold text-white">{totalCompletadas}/{TOTAL_PRACTICAS}</p>
-            <p class="text-xs text-white/40">completadas</p>
+            <p class="text-xs text-white/65">completadas</p>
           </div>
           <div class="w-24 bg-white/15 rounded-full h-2 overflow-hidden">
             <div id="progressBar"
@@ -76,7 +76,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
               style={`width:${Math.round((totalCompletadas / TOTAL_PRACTICAS) * 100)}%`}>
             </div>
           </div>
-          <span id="saveStatus" class="text-xs text-white/40 font-mono w-16 text-right">listo</span>
+          <span id="saveStatus" class="text-xs text-white/65 font-mono w-16 text-right">listo</span>
         </div>
       </div>
 
@@ -292,10 +292,10 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
   function setSaveStatus(status) {
     const el = document.getElementById('saveStatus')
     if (!el) return
-    el.classList.remove('text-white/40', 'text-white/70', 'text-green-400', 'text-red-400')
+    el.classList.remove('text-white/65', 'text-white/70', 'text-green-400', 'text-red-400')
     if (status === 'saving') { el.textContent = 'guardando…'; el.classList.add('text-white/70') }
     else if (status === 'saved') { el.textContent = 'guardado ✓'; el.classList.add('text-green-400') }
-    else if (status === 'ready') { el.textContent = 'listo'; el.classList.add('text-white/40') }
+    else if (status === 'ready') { el.textContent = 'listo'; el.classList.add('text-white/65') }
     else { el.textContent = 'error ↺'; el.classList.add('text-red-400') }
   }
 
