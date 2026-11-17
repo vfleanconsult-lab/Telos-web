@@ -123,7 +123,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 print:py-6">
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-1">Telos · Diagnóstico de Madurez</p>
+            <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-1">Telos · Diagnóstico de Madurez</p>
             <h1 class="text-2xl font-semibold text-ink">{evaluacion.nombre_empresa}</h1>
             <p class="text-sm text-ink/50 mt-1">{evaluacion.rut_empresa} · {fechaFormateada}</p>
           </div>
@@ -142,7 +142,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
       <!-- Índice global + radar -->
       <div class="grid md:grid-cols-2 gap-6">
         <div class="bg-white rounded border border-ash-grey/30 p-8 flex flex-col items-center justify-center text-center">
-          <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">Índice Global de Madurez</p>
+          <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">Índice Global de Madurez</p>
           <p class="text-7xl font-bold text-black-forest leading-none mb-2">{indice_global}<span class="text-3xl text-black-forest/40">%</span></p>
           <p class="text-2xl font-semibold text-ink/60 mb-4">{puntaje_global} <span class="text-base text-ink/40">/ 4.0</span></p>
           <span class={`inline-block px-4 py-1.5 rounded text-sm font-semibold ${nivelColor(nivel_global)}`}>
@@ -259,7 +259,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
             <tbody>
               {practicasConBrecha.filter(p => p.brecha > 0 || p.consenso !== null).map((p, i) => (
                 <tr class={`border-t border-ash-grey/20 ${p.brecha >= 1.0 ? 'bg-red-50/30' : i % 2 === 0 ? '' : 'bg-dust-grey/20'}`}>
-                  <td class="px-4 py-3 font-mono text-xs text-ash-grey">{p.codigo}</td>
+                  <td class="px-4 py-3 font-mono text-xs text-ash-deep">{p.codigo}</td>
                   <td class="px-4 py-3 text-ink">{p.nombre}</td>
                   {evaluadores.map(ev => (
                     <td class="px-4 py-3 text-center font-mono font-bold">
@@ -297,7 +297,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
               if (!tieneFO) return null
               return (
                 <div class="px-6 py-5">
-                  <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-4">{dim.nombre}</p>
+                  <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">{dim.nombre}</p>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Fortalezas -->
                     <div>
@@ -309,7 +309,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
                             if (!txt) return null
                             return (
                               <div class="flex gap-2">
-                                <span class="font-mono text-xs text-ash-grey shrink-0 pt-0.5 w-20 truncate">{ev.nombre.split(' ')[0]}:</span>
+                                <span class="font-mono text-xs text-ash-deep shrink-0 pt-0.5 w-20 truncate">{ev.nombre.split(' ')[0]}:</span>
                                 <p class="text-sm text-ink/70 leading-relaxed">{txt}</p>
                               </div>
                             )
@@ -329,7 +329,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
                             if (!txt) return null
                             return (
                               <div class="flex gap-2">
-                                <span class="font-mono text-xs text-ash-grey shrink-0 pt-0.5 w-20 truncate">{ev.nombre.split(' ')[0]}:</span>
+                                <span class="font-mono text-xs text-ash-deep shrink-0 pt-0.5 w-20 truncate">{ev.nombre.split(' ')[0]}:</span>
                                 <p class="text-sm text-ink/70 leading-relaxed">{txt}</p>
                               </div>
                             )
@@ -360,12 +360,12 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
               if (practicasConCm.length === 0) return null
               return (
                 <div class="px-6 py-5">
-                  <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-4">{dim.nombre}</p>
+                  <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">{dim.nombre}</p>
                   <div class="space-y-5">
                     {practicasConCm.map(p => (
                       <div>
                         <div class="flex items-baseline gap-2 mb-2">
-                          <span class="font-mono text-xs text-ash-grey shrink-0">{p.codigo}</span>
+                          <span class="font-mono text-xs text-ash-deep shrink-0">{p.codigo}</span>
                           <span class="font-semibold text-sm text-ink">{p.nombre}</span>
                         </div>
                         <div class="space-y-2 pl-10">
@@ -374,7 +374,7 @@ const hayComentarios = Object.keys(comentariosMap).length > 0
                             if (!cm) return null
                             return (
                               <div class="flex gap-2">
-                                <span class="font-mono text-xs text-ash-grey shrink-0 pt-0.5 w-20 truncate">{ev.nombre.split(' ')[0]}:</span>
+                                <span class="font-mono text-xs text-ash-deep shrink-0 pt-0.5 w-20 truncate">{ev.nombre.split(' ')[0]}:</span>
                                 <p class="text-sm text-ink/70 leading-relaxed">{cm}</p>
                               </div>
                             )

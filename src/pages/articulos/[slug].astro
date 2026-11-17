@@ -69,12 +69,12 @@ const relacionados = todos
 
         <!-- Categoría + enlace de vuelta -->
         <div class="flex items-center justify-between mb-8">
-          <p class="font-mono text-xs uppercase tracking-widest text-ash-grey">
+          <p class="font-mono text-xs uppercase tracking-widest text-ash-deep">
             {entry.data.categoria}
           </p>
           <a
             href="/articulos"
-            class="font-mono text-xs text-ash-grey hover:text-black-forest transition-colors duration-150"
+            class="font-mono text-xs text-ash-deep hover:text-black-forest transition-colors duration-150"
           >
             ← Artículos
           </a>
@@ -91,7 +91,7 @@ const relacionados = todos
         </p>
 
         <!-- Fecha -->
-        <p class="font-mono text-xs text-ash-grey">
+        <p class="font-mono text-xs text-ash-deep">
           {formatFecha(entry.data.fecha)}
         </p>
 
@@ -146,7 +146,7 @@ const relacionados = todos
       <section class="py-16 border-t border-dust-grey">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-10">
+          <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-10">
             Más sobre {entry.data.categoria}
           </p>
 
@@ -166,14 +166,14 @@ const relacionados = todos
                 </div>
 
                 <div class="p-5 flex flex-col flex-1">
-                  <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-2">
+                  <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-2">
                     {rel.data.categoria}
                   </p>
                   <h3 class="font-sans text-sm font-bold text-black-forest leading-snug mb-3 flex-1 group-hover:text-ink transition-colors duration-150">
                     {rel.data.titulo}
                   </h3>
                   <div class="flex items-center justify-between pt-3 border-t border-dust-grey">
-                    <span class="font-mono text-xs text-ash-grey">
+                    <span class="font-mono text-xs text-ash-deep">
                       {formatFecha(rel.data.fecha)}
                     </span>
                     <span class="font-mono text-xs text-ash-grey group-hover:text-black-forest transition-colors duration-150" aria-hidden="true">→</span>

@@ -109,9 +109,9 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
       <section>
         <!-- Cabecera de dimensión -->
         <div class="mb-6 flex items-center gap-3">
-          <span class="font-mono text-xs text-ash-grey shrink-0">{dimIndex + 1}/{RUBRICA.length}</span>
+          <span class="font-mono text-xs text-ash-deep shrink-0">{dimIndex + 1}/{RUBRICA.length}</span>
           <div>
-            <h2 class="text-xs font-mono uppercase tracking-widest text-black-forest/50">{dimActiva.nombre}</h2>
+            <h2 class="text-xs font-mono uppercase tracking-widest text-ash-deep">{dimActiva.nombre}</h2>
             <p class="text-xs text-ink/40">{dimActiva.descripcion}</p>
           </div>
         </div>
@@ -132,7 +132,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
               >
                 <!-- Cabecera de práctica -->
                 <div class="flex items-start gap-3 px-5 pt-5 pb-3">
-                  <span class="font-mono text-xs text-ash-grey/60 shrink-0 mt-1.5">{practica.codigo}</span>
+                  <span class="font-mono text-xs text-ash-deep shrink-0 mt-1.5">{practica.codigo}</span>
                   <div class="flex-1 min-w-0">
                     <h3 class="text-xl font-semibold text-ink leading-snug">{practica.nombre}</h3>
                     <p class="text-sm text-ink/40 mt-1.5 leading-relaxed italic">{practica.objetivo}</p>
@@ -219,7 +219,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
         <!-- Fortalezas y Oportunidades de la dimensión -->
         <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-white rounded border border-ash-grey/30 p-5">
-            <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Fortalezas</label>
+            <label class="font-mono text-xs uppercase tracking-widest text-ash-deep block mb-3">Fortalezas</label>
             <textarea
               data-fo-codigo={`__dim${dimActiva.id}_fortalezas`}
               class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
@@ -228,7 +228,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
             >{respuestas[`__dim${dimActiva.id}_fortalezas`]?.comentario ?? ''}</textarea>
           </div>
           <div class="bg-white rounded border border-ash-grey/30 p-5">
-            <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Oportunidades</label>
+            <label class="font-mono text-xs uppercase tracking-widest text-ash-deep block mb-3">Oportunidades</label>
             <textarea
               data-fo-codigo={`__dim${dimActiva.id}_oportunidades`}
               class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"

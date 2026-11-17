@@ -15,7 +15,7 @@ const niveles = [
   <!-- Hero -->
   <section style="background: radial-gradient(ellipse at top left, #111a06 0%, transparent 45%), radial-gradient(ellipse at bottom right, #111a06 0%, transparent 45%), radial-gradient(ellipse at center, #2f4012 0%, #243010 55%, #1a2408 100%);">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">Telos · Diagnóstico de Madurez</p>
+      <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">Telos · Diagnóstico de Madurez</p>
       <h1 class="text-3xl sm:text-4xl font-semibold text-white mb-6 leading-tight">
         Evaluación de madurez<br class="hidden sm:block"> organizacional
       </h1>
@@ -29,7 +29,7 @@ const niveles = [
   <!-- Instrucciones -->
   <section class="bg-white py-16">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-8">Cómo funciona</p>
+      <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-8">Cómo funciona</p>
       <ol class="space-y-8">
         <li class="flex gap-6">
           <span class="font-mono text-2xl font-bold text-black-forest/20 shrink-0 leading-none pt-1">01</span>
@@ -66,7 +66,7 @@ const niveles = [
   <!-- Escala de madurez -->
   <section class="bg-dust-grey py-16">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-      <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-8">Escala de madurez</p>
+      <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-8">Escala de madurez</p>
       <div class="space-y-3">
         {niveles.map(({ n, label, desc }) => (
           <div class="flex items-start gap-4 bg-white rounded px-5 py-4 border border-ash-grey/30">
@@ -78,7 +78,7 @@ const niveles = [
           </div>
         ))}
       </div>
-      <p class="mt-6 text-sm text-black-forest/50">
+      <p class="mt-6 text-sm text-black-forest/70">
         Se permiten medios puntos: 0,5 · 1,5 · 2,5 · 3,5
       </p>
     </div>
@@ -88,7 +88,7 @@ const niveles = [
   {token ? (
     <section class="bg-white py-16 border-t border-ash-grey/20">
       <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
-        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">Todo listo</p>
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">Todo listo</p>
         <p class="text-ink/70 mb-8">Ya leíste las instrucciones. Cuando estés listo, comienza tu evaluación.</p>
         <a
           href={`/evaluacion/eval/${token}`}
@@ -102,7 +102,7 @@ const niveles = [
   ) : (
     <section class="bg-white py-16 border-t border-ash-grey/20">
       <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
-        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">¿Eres evaluador?</p>
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">¿Eres evaluador?</p>
         <p class="text-ink/70 mb-2">Usa el enlace personal que recibiste por correo para acceder a tu evaluación.</p>
         <p class="text-sm text-ink/40">Si no recibiste tu enlace, contacta al equipo consultor.</p>
       </div>
