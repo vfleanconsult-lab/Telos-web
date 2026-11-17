@@ -1,12 +1,6 @@
 ---
 name: telos-ui-kit
-description: >
-  Build React components, UI screens, dashboards, and artifacts using the official Telos Design System (telos-ui-kit).
-  Use this skill whenever the user asks to create any interface, component, screen, prototype, or visual tool for
-  Telos Consultoría — telos.cl. Triggers on: "crear un componente Telos", "pantalla de Telos", "interfaz para Telos",
-  "usa el design system de Telos", "usa el ui-kit de Telos", "haz una vista", "diseña un formulario Telos",
-  "dashboard Telos", "botón Telos", or any request to build React/frontend/Astro UI within the Telos ecosystem.
-  Always use this skill when the word Telos appears alongside any UI/frontend/design request.
+description: "Build React components, UI screens, dashboards, and artifacts using the official Telos Design System (telos-ui-kit), including WCAG AA contrast rules."
 ---
 
 # Telos UI Kit Skill
@@ -27,7 +21,8 @@ Guía para crear componentes y pantallas usando el Design System oficial de Telo
 |---------------------|-----------|--------------------------------------------|
 | `black-forest`      | `#243010` | Color principal de marca, CTAs, textos clave, fondos oscuros |
 | `dust-grey`         | `#D6D5C9` | Fondos secundarios, secciones alternadas   |
-| `ash-grey`          | `#B9BAA3` | Eyebrows, bordes, acentos tenues, captions |
+| `ash-grey`          | `#B9BAA3` | SOLO bordes, líneas, fondos y números/íconos decorativos (aria-hidden). Nunca texto de menos de 18px (1.98:1 sobre blanco) |
+| `ash-deep`          | `#5A5D4A` | Texto tenue pequeño: eyebrows, captions, folios, metadata (6.78:1 sobre blanco, 4.59:1 sobre Dust) |
 | `ink`               | `#1A1A1A` | Texto corriente sobre fondo blanco         |
 | White               | `#FFFFFF` | Fondo primario (blanco carry the work)     |
 
@@ -44,6 +39,7 @@ Colores adicionales **exclusivos para gráficos** (barras, líneas, pie, donut, 
 - El burgundy/rojo fue descartado explícitamente — no usar en la marca Telos por similitud con una consultora anterior.
 - El azul `#3A5F7A` funciona como complementario frío del verde y es el segundo color más visible en gráficos sobre fondo blanco.
 - Los colores están ordenados por orden de uso recomendado en series de datos.
+- Contraste y combinaciones seguras: ver la sección "Contraste y accesibilidad (WCAG AA)" más abajo (Sage 2.99:1 sobre blanco; Forest/Guinda y Steel Blue/Slate casi indistinguibles en luminosidad).
 
 | # Serie | Nombre          | Hex       | Descripción                                      |
 |---------|-----------------|-----------|--------------------------------------------------|
@@ -119,9 +115,9 @@ line-height: 1.5625;
 font-size: 0.8125rem;
 line-height: 1.46;
 
-/* Eyebrow — DM Mono 500, 11px, +18% tracking, UPPERCASE */
+/* Eyebrow — DM Mono 500, 12px (mínimo), +18% tracking, UPPERCASE */
 font-family: "DM Mono", "Courier New", monospace;
-font-size: 0.6875rem;
+font-size: 0.75rem;
 letter-spacing: 0.18em;
 text-transform: uppercase;
 ```
@@ -140,6 +136,7 @@ export default {
         'black-forest': '#243010',
         'dust-grey':    '#D6D5C9',
         'ash-grey':     '#B9BAA3',
+        'ash-deep':     '#5A5D4A',
         'ink':          '#1A1A1A',
       },
       fontFamily: {
@@ -194,6 +191,43 @@ const forestGradient = `
 - Heroes de página (cfo, excelencia-organizacional, servicios oscuro)
 - Bloque Propósito (nosotros)
 - CTAs finales de alta jerarquía (CtaFinal.astro)
+
+---
+
+## Contraste y accesibilidad (WCAG AA) — reglas obligatorias
+
+Auditoría 17-nov-2026 sobre el kit y telos.cl (ratios WCAG 2.x medidos). Texto principal (Ink, Forest, blanco) cumple de sobra. Los fallos estaban en texto pequeño tenue. Estas reglas tienen prioridad sobre cualquier snippet más abajo.
+
+**Reglas**
+1. `ash-grey #B9BAA3` **nunca** como color de texto menor a 18px (1.98:1 sobre blanco, 1.34:1 sobre Dust). Solo bordes, líneas, fondos y elementos decorativos con `aria-hidden="true"`.
+2. Texto tenue pequeño (eyebrows, captions, folios, metadata, números de paso) → `ash-deep #5A5D4A`, sobre blanco **y** sobre Dust.
+3. Sobre Forest/gradiente: texto tenue = `text-white/65` como mínimo (5.79:1 en el centro del gradiente). `text-white/50` prohibido para texto (4.13:1 en el centro).
+4. Pisos de opacidad para texto: `text-ink/60` sobre blanco (4.54:1) es el mínimo. `text-black-forest/NN` sobre blanco: mínimo `/70` (5.34:1; `/60` = 3.93:1 falla). Sobre Dust: mínimo `/75` (5.01:1). `text-black-forest/50` nunca para texto.
+5. Eyebrows y metadata en DM Mono: 12px mínimo (no 11px).
+6. Si un ejemplo antiguo de este documento usa `#B9BAA3` / `text-ash-grey` para texto, o `11px`, léelo como `#5A5D4A` / `text-ash-deep` y `12px`.
+
+**Pares aprobados (ratio)**
+
+| Texto / fondo | Ratio | Uso |
+|---|---|---|
+| Ink / Blanco | 17.4 | Cuerpo |
+| Forest / Blanco | 13.95 | Títulos, acción |
+| Forest / Dust | 9.45 | Títulos sobre secciones Dust |
+| Ink 80% / Blanco | 9.15 | Cuerpo secundario |
+| Ink 70% / Blanco | 6.39 | Descripciones de card |
+| Ash Deep / Blanco | 6.78 | Eyebrow, folio, caption |
+| Ash Deep / Dust | 4.59 | Eyebrow sobre Dust |
+| Blanco / Forest (centro) | 11.27 | Texto sobre gradiente |
+| Blanco 80% / Forest | 9.49 | Texto secundario sobre Forest |
+| Blanco 65% / Forest (centro) | 5.79 | Eyebrow sobre Forest |
+| Ink 60% / Blanco | 4.54 | Piso: no bajar |
+
+**Gráficos**
+- No usar Forest y Guinda como series adyacentes (luminosidad 1.20:1). Tampoco Steel Blue con Slate (1.09:1) ni Forest Light con Slate (1.43:1).
+- Tríada con buena separación de luminosidad: Forest → Steel Blue → Sage (2.06 y 2.27 entre vecinos).
+- Sage (2.99:1 sobre blanco, 2.03:1 sobre Dust): solo como relleno con contorno Forest de 1px, nunca línea fina ni texto.
+- Ash Chart y Dust Chart solo para referencia, totales o fondo, no para series principales.
+- No depender solo del color: etiquetas directas en las series, marcadores o trazos distintos.
 
 ---
 
@@ -294,21 +328,21 @@ En secciones oscuras (Forest), invertir los colores:
 
 **Sobre fondo blanco:**
 ```jsx
-<p className="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">
+<p className="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">
   Nuestra metodología
 </p>
 ```
 
-**Sobre fondo `bg-dust-grey`:** usar `text-black-forest/50` en lugar de `text-ash-grey` (el contraste ash/dust es ~1.5:1 — ilegible).
+**Sobre fondo `bg-dust-grey`:** usar `text-ash-deep` (4.59:1). `text-ash-grey` es ilegible sobre Dust (1.34:1) y `text-black-forest/50` también falla (2.69:1).
 ```jsx
-<p className="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-4">
+<p className="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">
   Situaciones comunes
 </p>
 ```
 
-**Sobre fondo Forest (oscuro):** usar `text-white/50`.
+**Sobre fondo Forest (oscuro):** usar `text-white/65` (mínimo).
 ```jsx
-<p className="font-mono text-xs uppercase tracking-widest text-white/50 mb-5">
+<p className="font-mono text-xs uppercase tracking-widest text-white/65 mb-5">
   Senior Consultant · Independent
 </p>
 ```
@@ -358,7 +392,7 @@ import { Compass, ArrowRight } from 'lucide-react'
   </div>
 
   {/* Eyebrow número */}
-  <p className="font-mono text-xs uppercase tracking-widest text-ash-grey mb-3">01</p>
+  <p className="font-mono text-xs uppercase tracking-widest text-ash-deep mb-3">01</p>
 
   {/* Título */}
   <h3 className="font-sans text-xl font-bold text-black-forest mb-3">Estrategia</h3>
@@ -467,7 +501,7 @@ Si se usa en un `<table>` HTML, aplicar ancho fijo en la celda `<td>` o en el `<
   </p>
 
   {/* Columna 4: limitación — ancho fijo, alineada a la derecha */}
-  <span className="inline-flex items-center justify-center w-24 border border-dust-grey font-mono text-xs text-ash-grey px-2 py-1 shrink-0 justify-self-end">
+  <span className="inline-flex items-center justify-center w-24 border border-dust-grey font-mono text-xs text-ash-deep px-2 py-1 shrink-0 justify-self-end">
     Info
   </span>
 
@@ -604,6 +638,239 @@ Construye los componentes manualmente replicando la estética Telos: fondo blanc
 
 ---
 
+## Documentos y Propuestas — Estilo Tipográfico Internacional (Diseño Suizo)
+
+Esta sección rige el layout de entregables formales: propuestas de servicio, reportes,
+informes de diagnóstico, y cualquier documento que Telos produzca para clientes.
+La tipografía no se modifica — estas reglas operan sobre grilla, proporciones y espacio.
+
+### Principio base
+
+El Diseño Suizo trata el espacio en blanco como estructura, no como vacío.
+En documentos Telos, esto se traduce en tres reglas:
+
+1. **Todo elemento ocupa una posición racional** en una grilla de columnas y módulos.
+2. **Los márgenes son proporcionales** — no decorativos. Definen el peso visual de la página.
+3. **La jerarquía se lee sin color** — tamaño, peso y posición son suficientes.
+
+### Sistema de grilla para documentos (A4 / carta)
+
+Unidad modular base: **8px** (0.5rem). Todos los espaciados son múltiplos de esta unidad.
+
+#### Márgenes de página
+
+| Posición        | Medida | Equivalente rem |
+|-----------------|--------|-----------------|
+| Superior        | 48px   | 3rem            |
+| Inferior        | 48px   | 3rem            |
+| Interior (bind) | 56px   | 3.5rem          |
+| Exterior        | 40px   | 2.5rem          |
+
+> En documentos de una sola columna (PDF, propuesta digital), usar margen uniforme de 48px.
+
+#### Columnas
+
+| Tipo de documento           | Estructura de columnas               |
+|-----------------------------|--------------------------------------|
+| Propuesta / carta ejecutiva | 1 columna, max-width 640px centrado  |
+| Reporte con datos           | 2 columnas: 2/3 texto + 1/3 sidebar  |
+| Portada / cover             | Libre, anclada a grilla de 8px       |
+| Tabla de entregables        | 4 columnas fijas (ver componentes)   |
+
+#### Ritmo vertical (line grid)
+
+El interlineado del cuerpo (`line-height: 1.5625` = 25px sobre 16px base) define la **unidad de ritmo vertical**. Todos los espaciados entre bloques deben ser múltiplos de esta unidad: 25px, 50px, 75px, 100px.
+
+En Tailwind, usar `mb-6` (24px ≈ 25px), `mb-12` (48px ≈ 50px), `mb-20` (80px), `py-16` (64px).
+
+### Jerarquía de información en documentos
+
+Cuatro niveles funcionales — sin agregar colores, sin cambiar fuentes:
+
+| Nivel | Elemento         | Tratamiento                                      | Rol                              |
+|-------|------------------|--------------------------------------------------|----------------------------------|
+| 0     | Metadata / folio | DM Mono · 11px · ash-grey · uppercase            | Número de página, fecha, versión |
+| 1     | Eyebrow          | DM Mono · 11px · ash-grey · uppercase · tracking | Identifica bloque temático       |
+| 2     | Título / H2      | Noto Sans 500 · 32px · black-forest · -2% track  | Tema principal del bloque        |
+| 3     | Cuerpo           | Noto Sans 400 · 16px · ink · 1.5625 line-height  | Contenido                        |
+
+> **Regla de separación entre niveles:** el espacio antes de un H2 es siempre el doble del espacio después. Esto ancla el título a su contenido y lo separa del bloque anterior.
+> En CSS: `margin-top: 3rem; margin-bottom: 1.5rem`.
+
+### Uso del espacio en blanco como estructura
+
+**Regla de respiración:** ningún bloque de contenido ocupa más del 65% del ancho disponible cuando el texto es corrido (body copy). Las columnas anchas fatigan la lectura. Aplicar `max-w-2xl` (672px) o `max-w-prose` sobre el texto corrido.
+
+### Separadores en documentos
+
+El Diseño Suizo usa líneas, no espacios vacíos, para separar secciones de jerarquía equivalente. En Telos, los separadores son siempre hairline:
+
+```jsx
+{/* Separador de sección — entre bloques temáticos */}
+<hr className="border-t border-dust-grey my-12" />
+
+{/* Separador de datos — dentro de una tabla o lista */}
+<hr className="border-t border-dust-grey my-0" />
+
+{/* Separador de página — antes del folio */}
+<hr className="border-t border-ash-grey mt-16 mb-4" />
+```
+
+> ⚠️ Nunca usar `border-black-forest` como separador — ese peso está reservado para CTAs y elementos de acción, no para estructura.
+
+### Folio y metadata de documento
+
+Elemento obligatorio en todo entregable formal. Va en el pie de página, alineado en la misma línea de base, usando solo Nivel 0.
+
+```jsx
+{/* Folio — pie de página de documento */}
+<footer
+  className="flex items-center justify-between pt-4"
+  style={{ borderTop: '1px solid #B9BAA3' }}
+>
+  <span
+    style={{
+      fontFamily: '"DM Mono", "Courier New", monospace',
+      fontSize: '0.6875rem',
+      letterSpacing: '0.18em',
+      textTransform: 'uppercase',
+      color: '#5A5D4A',
+    }}
+  >
+    Propuesta de Servicios — Cliente
+  </span>
+
+  <span
+    style={{
+      fontFamily: '"DM Mono", "Courier New", monospace',
+      fontSize: '0.6875rem',
+      letterSpacing: '0.18em',
+      textTransform: 'uppercase',
+      color: '#5A5D4A',
+    }}
+  >
+    Telos · telos.cl
+  </span>
+
+  <span
+    style={{
+      fontFamily: '"DM Mono", "Courier New", monospace',
+      fontSize: '0.6875rem',
+      letterSpacing: '0.18em',
+      textTransform: 'uppercase',
+      color: '#5A5D4A',
+    }}
+  >
+    p. 01 · v1.0 · 2026
+  </span>
+</footer>
+```
+
+### Portada de documento (Swiss cover)
+
+La portada aplica el principio suizo de asimetría controlada: el título ancla en el tercio inferior izquierdo, el espacio superior es intencionalmente vacío.
+
+```jsx
+{/* Cover page — propuesta formal */}
+<div
+  className="relative"
+  style={{
+    width: '100%',
+    minHeight: '100vh',
+    backgroundColor: '#FFFFFF',
+    padding: '48px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  }}
+>
+  {/* Header: solo marca — mínimo */}
+  <div className="flex items-center justify-between">
+    <span
+      style={{
+        fontFamily: '"DM Mono", "Courier New", monospace',
+        fontSize: '0.6875rem',
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: '#243010',
+      }}
+    >
+      Telos
+    </span>
+    <span
+      style={{
+        fontFamily: '"DM Mono", "Courier New", monospace',
+        fontSize: '0.6875rem',
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: '#B9BAA3',
+      }}
+    >
+      Confidencial
+    </span>
+  </div>
+
+  {/* Espacio vacío intencional — zona de respiración superior */}
+  <div style={{ flex: 1 }} />
+
+  {/* Bloque de título — anclado al tercio inferior */}
+  <div style={{ maxWidth: '640px' }}>
+    <div style={{ height: '1px', backgroundColor: '#243010', marginBottom: '32px' }} />
+
+    <p
+      style={{
+        fontFamily: '"DM Mono", "Courier New", monospace',
+        fontSize: '0.6875rem',
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: '#B9BAA3',
+        marginBottom: '16px',
+      }}
+    >
+      Propuesta de Servicios
+    </p>
+
+    <h1
+      style={{
+        fontFamily: '"Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
+        fontWeight: 500,
+        fontSize: 'clamp(2.5rem, 4vw, 3.5rem)',
+        lineHeight: 1.07,
+        letterSpacing: '-0.025em',
+        color: '#243010',
+        marginBottom: '24px',
+      }}
+    >
+      Nombre del Proyecto
+    </h1>
+
+    <p
+      style={{
+        fontFamily: '"DM Mono", "Courier New", monospace',
+        fontSize: '0.6875rem',
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: '#B9BAA3',
+      }}
+    >
+      Cliente · Mes Año
+    </p>
+  </div>
+</div>
+```
+
+### Checklist de revisión — antes de entregar un documento Telos
+
+- [ ] ¿Todos los espaciados son múltiplos de 8px?
+- [ ] ¿El texto corrido está contenido en `max-w-2xl` o `max-w-prose`?
+- [ ] ¿El espacio antes de cada H2 es el doble del espacio después?
+- [ ] ¿Los separadores son `border-dust-grey` o `border-ash-grey`? (nunca `border-black-forest`)
+- [ ] ¿Hay folio con los tres campos (documento · marca · página)?
+- [ ] ¿La portada tiene zona de respiración superior intencional?
+- [ ] ¿La jerarquía se lee sin color? (testear en escala de grises)
+
+---
+
 ## Componentes de layout frecuentes
 
 ### Hero 2 columnas (texto + imagen)
@@ -613,7 +880,7 @@ Construye los componentes manualmente replicando la estética Telos: fondo blanc
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
       {/* Columna texto */}
       <div>
-        <p className="font-mono text-xs uppercase tracking-widest text-ash-grey mb-5">
+        <p className="font-mono text-xs uppercase tracking-widest text-ash-deep mb-5">
           Eyebrow
         </p>
         <h1 className="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold text-black-forest leading-tight mb-6">
@@ -646,7 +913,7 @@ Construye los componentes manualmente replicando la estética Telos: fondo blanc
   }}
 >
   <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-    <p className="font-mono text-xs uppercase tracking-widest text-white/50 mb-5">
+    <p className="font-mono text-xs uppercase tracking-widest text-white/65 mb-5">
       Eyebrow
     </p>
     <h2 className="font-sans text-3xl sm:text-4xl font-bold mb-6">
@@ -689,7 +956,7 @@ bg-white · bg-dust-grey · bg-black-forest · bg-ink
 
 /* Texto */
 text-black-forest · text-ink · text-ink/80 · text-ink/70 · text-ink/60
-text-ash-grey · text-white · text-white/80 · text-white/50
+text-ash-deep · text-white · text-white/80 · text-white/65
 text-black-forest/50
 
 /* Bordes */
