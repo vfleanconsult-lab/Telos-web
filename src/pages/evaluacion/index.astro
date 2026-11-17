@@ -29,31 +29,31 @@ const niveles = [
   <!-- Instrucciones -->
   <section class="bg-white py-16">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-      <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-8">Cómo funciona</p>
+      <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-8">Cómo funciona</p>
       <ol class="space-y-8">
         <li class="flex gap-6">
-          <span class="font-mono text-2xl font-bold text-black-forest/20 shrink-0 leading-none pt-1">01</span>
+          <span class="font-mono text-2xl font-bold text-black-forest/20 shrink-0 leading-none pt-1" aria-hidden="true">01</span>
           <div>
             <p class="font-semibold text-ink mb-1">Recibes un enlace personal por correo</p>
             <p class="text-ink/60 text-sm leading-relaxed">El equipo consultor te envía un acceso único a tu evaluación. Este enlace es personal e intransferible.</p>
           </div>
         </li>
         <li class="flex gap-6">
-          <span class="font-mono text-2xl font-bold text-black-forest/20 shrink-0 leading-none pt-1">02</span>
+          <span class="font-mono text-2xl font-bold text-black-forest/20 shrink-0 leading-none pt-1" aria-hidden="true">02</span>
           <div>
             <p class="font-semibold text-ink mb-1">Evalúas 28 prácticas en 4 dimensiones</p>
             <p class="text-ink/60 text-sm leading-relaxed">Califica cada práctica de 0 a 4 usando los descriptores de nivel y añade comentarios con evidencias observadas. Tu avance se guarda automáticamente.</p>
           </div>
         </li>
         <li class="flex gap-6">
-          <span class="font-mono text-2xl font-bold text-black-forest/20 shrink-0 leading-none pt-1">03</span>
+          <span class="font-mono text-2xl font-bold text-black-forest/20 shrink-0 leading-none pt-1" aria-hidden="true">03</span>
           <div>
             <p class="font-semibold text-ink mb-1">El equipo consultor calibra los resultados</p>
             <p class="text-ink/60 text-sm leading-relaxed">Los consultores revisan las evaluaciones, discuten las diferencias de criterio y acuerdan una nota final por práctica.</p>
           </div>
         </li>
         <li class="flex gap-6">
-          <span class="font-mono text-2xl font-bold text-black-forest/20 shrink-0 leading-none pt-1">04</span>
+          <span class="font-mono text-2xl font-bold text-black-forest/20 shrink-0 leading-none pt-1" aria-hidden="true">04</span>
           <div>
             <p class="font-semibold text-ink mb-1">Recibes un informe de madurez por dimensión</p>
             <p class="text-ink/60 text-sm leading-relaxed">Se genera el índice de madurez global y por dimensión, con las prácticas prioritarias de mejora.</p>
@@ -66,7 +66,7 @@ const niveles = [
   <!-- Escala de madurez -->
   <section class="bg-dust-grey py-16">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-      <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-8">Escala de madurez</p>
+      <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-8">Escala de madurez</p>
       <div class="space-y-3">
         {niveles.map(({ n, label, desc }) => (
           <div class="flex items-start gap-4 bg-white rounded px-5 py-4 border border-ash-grey/30">
@@ -78,7 +78,7 @@ const niveles = [
           </div>
         ))}
       </div>
-      <p class="mt-6 text-sm text-black-forest/50">
+      <p class="mt-6 text-sm text-black-forest/75">
         Se permiten medios puntos: 0,5 · 1,5 · 2,5 · 3,5
       </p>
     </div>
@@ -88,7 +88,7 @@ const niveles = [
   {token ? (
     <section class="bg-white py-16 border-t border-ash-grey/20">
       <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
-        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">Todo listo</p>
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">Todo listo</p>
         <p class="text-ink/70 mb-8">Ya leíste las instrucciones. Cuando estés listo, comienza tu evaluación.</p>
         <a
           href={`/evaluacion/eval/${token}`}
@@ -96,15 +96,15 @@ const niveles = [
         >
           Comenzar evaluación →
         </a>
-        <p class="mt-4 text-xs text-ink/40">Tu progreso se guarda automáticamente. Puedes pausar y retomar cuando quieras.</p>
+        <p class="mt-4 text-xs text-ink/60">Tu progreso se guarda automáticamente. Puedes pausar y retomar cuando quieras.</p>
       </div>
     </section>
   ) : (
     <section class="bg-white py-16 border-t border-ash-grey/20">
       <div class="max-w-xl mx-auto px-4 sm:px-6 text-center">
-        <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-4">¿Eres evaluador?</p>
+        <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-4">¿Eres evaluador?</p>
         <p class="text-ink/70 mb-2">Usa el enlace personal que recibiste por correo para acceder a tu evaluación.</p>
-        <p class="text-sm text-ink/40">Si no recibiste tu enlace, contacta al equipo consultor.</p>
+        <p class="text-sm text-ink/60">Si no recibiste tu enlace, contacta al equipo consultor.</p>
       </div>
     </section>
   )}
@@ -112,7 +112,7 @@ const niveles = [
   <!-- Link admin — acceso discreto al panel de administración -->
   <div class="bg-white border-t border-ash-grey/10 py-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end">
-      <a href="/evaluacion/admin" class="text-xs text-ink/30 hover:text-ink/60 transition font-mono">
+      <a href="/evaluacion/admin" class="text-xs text-ink/60 hover:text-ink transition font-mono">
         Administrador →
       </a>
     </div>

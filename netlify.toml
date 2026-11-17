@@ -2,6 +2,11 @@
   command = "npm run build"
   publish = "dist"
 
+  # Ahorra créditos de Netlify (plan gratuito: 300/mes, 15 por deploy a producción):
+  # no construir si solo cambió documentación. Contenido del CMS y código sí construyen.
+  # Exit 0 = saltar build; cualquier otro código (incluido error de git) = construir.
+  ignore = 'git diff --quiet "$CACHED_COMMIT_REF" "$COMMIT_REF" -- . ":(exclude)CLAUDE.md" ":(exclude)AGENTS.md" ":(exclude)lecciones-aprendidas.md" ":(exclude)README.md" ":(exclude)docs"'
+
 [build.environment]
   # Valores públicos (URL de Supabase, correo de contacto): no son secretos
   SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,ADMIN_RESET_EMAIL"

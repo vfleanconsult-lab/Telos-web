@@ -37,7 +37,7 @@ const { nombre, rol, tagline, foto, bio, credenciales } = entry!.data;
                 <!-- Placeholder hasta que se añada la foto en equipo.md -->
                 <div class="w-full h-full flex flex-col items-center justify-center gap-3 p-8">
                   <Users size={40} strokeWidth={1.5} class="text-ash-grey" aria-hidden="true" />
-                  <p class="font-mono text-xs text-ash-grey uppercase tracking-wider text-center leading-relaxed">
+                  <p class="font-mono text-xs text-ash-deep uppercase tracking-wider text-center leading-relaxed">
                     Agregar foto:<br/>equipo.md → foto
                   </p>
                 </div>
@@ -49,7 +49,7 @@ const { nombre, rol, tagline, foto, bio, credenciales } = entry!.data;
           <div class="lg:col-span-3 flex flex-col justify-start">
 
             <!-- Identificación -->
-            <p class="font-mono text-xs uppercase tracking-widest text-ash-grey mb-3">
+            <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-3">
               {rol}
             </p>
             <h1 class="font-sans text-4xl sm:text-5xl font-bold text-black-forest leading-tight mb-4">
@@ -89,8 +89,8 @@ const { nombre, rol, tagline, foto, bio, credenciales } = entry!.data;
     <section class="py-16 bg-dust-grey">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-2xl">
-          <!-- En bg-dust-grey se usa text-black-forest/50 en lugar de text-ash-grey para contraste suficiente -->
-          <p class="font-mono text-xs uppercase tracking-widest text-black-forest/50 mb-8">
+          <!-- Eyebrow: text-ash-deep (AA sobre blanco y dust-grey) -->
+          <p class="font-mono text-xs uppercase tracking-widest text-ash-deep mb-8">
             Formación
           </p>
           <ul class="space-y-4">

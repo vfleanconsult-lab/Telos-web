@@ -63,12 +63,12 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
         <div class="min-w-0">
           <p class="font-semibold text-white text-sm truncate">{evaluador.nombre}</p>
-          <p class="text-xs text-white/50 truncate">{empresa?.nombre_empresa} · {fechaFormateada}</p>
+          <p class="text-xs text-white/65 truncate">{empresa?.nombre_empresa} · {fechaFormateada}</p>
         </div>
         <div class="flex items-center gap-3 shrink-0">
           <div class="text-right">
             <p id="progressCount" class="text-sm font-mono font-bold text-white">{totalCompletadas}/{TOTAL_PRACTICAS}</p>
-            <p class="text-xs text-white/40">completadas</p>
+            <p class="text-xs text-white/65">completadas</p>
           </div>
           <div class="w-24 bg-white/15 rounded-full h-2 overflow-hidden">
             <div id="progressBar"
@@ -76,7 +76,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
               style={`width:${Math.round((totalCompletadas / TOTAL_PRACTICAS) * 100)}%`}>
             </div>
           </div>
-          <span id="saveStatus" class="text-xs text-white/40 font-mono w-16 text-right">listo</span>
+          <span id="saveStatus" class="text-xs text-white/65 font-mono w-16 text-right">listo</span>
         </div>
       </div>
 
@@ -109,10 +109,10 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
       <section>
         <!-- Cabecera de dimensión -->
         <div class="mb-6 flex items-center gap-3">
-          <span class="font-mono text-xs text-ash-grey shrink-0">{dimIndex + 1}/{RUBRICA.length}</span>
+          <span class="font-mono text-xs text-ash-deep shrink-0">{dimIndex + 1}/{RUBRICA.length}</span>
           <div>
-            <h2 class="text-xs font-mono uppercase tracking-widest text-black-forest/50">{dimActiva.nombre}</h2>
-            <p class="text-xs text-ink/40">{dimActiva.descripcion}</p>
+            <h2 class="text-xs font-mono uppercase tracking-widest text-ash-deep">{dimActiva.nombre}</h2>
+            <p class="text-xs text-ink/60">{dimActiva.descripcion}</p>
           </div>
         </div>
 
@@ -132,11 +132,11 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
               >
                 <!-- Cabecera de práctica -->
                 <div class="flex items-start gap-3 px-5 pt-5 pb-3">
-                  <span class="font-mono text-xs text-ash-grey/60 shrink-0 mt-1.5">{practica.codigo}</span>
+                  <span class="font-mono text-xs text-ash-deep shrink-0 mt-1.5">{practica.codigo}</span>
                   <div class="flex-1 min-w-0">
                     <h3 class="text-xl font-semibold text-ink leading-snug">{practica.nombre}</h3>
-                    <p class="text-sm text-ink/40 mt-1.5 leading-relaxed italic">{practica.objetivo}</p>
-                    <p class="text-sm text-ink/50 mt-1 leading-relaxed">{practica.queObservar}</p>
+                    <p class="text-sm text-ink/60 mt-1.5 leading-relaxed italic">{practica.objetivo}</p>
+                    <p class="text-sm text-ink/60 mt-1 leading-relaxed">{practica.queObservar}</p>
                   </div>
                   {completada && (
                     <span class="shrink-0 w-6 h-6 rounded-full bg-black-forest/10 flex items-center justify-center">
@@ -151,7 +151,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
                 <div class="px-5 pb-5">
                   <!-- Fila superior: label + valor actual -->
                   <div class="flex items-center justify-between mb-3">
-                    <p class="text-xs text-ink/40 font-mono uppercase tracking-wider">Nivel de madurez</p>
+                    <p class="text-xs text-ink/60 font-mono uppercase tracking-wider">Nivel de madurez</p>
                     <div
                       id={`score-display-${practica.codigo}`}
                       class={`flex items-center gap-2 ${completada ? '' : 'hidden'}`}
@@ -173,7 +173,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
                     </div>
                     <span
                       id={`score-empty-${practica.codigo}`}
-                      class={`text-xs text-ink/30 font-mono ${completada ? 'hidden' : ''}`}
+                      class={`text-xs text-ink/60 font-mono ${completada ? 'hidden' : ''}`}
                     >
                       sin evaluar
                     </span>
@@ -193,9 +193,9 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
                   <div class="flex justify-between mt-2 px-0.5 gap-1.5">
                     {LEVEL_LABELS.map((lbl, i) => (
                       <div class="flex flex-col items-center text-center" style="width:20%">
-                        <span class="text-xs font-mono text-ink/40">{i}</span>
-                        <span class="text-xs text-ink/30 leading-tight hidden sm:block">{lbl}</span>
-                        <span class="text-[11px] italic text-ink/40 leading-snug mt-1.5 hidden sm:block">{practica.niveles[i]}</span>
+                        <span class="text-xs font-mono text-ink/60">{i}</span>
+                        <span class="text-xs text-ink/60 leading-tight hidden sm:block">{lbl}</span>
+                        <span class="text-[11px] italic text-ink/60 leading-snug mt-1.5 hidden sm:block">{practica.niveles[i]}</span>
                       </div>
                     ))}
                   </div>
@@ -203,7 +203,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
 
                 <!-- Comentario -->
                 <div class="px-5 pb-5">
-                  <label class="text-xs text-ink/50 block mb-1">Evidencia / Comentario</label>
+                  <label class="text-xs text-ink/60 block mb-1">Evidencia / Comentario</label>
                   <textarea
                     data-practica={practica.codigo}
                     class="comentario-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
@@ -219,7 +219,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
         <!-- Fortalezas y Oportunidades de la dimensión -->
         <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-white rounded border border-ash-grey/30 p-5">
-            <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Fortalezas</label>
+            <label class="font-mono text-xs uppercase tracking-widest text-ash-deep block mb-3">Fortalezas</label>
             <textarea
               data-fo-codigo={`__dim${dimActiva.id}_fortalezas`}
               class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
@@ -228,7 +228,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
             >{respuestas[`__dim${dimActiva.id}_fortalezas`]?.comentario ?? ''}</textarea>
           </div>
           <div class="bg-white rounded border border-ash-grey/30 p-5">
-            <label class="font-mono text-xs uppercase tracking-widest text-black-forest/50 block mb-3">Oportunidades</label>
+            <label class="font-mono text-xs uppercase tracking-widest text-ash-deep block mb-3">Oportunidades</label>
             <textarea
               data-fo-codigo={`__dim${dimActiva.id}_oportunidades`}
               class="fo-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"
@@ -292,10 +292,10 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
   function setSaveStatus(status) {
     const el = document.getElementById('saveStatus')
     if (!el) return
-    el.classList.remove('text-white/40', 'text-white/70', 'text-green-400', 'text-red-400')
+    el.classList.remove('text-white/65', 'text-white/70', 'text-green-400', 'text-red-400')
     if (status === 'saving') { el.textContent = 'guardando…'; el.classList.add('text-white/70') }
     else if (status === 'saved') { el.textContent = 'guardado ✓'; el.classList.add('text-green-400') }
-    else if (status === 'ready') { el.textContent = 'listo'; el.classList.add('text-white/40') }
+    else if (status === 'ready') { el.textContent = 'listo'; el.classList.add('text-white/65') }
     else { el.textContent = 'error ↺'; el.classList.add('text-red-400') }
   }
 
