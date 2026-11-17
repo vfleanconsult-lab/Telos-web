@@ -7,6 +7,7 @@ export default {
         'black-forest': '#243010',
         'dust-grey':    '#D6D5C9',
         'ash-grey':     '#B9BAA3',
+        'ash-deep':     '#5A5D4A',
         'ink':          '#1A1A1A',
       },
       fontFamily: {
