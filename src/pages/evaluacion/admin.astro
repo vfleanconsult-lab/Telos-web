@@ -68,27 +68,27 @@ if (isAuth) {
             <form id="nuevaEval" class="space-y-5">
               <div class="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs font-mono uppercase tracking-wider text-ink/50 mb-1">Empresa evaluada</label>
+                  <label class="block text-xs font-mono uppercase tracking-wider text-ink/60 mb-1">Empresa evaluada</label>
                   <input type="text" name="nombre_empresa" required
                     class="w-full border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest"
                     placeholder="Nombre de la empresa" />
                 </div>
                 <div>
-                  <label class="block text-xs font-mono uppercase tracking-wider text-ink/50 mb-1">RUT empresa</label>
+                  <label class="block text-xs font-mono uppercase tracking-wider text-ink/60 mb-1">RUT empresa</label>
                   <input type="text" name="rut_empresa" required
                     class="w-full border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest"
                     placeholder="76.123.456-7" />
                 </div>
               </div>
               <div class="max-w-xs">
-                <label class="block text-xs font-mono uppercase tracking-wider text-ink/50 mb-1">Fecha de evaluación</label>
+                <label class="block text-xs font-mono uppercase tracking-wider text-ink/60 mb-1">Fecha de evaluación</label>
                 <input type="date" name="fecha_evaluacion" required
                   class="w-full border border-ash-grey rounded px-3 py-2 text-sm focus:outline-none focus:border-black-forest" />
               </div>
 
               <!-- Evaluadores -->
               <div>
-                <label class="block text-xs font-mono uppercase tracking-wider text-ink/50 mb-3">Evaluadores</label>
+                <label class="block text-xs font-mono uppercase tracking-wider text-ink/60 mb-3">Evaluadores</label>
                 <div id="evaluadoresList" class="space-y-3">
                   <div class="evaluador-row grid sm:grid-cols-2 gap-3">
                     <input type="text" placeholder="Nombre" data-field="nombre"
@@ -130,7 +130,7 @@ if (isAuth) {
                     <div class="flex flex-wrap items-start justify-between gap-2 mb-4">
                       <div>
                         <p class="font-semibold text-ink">{ev.nombre_empresa}</p>
-                        <p class="text-xs text-ink/50 font-mono">{ev.rut_empresa} · {ev.fecha_evaluacion}</p>
+                        <p class="text-xs text-ink/60 font-mono">{ev.rut_empresa} · {ev.fecha_evaluacion}</p>
                       </div>
                       <div class="flex gap-3 text-xs">
                         <a href={`/evaluacion/${ev.id}/calibracion`}
@@ -157,7 +157,7 @@ if (isAuth) {
                         >
                           <span class={`w-2 h-2 rounded-full shrink-0 ${e.correo_enviado ? 'bg-green-500' : 'bg-ash-grey'}`}></span>
                           <span class="text-ink flex-1">{e.nombre}</span>
-                          <span class="text-ink/40 text-xs">{e.email}</span>
+                          <span class="text-ink/60 text-xs">{e.email}</span>
                           <a
                             href={`/evaluacion/eval/${e.token}`}
                             target="_blank"
@@ -167,7 +167,7 @@ if (isAuth) {
                           </a>
                           <button
                             type="button"
-                            class="delete-evaluador-btn ml-2 text-ink/30 hover:text-red-500 transition shrink-0"
+                            class="delete-evaluador-btn ml-2 text-ink/60 hover:text-red-500 transition shrink-0"
                             data-id={e.id}
                             data-nombre={e.nombre}
                             title="Eliminar evaluador"
@@ -338,7 +338,7 @@ document.querySelectorAll('.agregar-evaluador-form').forEach(form => {
     row.innerHTML = `
       <span class="w-2 h-2 rounded-full shrink-0 ${ev.correo_enviado ? 'bg-green-500' : 'bg-ash-grey'}"></span>
       <span class="text-ink flex-1">${ev.nombre}</span>
-      <span class="text-ink/40 text-xs">${ev.email}</span>
+      <span class="text-ink/60 text-xs">${ev.email}</span>
       <a
         href="/evaluacion/eval/${ev.token}"
         target="_blank"
@@ -348,7 +348,7 @@ document.querySelectorAll('.agregar-evaluador-form').forEach(form => {
       </a>
       <button
         type="button"
-        class="delete-evaluador-btn ml-2 text-ink/30 hover:text-red-500 transition shrink-0"
+        class="delete-evaluador-btn ml-2 text-ink/60 hover:text-red-500 transition shrink-0"
         data-id="${ev.id}"
         data-nombre="${ev.nombre}"
         title="Eliminar evaluador"

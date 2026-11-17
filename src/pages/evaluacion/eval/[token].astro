@@ -112,7 +112,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
           <span class="font-mono text-xs text-ash-deep shrink-0">{dimIndex + 1}/{RUBRICA.length}</span>
           <div>
             <h2 class="text-xs font-mono uppercase tracking-widest text-ash-deep">{dimActiva.nombre}</h2>
-            <p class="text-xs text-ink/40">{dimActiva.descripcion}</p>
+            <p class="text-xs text-ink/60">{dimActiva.descripcion}</p>
           </div>
         </div>
 
@@ -135,8 +135,8 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
                   <span class="font-mono text-xs text-ash-deep shrink-0 mt-1.5">{practica.codigo}</span>
                   <div class="flex-1 min-w-0">
                     <h3 class="text-xl font-semibold text-ink leading-snug">{practica.nombre}</h3>
-                    <p class="text-sm text-ink/40 mt-1.5 leading-relaxed italic">{practica.objetivo}</p>
-                    <p class="text-sm text-ink/50 mt-1 leading-relaxed">{practica.queObservar}</p>
+                    <p class="text-sm text-ink/60 mt-1.5 leading-relaxed italic">{practica.objetivo}</p>
+                    <p class="text-sm text-ink/60 mt-1 leading-relaxed">{practica.queObservar}</p>
                   </div>
                   {completada && (
                     <span class="shrink-0 w-6 h-6 rounded-full bg-black-forest/10 flex items-center justify-center">
@@ -151,7 +151,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
                 <div class="px-5 pb-5">
                   <!-- Fila superior: label + valor actual -->
                   <div class="flex items-center justify-between mb-3">
-                    <p class="text-xs text-ink/40 font-mono uppercase tracking-wider">Nivel de madurez</p>
+                    <p class="text-xs text-ink/60 font-mono uppercase tracking-wider">Nivel de madurez</p>
                     <div
                       id={`score-display-${practica.codigo}`}
                       class={`flex items-center gap-2 ${completada ? '' : 'hidden'}`}
@@ -173,7 +173,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
                     </div>
                     <span
                       id={`score-empty-${practica.codigo}`}
-                      class={`text-xs text-ink/30 font-mono ${completada ? 'hidden' : ''}`}
+                      class={`text-xs text-ink/60 font-mono ${completada ? 'hidden' : ''}`}
                     >
                       sin evaluar
                     </span>
@@ -193,9 +193,9 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
                   <div class="flex justify-between mt-2 px-0.5 gap-1.5">
                     {LEVEL_LABELS.map((lbl, i) => (
                       <div class="flex flex-col items-center text-center" style="width:20%">
-                        <span class="text-xs font-mono text-ink/40">{i}</span>
-                        <span class="text-xs text-ink/30 leading-tight hidden sm:block">{lbl}</span>
-                        <span class="text-[11px] italic text-ink/40 leading-snug mt-1.5 hidden sm:block">{practica.niveles[i]}</span>
+                        <span class="text-xs font-mono text-ink/60">{i}</span>
+                        <span class="text-xs text-ink/60 leading-tight hidden sm:block">{lbl}</span>
+                        <span class="text-[11px] italic text-ink/60 leading-snug mt-1.5 hidden sm:block">{practica.niveles[i]}</span>
                       </div>
                     ))}
                   </div>
@@ -203,7 +203,7 @@ const siguienteDim = esUltimaDim ? null : RUBRICA[dimIndex + 1]
 
                 <!-- Comentario -->
                 <div class="px-5 pb-5">
-                  <label class="text-xs text-ink/50 block mb-1">Evidencia / Comentario</label>
+                  <label class="text-xs text-ink/60 block mb-1">Evidencia / Comentario</label>
                   <textarea
                     data-practica={practica.codigo}
                     class="comentario-field w-full border border-ash-grey/50 rounded px-3 py-2 text-sm text-ink resize-none focus:outline-none focus:border-black-forest"

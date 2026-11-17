@@ -31,12 +31,12 @@ const pausado = Astro.url.searchParams.get('modo') === 'pausado'
       {pausado ? (
         <>
           <h1 class="text-2xl font-semibold text-ink mb-4">Evaluación guardada</h1>
-          <p class="text-ink/60 leading-relaxed mb-8">
+          <p class="text-ink/70 leading-relaxed mb-8">
             Tu progreso está guardado. Te enviamos un correo con el enlace para que puedas
             retomar la evaluación cuando quieras.
           </p>
           <div class="bg-white rounded border border-ash-grey/30 px-6 py-5 mb-6">
-            <p class="text-ink/50 text-sm leading-relaxed">
+            <p class="text-ink/70 text-sm leading-relaxed">
               Puedes <strong class="text-ink">cerrar esta ventana</strong> con seguridad
               — el enlace en tu correo te llevará exactamente donde lo dejaste.
             </p>
@@ -45,16 +45,16 @@ const pausado = Astro.url.searchParams.get('modo') === 'pausado'
       ) : (
         <>
           <h1 class="text-2xl font-semibold text-ink mb-4">Evaluación completada</h1>
-          <p class="text-ink/60 leading-relaxed mb-8">
+          <p class="text-ink/70 leading-relaxed mb-8">
             Gracias por completar la evaluación. Tus respuestas han sido registradas
             y recibirás un correo con el resumen de tus puntuaciones.
           </p>
           <div class="bg-white rounded border border-ash-grey/30 px-6 py-5 mb-6">
-            <p class="text-ink/50 text-sm leading-relaxed">
+            <p class="text-ink/70 text-sm leading-relaxed">
               Puedes <strong class="text-ink">cerrar esta ventana o pestaña</strong> de tu navegador con seguridad.
             </p>
           </div>
-          <p class="text-sm text-ink/40">
+          <p class="text-sm text-ink/70">
             ¿Olvidaste anotar algo?
             <a href="javascript:history.back()"
               class="text-black-forest underline underline-offset-4 hover:text-black-forest/70 transition">

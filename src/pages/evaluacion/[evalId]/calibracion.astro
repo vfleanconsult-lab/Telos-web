@@ -60,7 +60,7 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
         <div>
           <p class="font-semibold text-ink text-sm">{evaluacion.nombre_empresa} · Calibración</p>
-          <p class="text-xs text-ink/50">{evaluacion.rut_empresa} · {fechaFormateada}</p>
+          <p class="text-xs text-ink/60">{evaluacion.rut_empresa} · {fechaFormateada}</p>
         </div>
         <div class="flex items-center gap-3">
           <p id="calCount" class="text-sm font-mono font-bold text-black-forest">{totalConsensados}/{TOTAL_PRACTICAS}</p>
@@ -68,7 +68,7 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
             <div id="calBar" class="h-2 bg-black-forest rounded-full transition-all duration-300"
               style={`width:${Math.round((totalConsensados / TOTAL_PRACTICAS) * 100)}%`}></div>
           </div>
-          <span id="saveStatus" class="text-xs text-ink/40 font-mono w-16 text-right">listo</span>
+          <span id="saveStatus" class="text-xs text-ink/60 font-mono w-16 text-right">listo</span>
           <a href={`/evaluacion/${evalId}/resultado`}
             class="text-xs bg-black-forest text-white rounded px-3 py-1.5 hover:bg-black-forest/90 transition whitespace-nowrap">
             Ver resultado →
@@ -87,7 +87,7 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
           </div>
 
           <!-- Cabeceras de columnas -->
-          <div class="hidden sm:grid gap-3 px-4 pb-2 text-xs font-mono uppercase tracking-wider text-ink/40"
+          <div class="hidden sm:grid gap-3 px-4 pb-2 text-xs font-mono uppercase tracking-wider text-ink/60"
             style={`grid-template-columns: 2fr ${evaluadores.map(() => '1fr').join(' ')} 0.8fr 2fr 0.6fr`}>
             <span>Práctica</span>
             {evaluadores.map(ev => <span class="text-center">{ev.nombre.split(' ')[0]}</span>)}
@@ -121,15 +121,15 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
                           const cm = getComentario(ev.id, practica.codigo)
                           return (
                             <div>
-                              <span class="text-ink/40 text-xs">{ev.nombre.split(' ')[0]}: </span>
+                              <span class="text-ink/60 text-xs">{ev.nombre.split(' ')[0]}: </span>
                               <span class="font-mono font-bold text-sm">{sc ?? '—'}</span>
-                              {cm && <p class="text-xs text-ink/50 italic mt-0.5">{cm}</p>}
+                              {cm && <p class="text-xs text-ink/60 italic mt-0.5">{cm}</p>}
                             </div>
                           )
                         })}
                       </div>
                       <div>
-                        <p class="text-xs text-ink/50 mb-1.5">Consenso</p>
+                        <p class="text-xs text-ink/60 mb-1.5">Consenso</p>
                         <div class="flex flex-wrap gap-1.5 mb-2">
                           {SCORES.map(score => {
                             const sel = cons?.nota === score
@@ -165,13 +165,13 @@ const fechaFormateada = new Date(evaluacion.fecha_evaluacion).toLocaleDateString
                               {sc ?? '—'}
                             </span>
                             {cm && (
-                              <p class="text-xs text-ink/50 mt-1 text-left leading-snug italic">{cm}</p>
+                              <p class="text-xs text-ink/60 mt-1 text-left leading-snug italic">{cm}</p>
                             )}
                           </div>
                         )
                       })}
                       <div class="text-center">
-                        <span class={`font-mono text-lg font-bold ${altaBrecha ? 'text-red-600' : 'text-ink/40'}`}>
+                        <span class={`font-mono text-lg font-bold ${altaBrecha ? 'text-red-600' : 'text-ink/60'}`}>
                           {br > 0 ? br : '—'}
                         </span>
                       </div>
